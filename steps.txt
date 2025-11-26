@@ -1,0 +1,7 @@
+
+# To start streamlit (version 1 : all in one)
+python streamlit_blender_chat.py
+
+blender_agent.py
+blender_server.py
+api_client.py

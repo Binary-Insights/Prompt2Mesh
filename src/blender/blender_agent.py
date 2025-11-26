@@ -1,30 +1,33 @@
-#!/usr/bin/env python3
 """
-AI-Powered Blender Chat Client
-Uses Claude API to interpret natural language and control Blender via MCP tools
+Blender Chat Agent
+Handles MCP connection and Claude API interactions for Blender control
 """
 import os
-import sys
-import json
 import asyncio
+import base64
+from typing import Dict, List, Any
 from anthropic import Anthropic
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# Initialize Anthropic client
-anthropic = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
 class BlenderChatAgent:
-    def __init__(self):
-        self.conversation_history = []
+    """Agent for managing Blender MCP connection and Claude AI interactions"""
+    
+    def __init__(self, api_key: str = None):
+        self.conversation_history: List[Dict[str, Any]] = []
         self.mcp_session = None
-        self.tools = {}
+        self.tools: Dict[str, Any] = {}
+        self.anthropic = Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
+        self.stdio_context = None
+        self.session_context = None
+        self._cleanup_done = False
         
-    async def initialize_mcp(self):
+    async def initialize_mcp(self) -> int:
         """Initialize MCP connection to Blender"""
         server_params = StdioServerParameters(
             command="python",
@@ -43,17 +46,31 @@ class BlenderChatAgent:
         tools_response = await self.mcp_session.list_tools()
         self.tools = {t.name: t for t in tools_response.tools}
         
-        print(f"✓ Connected to Blender MCP server")
-        print(f"✓ Loaded {len(self.tools)} tools\n")
+        return len(self.tools)
     
     async def cleanup(self):
         """Clean up MCP connection"""
-        if self.session_context:
-            await self.session_context.__aexit__(None, None, None)
-        if self.stdio_context:
-            await self.stdio_context.__aexit__(None, None, None)
+        if self._cleanup_done:
+            return
+        
+        try:
+            if self.session_context:
+                try:
+                    await self.session_context.__aexit__(None, None, None)
+                except Exception:
+                    pass
+            if self.stdio_context:
+                try:
+                    await self.stdio_context.__aexit__(None, None, None)
+                except Exception:
+                    pass
+        finally:
+            self._cleanup_done = True
+            self.mcp_session = None
+            self.session_context = None
+            self.stdio_context = None
     
-    def format_tools_for_claude(self):
+    def format_tools_for_claude(self) -> List[Dict[str, Any]]:
         """Convert MCP tools to Claude's tool format"""
         claude_tools = []
         for tool_name, tool in self.tools.items():
@@ -65,31 +82,45 @@ class BlenderChatAgent:
             claude_tools.append(claude_tool)
         return claude_tools
     
-    async def call_mcp_tool(self, tool_name: str, arguments: dict):
+    async def call_mcp_tool(self, tool_name: str, arguments: dict) -> Dict[str, Any]:
         """Call an MCP tool and return the result"""
         try:
-            print(f"  🔧 Executing: {tool_name}")
-            if arguments:
-                print(f"     Arguments: {json.dumps(arguments, indent=6)}")
-            
             result = await self.mcp_session.call_tool(tool_name, arguments)
             
-            # Extract text from result
+            # Extract text and images from result
             result_text = ""
+            image_data = None
+            
             for content in result.content:
                 if hasattr(content, 'text'):
                     result_text += content.text
+                elif hasattr(content, 'data') and hasattr(content, 'mimeType'):
+                    # Handle image data
+                    if content.mimeType.startswith('image/'):
+                        # Convert binary data to base64
+                        image_data = base64.b64encode(content.data).decode('utf-8')
+                        result_text += f'\n[Image: data:{content.mimeType};base64,{image_data}]'
                 else:
                     result_text += str(content)
             
-            print(f"  ✓ Completed\n")
-            return result_text
+            return {
+                "success": True,
+                "result": result_text,
+                "tool_name": tool_name,
+                "arguments": arguments,
+                "image_data": image_data
+            }
         except Exception as e:
             error_msg = f"Error calling {tool_name}: {str(e)}"
-            print(f"  ✗ {error_msg}\n")
-            return error_msg
+            return {
+                "success": False,
+                "result": error_msg,
+                "tool_name": tool_name,
+                "arguments": arguments
+            }
+
     
-    async def chat(self, user_message: str):
+    async def chat(self, user_message: str) -> Dict[str, Any]:
         """Send a message to Claude and execute any tool calls"""
         # Add user message to history
         self.conversation_history.append({
@@ -115,44 +146,24 @@ Be conversational and helpful. Execute the user's requests step by step."""
         # Prepare tools for Claude
         claude_tools = self.format_tools_for_claude()
         
-        print("🤔 Claude is thinking...\n")
+        responses = []
+        tool_calls = []
         
-        # Call Claude with tool use capability - using streaming for real-time output
-        with anthropic.messages.stream(
+        # Call Claude with tool use capability
+        response = self.anthropic.messages.create(
             model="claude-3-haiku-20240307", 
             max_tokens=4096,
             system=system_prompt,
             tools=claude_tools,
             messages=self.conversation_history
-        ) as stream:
-            # Process streaming response
-            assistant_message = {"role": "assistant", "content": []}
-            current_text = ""
-            
-            for event in stream:
-                if event.type == "content_block_start":
-                    if event.content_block.type == "text":
-                        print("💬 Claude: ", end="", flush=True)
-                
-                elif event.type == "content_block_delta":
-                    if hasattr(event.delta, "text"):
-                        print(event.delta.text, end="", flush=True)
-                        current_text += event.delta.text
-                
-                elif event.type == "content_block_stop":
-                    if current_text:
-                        print("\n")  # New line after text
-                        current_text = ""
-            
-            # Get the final message
-            response = stream.get_final_message()
+        )
         
         # Process response and tool calls
         assistant_message = {"role": "assistant", "content": []}
         
         for content_block in response.content:
             if content_block.type == "text":
-                print(f"💬 Claude: {content_block.text}\n")
+                responses.append(content_block.text)
                 assistant_message["content"].append(content_block)
             
             elif content_block.type == "tool_use":
@@ -161,6 +172,7 @@ Be conversational and helpful. Execute the user's requests step by step."""
                 
                 # Execute the MCP tool
                 tool_result = await self.call_mcp_tool(tool_name, tool_input)
+                tool_calls.append(tool_result)
                 
                 # Add tool use to message
                 assistant_message["content"].append(content_block)
@@ -172,12 +184,12 @@ Be conversational and helpful. Execute the user's requests step by step."""
                     "content": [{
                         "type": "tool_result",
                         "tool_use_id": content_block.id,
-                        "content": tool_result
+                        "content": tool_result["result"]
                     }]
                 })
                 
                 # Get Claude's response after tool execution
-                follow_up = anthropic.messages.create(
+                follow_up = self.anthropic.messages.create(
                     model="claude-3-haiku-20240307",
                     max_tokens=4096,
                     system=system_prompt,
@@ -189,64 +201,22 @@ Be conversational and helpful. Execute the user's requests step by step."""
                 assistant_message = {"role": "assistant", "content": []}
                 for block in follow_up.content:
                     if block.type == "text":
-                        print(f"💬 Claude: {block.text}\n")
+                        responses.append(block.text)
                         assistant_message["content"].append(block)
         
         # Add final assistant message to history
         if assistant_message["content"]:
             self.conversation_history.append(assistant_message)
-
-async def main():
-    """Main interactive loop"""
-    # Check for API key
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("❌ Error: ANTHROPIC_API_KEY environment variable not set")
-        print("\nSet it with:")
-        print('  export ANTHROPIC_API_KEY="your-api-key"  # Linux/Mac')
-        print('  $env:ANTHROPIC_API_KEY="your-api-key"  # PowerShell')
-        sys.exit(1)
-    
-    print("="*70)
-    print("🎨 AI-Powered Blender Chat")
-    print("="*70)
-    print("\nInitializing...")
-    
-    agent = BlenderChatAgent()
-    
-    try:
-        await agent.initialize_mcp()
         
-        print("Ready! Start chatting to build your 3D scene.")
-        print("Examples:")
-        print("  - Create a sphere at the origin")
-        print("  - Add a camera looking at the center")
-        print("  - Make a scene with 3 cubes")
-        print("  - Download a chair model from PolyHaven")
-        print("\nType 'quit' to exit\n")
-        print("="*70 + "\n")
-        
-        while True:
-            try:
-                user_input = input("You: ").strip()
-                
-                if not user_input:
-                    continue
-                
-                if user_input.lower() in ['quit', 'exit', 'q']:
-                    print("\nGoodbye! 👋")
-                    break
-                
-                print()  # Blank line before response
-                await agent.chat(user_input)
-                
-            except KeyboardInterrupt:
-                print("\n\nInterrupted by user")
-                break
-            except EOFError:
-                break
+        return {
+            "responses": responses,
+            "tool_calls": tool_calls
+        }
     
-    finally:
-        await agent.cleanup()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    def get_conversation_history(self) -> List[Dict[str, Any]]:
+        """Get the conversation history"""
+        return self.conversation_history
+    
+    def clear_conversation_history(self):
+        """Clear the conversation history"""
+        self.conversation_history = []
