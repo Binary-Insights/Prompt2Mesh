@@ -85,6 +85,9 @@ class BlenderChatAgent:
     async def call_mcp_tool(self, tool_name: str, arguments: dict) -> Dict[str, Any]:
         """Call an MCP tool and return the result"""
         try:
+            print(f"🔧 Calling tool: {tool_name}")
+            print(f"   Arguments: {arguments}")
+            
             result = await self.mcp_session.call_tool(tool_name, arguments)
             
             # Extract text and images from result
@@ -97,11 +100,20 @@ class BlenderChatAgent:
                 elif hasattr(content, 'data') and hasattr(content, 'mimeType'):
                     # Handle image data
                     if content.mimeType.startswith('image/'):
-                        # Convert binary data to base64
-                        image_data = base64.b64encode(content.data).decode('utf-8')
+                        # Check if data is already bytes or a string
+                        if isinstance(content.data, bytes):
+                            # Convert binary data to base64
+                            image_data = base64.b64encode(content.data).decode('utf-8')
+                        else:
+                            # Already base64 string
+                            image_data = content.data
                         result_text += f'\n[Image: data:{content.mimeType};base64,{image_data}]'
                 else:
                     result_text += str(content)
+            
+            print(f"✅ Tool completed: {tool_name}")
+            if image_data:
+                print(f"   Captured image: {len(image_data)} bytes")
             
             return {
                 "success": True,
@@ -112,6 +124,7 @@ class BlenderChatAgent:
             }
         except Exception as e:
             error_msg = f"Error calling {tool_name}: {str(e)}"
+            print(f"❌ Tool failed: {tool_name} - {str(e)}")
             return {
                 "success": False,
                 "result": error_msg,
@@ -127,6 +140,8 @@ class BlenderChatAgent:
             "role": "user",
             "content": user_message
         })
+        
+        print(f"\n💬 Sending message to Claude...")
         
         # System prompt
         system_prompt = """You are an AI assistant that helps users create 3D scenes in Blender.
@@ -150,25 +165,32 @@ Be conversational and helpful. Execute the user's requests step by step."""
         tool_calls = []
         
         # Call Claude with tool use capability
+        print(f"🤖 Waiting for Claude's response...")
         response = self.anthropic.messages.create(
-            model="claude-3-haiku-20240307", 
+            # model="claude-3-haiku-20240307", 
+            model="claude-sonnet-4-5-20250929",
             max_tokens=4096,
             system=system_prompt,
             tools=claude_tools,
             messages=self.conversation_history
         )
         
+        print(f"📨 Received response from Claude")
+        
         # Process response and tool calls
         assistant_message = {"role": "assistant", "content": []}
         
         for content_block in response.content:
             if content_block.type == "text":
+                print(f"💭 Claude says: {content_block.text[:100]}...")
                 responses.append(content_block.text)
                 assistant_message["content"].append(content_block)
             
             elif content_block.type == "tool_use":
                 tool_name = content_block.name
                 tool_input = content_block.input
+                
+                print(f"\n🔨 Claude wants to use tool: {tool_name}")
                 
                 # Execute the MCP tool
                 tool_result = await self.call_mcp_tool(tool_name, tool_input)
@@ -177,25 +199,35 @@ Be conversational and helpful. Execute the user's requests step by step."""
                 # Add tool use to message
                 assistant_message["content"].append(content_block)
                 
-                # Create tool result message
+                # Create tool result message for Claude
+                # If result contains image data, send a summary instead of full base64
+                result_for_claude = tool_result["result"]
+                if tool_result.get("image_data"):
+                    # Replace the embedded base64 with a placeholder
+                    result_for_claude = f"Screenshot captured successfully. Image size: {len(tool_result['image_data'])} bytes (base64 encoded)"
+                
                 self.conversation_history.append(assistant_message)
                 self.conversation_history.append({
                     "role": "user",
                     "content": [{
                         "type": "tool_result",
                         "tool_use_id": content_block.id,
-                        "content": tool_result["result"]
+                        "content": result_for_claude
                     }]
                 })
                 
                 # Get Claude's response after tool execution
+                print(f"🤖 Getting Claude's follow-up response...")
                 follow_up = self.anthropic.messages.create(
-                    model="claude-3-haiku-20240307",
+                    # model="claude-3-haiku-20240307",
+                    model="claude-sonnet-4-5-20250929",
                     max_tokens=4096,
                     system=system_prompt,
                     tools=claude_tools,
                     messages=self.conversation_history
                 )
+                
+                print(f"📨 Received follow-up response from Claude")
                 
                 # Process follow-up response
                 assistant_message = {"role": "assistant", "content": []}
