@@ -19,12 +19,14 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 from src.blender.blender_agent import BlenderChatAgent
+from src.refinement_agent import PromptRefinementAgent
 
 # Load environment variables
 load_dotenv()
 
-# Global agent instance
+# Global agent instances
 agent: BlenderChatAgent = None
+refinement_agent: PromptRefinementAgent = None
 
 
 class ChatRequest(BaseModel):
@@ -45,11 +47,34 @@ class ConnectionStatus(BaseModel):
     error: str = None
 
 
+class RefinePromptRequest(BaseModel):
+    """Request model for prompt refinement endpoint"""
+    prompt: str
+    thread_id: str = "default"
+
+
+class RefinePromptResponse(BaseModel):
+    """Response model for prompt refinement endpoint"""
+    refined_prompt: str
+    reasoning_steps: List[str]
+    is_detailed: bool
+    original_prompt: str
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup and shutdown"""
     # Startup
+    global refinement_agent
+    try:
+        refinement_agent = PromptRefinementAgent()
+        print("✅ Prompt Refinement Agent initialized")
+    except Exception as e:
+        print(f"⚠️ Failed to initialize Refinement Agent: {e}")
+        refinement_agent = None
+    
     yield
+    
     # Shutdown
     global agent
     if agent:
@@ -89,8 +114,10 @@ async def root():
             "chat": "/chat",
             "status": "/status",
             "history": "/history",
-            "clear_history": "/clear-history"
-        }
+            "clear_history": "/clear-history",
+            "refine_prompt": "/refine-prompt"
+        },
+        "refinement_agent_available": refinement_agent is not None
     }
 
 
@@ -184,6 +211,7 @@ async def chat(request: ChatRequest):
         )
     
     try:
+        print(f"\n=== User Message ===\n{request.message}\n==================\n")
         result = await agent.chat(request.message)
         
         return ChatResponse(
@@ -192,9 +220,12 @@ async def chat(request: ChatRequest):
         )
     
     except Exception as e:
+        import traceback
+        error_detail = f"Error during chat: {str(e)}\n{traceback.format_exc()}"
+        print(error_detail)  # Log to console
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error during chat: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -228,6 +259,44 @@ async def clear_history():
     agent.clear_conversation_history()
     
     return {"status": "cleared"}
+
+
+@app.post("/refine-prompt", response_model=RefinePromptResponse)
+async def refine_prompt(request: RefinePromptRequest):
+    """Refine a user prompt into a comprehensive 3D modeling description"""
+    global refinement_agent
+    
+    if not refinement_agent:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Prompt refinement agent not available"
+        )
+    
+    try:
+        print(f"\n🧠 Refining prompt: {request.prompt[:100]}...")
+        
+        result = refinement_agent.refine_prompt(
+            user_prompt=request.prompt,
+            thread_id=request.thread_id
+        )
+        
+        print(f"✅ Refinement complete: {len(result['refined_prompt'])} characters")
+        
+        return RefinePromptResponse(
+            refined_prompt=result["refined_prompt"],
+            reasoning_steps=result["reasoning_steps"],
+            is_detailed=result["is_detailed"],
+            original_prompt=result["original_prompt"]
+        )
+    
+    except Exception as e:
+        import traceback
+        error_detail = f"Error during prompt refinement: {str(e)}\n{traceback.format_exc()}"
+        print(error_detail)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 
 if __name__ == "__main__":

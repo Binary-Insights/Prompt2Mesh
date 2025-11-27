@@ -361,57 +361,160 @@ class BlenderMCPServer:
 
     def get_viewport_screenshot(self, max_size=800, filepath=None, format="png"):
         """
-        Capture a screenshot of the current 3D viewport and save it to the specified path.
+        Capture a screenshot of the current 3D viewport.
+        Returns image data as base64 for cross-platform compatibility.
 
         Parameters:
         - max_size: Maximum size in pixels for the largest dimension of the image
-        - filepath: Path where to save the screenshot file
+        - filepath: Path where to save the screenshot file (optional, mainly ignored)
         - format: Image format (png, jpg, etc.)
 
-        Returns success/error status
+        Returns success/error status with base64 image_data
         """
+        import tempfile
+        import base64
+        
         try:
-            if not filepath:
-                return {"error": "No filepath provided"}
+            # Create a temp file in Blender's temp directory (Windows-compatible)
+            temp_dir = tempfile.gettempdir()
+            temp_filepath = os.path.join(temp_dir, f"blender_viewport_{id(self)}.png")
 
-            # Find the active 3D viewport
-            area = None
-            for a in bpy.context.screen.areas:
-                if a.type == 'VIEW_3D':
-                    area = a
-                    break
+            # Method 1: Try using OpenGL viewport render (more reliable)
+            try:
+                # Get the 3D viewport
+                area = None
+                region = None
+                space = None
+                
+                for a in bpy.context.screen.areas:
+                    if a.type == 'VIEW_3D':
+                        area = a
+                        for s in a.spaces:
+                            if s.type == 'VIEW_3D':
+                                space = s
+                        for r in a.regions:
+                            if r.type == 'WINDOW':
+                                region = r
+                        break
 
-            if not area:
-                return {"error": "No 3D viewport found"}
+                if not area or not region or not space:
+                    raise Exception("No 3D viewport found")
 
-            # Take screenshot with proper context override
-            with bpy.context.temp_override(area=area):
-                bpy.ops.screen.screenshot_area(filepath=filepath)
+                # Store original render settings
+                scene = bpy.context.scene
+                original_res_x = scene.render.resolution_x
+                original_res_y = scene.render.resolution_y
+                original_file_format = scene.render.image_settings.file_format
+                original_filepath = scene.render.filepath
 
-            # Load and resize if needed
-            img = bpy.data.images.load(filepath)
-            width, height = img.size
+                # Set render resolution based on viewport or max_size
+                width = region.width
+                height = region.height
+                
+                if max(width, height) > max_size:
+                    scale = max_size / max(width, height)
+                    width = int(width * scale)
+                    height = int(height * scale)
 
-            if max(width, height) > max_size:
-                scale = max_size / max(width, height)
-                new_width = int(width * scale)
-                new_height = int(height * scale)
-                img.scale(new_width, new_height)
+                scene.render.resolution_x = width
+                scene.render.resolution_y = height
+                scene.render.resolution_percentage = 100
+                scene.render.image_settings.file_format = 'PNG'
+                scene.render.filepath = temp_filepath
 
-                # Set format and save
-                img.file_format = format.upper()
-                img.save()
-                width, height = new_width, new_height
+                # Render viewport
+                with bpy.context.temp_override(area=area, region=region, space=space):
+                    bpy.ops.render.opengl(write_still=True)
 
-            # Cleanup Blender image data
-            bpy.data.images.remove(img)
+                # Restore original settings
+                scene.render.resolution_x = original_res_x
+                scene.render.resolution_y = original_res_y
+                scene.render.image_settings.file_format = original_file_format
+                scene.render.filepath = original_filepath
 
-            return {
-                "success": True,
-                "width": width,
-                "height": height,
-                "filepath": filepath
-            }
+                # Verify file was created
+                if not os.path.exists(temp_filepath):
+                    raise Exception("Screenshot file was not created after OpenGL render")
+
+                # Read and encode image data
+                with open(temp_filepath, 'rb') as f:
+                    image_bytes = f.read()
+                image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+                
+                # Clean up temp file
+                try:
+                    os.remove(temp_filepath)
+                except:
+                    pass
+
+                return {
+                    "success": True,
+                    "width": width,
+                    "height": height,
+                    "image_data": image_base64,
+                    "format": "png"
+                }
+
+            except Exception as e1:
+                # Method 2: Fallback to screenshot_area if available
+                try:
+                    area = None
+                    for a in bpy.context.screen.areas:
+                        if a.type == 'VIEW_3D':
+                            area = a
+                            break
+
+                    if not area:
+                        raise Exception("No 3D viewport found")
+
+                    # Take screenshot with proper context override
+                    with bpy.context.temp_override(area=area):
+                        bpy.ops.screen.screenshot_area(filepath=temp_filepath)
+
+                    # Verify file was created
+                    if not os.path.exists(temp_filepath):
+                        raise Exception("Screenshot file was not created")
+
+                    # Load and resize if needed
+                    img = bpy.data.images.load(temp_filepath)
+                    width, height = img.size
+
+                    if max(width, height) > max_size:
+                        scale = max_size / max(width, height)
+                        new_width = int(width * scale)
+                        new_height = int(height * scale)
+                        img.scale(new_width, new_height)
+
+                        # Save resized image
+                        img.file_format = 'PNG'
+                        img.filepath_raw = temp_filepath
+                        img.save()
+                        width, height = new_width, new_height
+
+                    # Cleanup Blender image data
+                    bpy.data.images.remove(img)
+                    
+                    # Read and encode image data
+                    with open(temp_filepath, 'rb') as f:
+                        image_bytes = f.read()
+                    image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+                    
+                    # Clean up temp file
+                    try:
+                        os.remove(temp_filepath)
+                    except:
+                        pass
+
+                    return {
+                        "success": True,
+                        "width": width,
+                        "height": height,
+                        "image_data": image_base64,
+                        "format": "png"
+                    }
+                
+                except Exception as e2:
+                    return {"error": f"Both methods failed - OpenGL: {str(e1)}, Screenshot: {str(e2)}"}
 
         except Exception as e:
             return {"error": str(e)}

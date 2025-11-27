@@ -5,3 +5,10 @@ python streamlit_blender_chat.py
 blender_agent.py
 blender_server.py
 api_client.py
+
+
+# To check prompt refinement agent (to see how it works)
+python prompt_refinement_agent.py
+
+# Frontend for prompt refinement
+streamlit run src/frontend/streamlit_blender_chat_with_refinement.py

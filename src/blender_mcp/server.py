@@ -285,28 +285,25 @@ def get_viewport_screenshot(ctx: Context, max_size: int = 800) -> Image:
     try:
         blender = get_blender_connection()
         
-        # Create temp file path
-        temp_dir = tempfile.gettempdir()
-        temp_path = os.path.join(temp_dir, f"blender_screenshot_{os.getpid()}.png")
-        
+        # Send command to Blender (filepath is optional now, Blender returns base64)
         result = blender.send_command("get_viewport_screenshot", {
             "max_size": max_size,
-            "filepath": temp_path,
             "format": "png"
         })
         
         if "error" in result:
             raise Exception(result["error"])
         
-        if not os.path.exists(temp_path):
-            raise Exception("Screenshot file was not created")
+        # Get base64 image data from result
+        if "image_data" not in result:
+            raise Exception("No image data returned from Blender")
         
-        # Read the file
-        with open(temp_path, 'rb') as f:
-            image_bytes = f.read()
-        
-        # Delete the temp file
-        os.remove(temp_path)
+        # Decode base64 to bytes
+        # result["image_data"] is a base64 string, convert to bytes first if needed
+        image_data = result["image_data"]
+        if isinstance(image_data, str):
+            image_data = image_data.encode('utf-8')
+        image_bytes = base64.b64decode(image_data)
         
         return Image(data=image_bytes, format="png")
         
