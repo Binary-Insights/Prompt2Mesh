@@ -5,7 +5,10 @@ Expands simple prompts into comprehensive 3D modeling descriptions
 """
 
 import os
+import json
 from typing import TypedDict, Annotated, Sequence
+from datetime import datetime
+from pathlib import Path
 from dotenv import load_dotenv
 
 from langchain_anthropic import ChatAnthropic
@@ -350,12 +353,88 @@ class PromptRefinementAgent:
         print(f"✅ Refinement Complete")
         print(f"{'='*60}\n")
         
-        return {
+        result = {
             "refined_prompt": final_state["refined_prompt"],
             "reasoning_steps": final_state["reasoning_steps"],
             "is_detailed": final_state["is_detailed"],
             "original_prompt": user_prompt
         }
+        
+        # Save the refined prompt to file
+        self._save_refined_prompt(result)
+        
+        return result
+    
+    def _save_refined_prompt(self, result: dict) -> None:
+        """Save the refined prompt to both JSON and text formats in separate directories"""
+        try:
+            # Create directories
+            json_dir = Path("data/prompts/json")
+            text_dir = Path("data/prompts/text")
+            json_dir.mkdir(parents=True, exist_ok=True)
+            text_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Generate filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # Create safe filename from original prompt (first 50 chars, replace invalid chars)
+            safe_prompt = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' 
+                                  for c in result["original_prompt"][:50])
+            safe_prompt = safe_prompt.strip().replace(' ', '_')
+            base_filename = f"{timestamp}_{safe_prompt[:min(20, len(safe_prompt))]}"
+            
+            # Save as JSON
+            json_filepath = json_dir / f"{base_filename}.json"
+            json_data = {
+                "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "thread_id": result.get('thread_id', 'default'),
+                "original_prompt": result["original_prompt"],
+                "refined_prompt": result["refined_prompt"],
+                "reasoning_steps": result["reasoning_steps"],
+                "is_detailed": result["is_detailed"],
+                "output_length": len(result["refined_prompt"])
+            }
+            
+            with open(json_filepath, 'w', encoding='utf-8') as f:
+                json.dump(json_data, f, indent=2, ensure_ascii=False)
+            
+            print(f"💾 Saved JSON to: {json_filepath}")
+            
+            # Save as Text
+            text_filepath = text_dir / f"{base_filename}.txt"
+            with open(text_filepath, 'w', encoding='utf-8') as f:
+                f.write("="*80 + "\n")
+                f.write("PROMPT REFINEMENT OUTPUT\n")
+                f.write("="*80 + "\n\n")
+                
+                f.write(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"Thread ID: {result.get('thread_id', 'default')}\n\n")
+                
+                f.write("-"*80 + "\n")
+                f.write("ORIGINAL PROMPT\n")
+                f.write("-"*80 + "\n")
+                f.write(result["original_prompt"] + "\n\n")
+                
+                f.write("-"*80 + "\n")
+                f.write("REFINED PROMPT\n")
+                f.write("-"*80 + "\n")
+                f.write(result["refined_prompt"] + "\n\n")
+                
+                f.write("-"*80 + "\n")
+                f.write("REASONING STEPS\n")
+                f.write("-"*80 + "\n")
+                for i, step in enumerate(result["reasoning_steps"], 1):
+                    f.write(f"{i}. {step}\n\n")
+                
+                f.write("-"*80 + "\n")
+                f.write(f"Was Original Detailed: {result['is_detailed']}\n")
+                f.write(f"Output Length: {len(result['refined_prompt'])} characters\n")
+                f.write("="*80 + "\n")
+            
+            print(f"💾 Saved text to: {text_filepath}")
+            
+        except Exception as e:
+            print(f"⚠️ Failed to save refined prompt: {e}")
+            # Don't raise - saving is optional, shouldn't break the main flow
     
     async def arefine_prompt(self, user_prompt: str, thread_id: str = "default") -> dict:
         """Async version of refine_prompt"""
@@ -369,25 +448,25 @@ def main():
     agent = PromptRefinementAgent()
     
     # Example 1: Simple prompt
-    print("\n" + "="*80)
-    print("EXAMPLE 1: Simple Christmas Tree Request")
-    print("="*80)
+    # print("\n" + "="*80)
+    # print("EXAMPLE 1: Simple Christmas Tree Request")
+    # print("="*80)
     
-    result1 = agent.refine_prompt("Could you model a christmas tree")
+    # result1 = agent.refine_prompt("Could you model a christmas tree")
     
-    print("\n📤 FINAL OUTPUT:")
-    print("-" * 80)
-    print(result1["refined_prompt"])
-    print("-" * 80)
+    # print("\n📤 FINAL OUTPUT:")
+    # print("-" * 80)
+    # print(result1["refined_prompt"])
+    # print("-" * 80)
     
-    print("\n🧠 REASONING STEPS:")
-    for i, step in enumerate(result1["reasoning_steps"], 1):
-        print(f"{i}. {step}")
+    # print("\n🧠 REASONING STEPS:")
+    # for i, step in enumerate(result1["reasoning_steps"], 1):
+    #     print(f"{i}. {step}")
     
-    # Example 2: Already detailed prompt
-    print("\n" + "="*80)
-    print("EXAMPLE 2: Detailed Request")
-    print("="*80)
+    # # Example 2: Already detailed prompt
+    # print("\n" + "="*80)
+    # print("EXAMPLE 2: Detailed Request")
+    # print("="*80)
     
     # detailed_prompt = """Create a realistic wooden dining chair with the following specifications:
     # - Seat height: 18 inches from ground
