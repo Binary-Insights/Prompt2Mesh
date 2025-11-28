@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: prompt2mesh-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: prompt2mesh_auth
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - prompt2mesh-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Blender with Prompt2Mesh Backend
+  blender-backend:
+    build:
+      context: ..
+      dockerfile: docker/dockerfile
+    container_name: prompt2mesh-blender-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # LinuxServer.io Blender settings
+      PUID: 1000
+      PGID: 1000
+      TZ: America/New_York
+      
+      # Prompt2Mesh settings
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      JWT_EXPIRY_HOURS: 24
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/prompt2mesh_auth
+      PYTHONUNBUFFERED: 1
+    volumes:
+      # Blender config and projects
+      - blender_config:/config
+      - ./blender_projects:/blender_projects
+      
+      # Prompt2Mesh application data
+      - ../src:/app/src
+      - ../requirements:/app/requirements
+      - ../screenshots:/app/screenshots
+      - ../logs:/app/logs
+    ports:
+      # Blender Web UI (KasmVNC)
+      - "3000:3000"
+      # Blender VNC (optional)
+      - "3001:3001"
+      # Backend API
+      - "8000:8000"
+    networks:
+      - prompt2mesh-network
+    command: python3 src/backend/backend_server.py
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Streamlit Frontend
+  streamlit:
+    build:
+      context: ..
+      dockerfile: docker/dockerfile
+    container_name: prompt2mesh-streamlit
+    restart: unless-stopped
+    depends_on:
+      - blender-backend
+      - postgres
+    environment:
+      PYTHONUNBUFFERED: 1
+      BACKEND_URL: http://blender-backend:8000
+    volumes:
+      - ../src:/app/src
+    ports:
+      - "8501:8501"
+    networks:
+      - prompt2mesh-network
+    command: streamlit run src/frontend/login_page.py --server.port=8501 --server.address=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # Database Initializer (runs once)
+  db-init:
+    build:
+      context: ..
+      dockerfile: docker/dockerfile
+    container_name: prompt2mesh-db-init
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/prompt2mesh_auth
+    volumes:
+      - ../src:/app/src
+      - ../init_db.py:/app/init_db.py
+    networks:
+      - prompt2mesh-network
+    command: python3 init_db.py
+    restart: "no"
+
+volumes:
+  postgres_data:
+    driver: local
+  blender_config:
+    driver: local
+
+networks:
+  prompt2mesh-network:
+    driver: bridge

@@ -1,0 +1,93 @@
+# Multi-stage Dockerfile for Prompt2Mesh with Blender
+# Stage 1: Build Python dependencies
+FROM python:3.11-slim as builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY pyproject.toml .
+COPY README.md .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir -e .
+
+# Stage 2: Runtime image with Blender
+FROM linuxserver/blender:latest
+
+# Set environment variables
+ENV PUID=1000 \
+    PGID=1000 \
+    TZ=America/New_York \
+    PYTHONUNBUFFERED=1 \
+    ANTHROPIC_API_KEY="" \
+    JWT_SECRET_KEY="" \
+    DATABASE_URL="postgresql://postgres:postgres@postgres:5432/prompt2mesh_auth"
+
+# Install Python and PostgreSQL client
+USER root
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3-pip \
+    python3.11-dev \
+    libpq-dev \
+    postgresql-client \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create application directory
+WORKDIR /app
+
+# Copy application code
+COPY --from=builder /app /app
+COPY src/ /app/src/
+COPY init_db.py /app/
+COPY .env.example /app/.env.example
+
+# Copy Python dependencies from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
+# Install application dependencies
+RUN pip3 install --no-cache-dir \
+    anthropic>=0.75.0 \
+    fastapi>=0.122.0 \
+    uvicorn>=0.27.0 \
+    python-dotenv>=1.2.1 \
+    streamlit>=1.51.0 \
+    sqlalchemy>=2.0.0 \
+    psycopg2-binary>=2.9.9 \
+    pyjwt>=2.9.0 \
+    bcrypt>=4.2.0 \
+    requests>=2.32.0 \
+    langchain>=1.1.0 \
+    langchain-anthropic>=1.2.0 \
+    langchain-core>=1.1.0 \
+    langgraph>=1.0.4
+
+# Create necessary directories
+RUN mkdir -p /app/requirements /app/screenshots /app/logs
+
+# Set permissions
+RUN chown -R abc:abc /app
+
+# Expose ports
+# 3000 - Blender Web UI
+# 8000 - Backend API
+# 8501 - Streamlit Frontend
+EXPOSE 3000 8000 8501
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/ || exit 1
+
+# Switch to non-root user
+USER abc
+
+# Default command (can be overridden in docker-compose)
+CMD ["python3", "src/backend/backend_server.py"]
