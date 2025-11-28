@@ -12,3 +12,7 @@ python prompt_refinement_agent.py
 
 # Frontend for prompt refinement
 streamlit run src/frontend/streamlit_blender_chat_with_refinement.py
+
+
+# Artisan agent (Initial Tests)
+python src/artisan_agent/run_artisan.py --input-file data/prompts/json/20251127_135557_Could_you_model_a_ch.json --verbose

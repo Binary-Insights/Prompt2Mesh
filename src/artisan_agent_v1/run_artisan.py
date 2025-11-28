@@ -49,20 +49,6 @@ Examples:
         help='Enable verbose output'
     )
     
-    parser.add_argument(
-        '--resume', '-r',
-        action='store_true',
-        default=True,
-        help='Enable session resume (default: True). Use --no-resume to disable'
-    )
-    
-    parser.add_argument(
-        '--no-resume',
-        action='store_false',
-        dest='resume',
-        help='Disable session resume - always start fresh'
-    )
-    
     return parser.parse_args()
 
 
@@ -143,7 +129,6 @@ async def main():
     logger.info("="*80)
     logger.info(f"Input File: {input_path}")
     logger.info(f"Session ID: {session_id}")
-    logger.info(f"Resume Mode: {args.resume}")
     logger.info(f"Log File: {log_file}")
     logger.info("-"*80)
     
@@ -152,7 +137,6 @@ async def main():
     print("=" * 80)
     print(f"\n📄 Input File: {input_path}")
     print(f"🔑 Session ID: {session_id}")
-    print(f"🔄 Resume Mode: {'Enabled' if args.resume else 'Disabled (fresh start)'}")
     print(f"📝 Log File: {log_file}")
     print("\n" + "-" * 80 + "\n")
     
@@ -172,7 +156,7 @@ async def main():
         
         # Run modeling task
         logger.info(f"Starting modeling task from: {input_path}")
-        results = await agent.run(str(input_path), use_deterministic_session=args.resume)
+        results = await agent.run(str(input_path))
         logger.info("Modeling task completed")
         
         # Display results
