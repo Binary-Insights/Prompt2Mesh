@@ -40,6 +40,7 @@ class AgentState(TypedDict):
     refined_prompt: str
     is_detailed: bool
     iteration_count: int
+    detail_level: str
 
 
 class PromptRefinementAgent:
@@ -182,11 +183,36 @@ class PromptRefinementAgent:
     
     @traceable(name="generate_details")
     def _generate_details_node(self, state: AgentState) -> AgentState:
-        """Generate comprehensive details for the 3D model"""
-        print("\n🎨 Generating comprehensive details...")
+        """Generate details for the 3D model based on selected detail level"""
+        detail_level = state.get("detail_level", "comprehensive")
         
-        detail_prompt = ChatPromptTemplate.from_messages([
-            ("system", """You are a 3D modeling expert who creates exhaustive, detailed descriptions 
+        # Define system prompts for different detail levels
+        if detail_level == "concise":
+            print("\n🎨 Generating concise details...")
+            system_msg = """You are a 3D modeling expert. Create a CONCISE description for modeling in Blender.
+            
+            Include only:
+            1. **Basic Structure**: Overall shape and approximate dimensions
+            2. **Key Features**: Main components and their arrangement
+            3. **Materials**: Primary material types and colors
+            
+            Keep it brief (300-500 words). Focus on essential information only."""
+        
+        elif detail_level == "moderate":
+            print("\n🎨 Generating moderate details...")
+            system_msg = """You are a 3D modeling expert. Create a BALANCED description for modeling in Blender.
+            
+            Include:
+            1. **Structure and Shape**: Dimensions and basic form
+            2. **Components**: Main parts and how they connect
+            3. **Materials and Textures**: Material types, colors, basic texture info
+            4. **Key Details**: Important features and specifications
+            
+            Target length: 500-1000 words. Balance detail with readability."""
+        
+        else:  # comprehensive
+            print("\n🎨 Generating comprehensive details...")
+            system_msg = """You are a 3D modeling expert who creates exhaustive, detailed descriptions 
             for modeling objects in Blender. Your descriptions should be so comprehensive that a 3D artist 
             could create an accurate model without any additional reference.
             
@@ -236,8 +262,11 @@ class PromptRefinementAgent:
             Use specific measurements, technical terminology, and vivid descriptions. Think like you're 
             writing technical documentation for a 3D modeling project.
             
-            Format your response with clear section headers using markdown (##)."""),
-            ("human", """Create a comprehensive 3D modeling description for: {user_prompt}
+            Format your response with clear section headers using markdown (##)."""
+        
+        detail_prompt = ChatPromptTemplate.from_messages([
+            ("system", system_msg),
+            ("human", """Create a 3D modeling description for: {user_prompt}
             
             Previous analysis: {analysis}""")
         ])
@@ -316,13 +345,14 @@ class PromptRefinementAgent:
         return state
     
     @traceable(name="prompt_refinement_agent", run_type="chain")
-    def refine_prompt(self, user_prompt: str, thread_id: str = "default") -> dict:
+    def refine_prompt(self, user_prompt: str, thread_id: str = "default", detail_level: str = "comprehensive") -> dict:
         """
-        Refine a user's prompt into a comprehensive 3D modeling description.
+        Refine a user's prompt into a 3D modeling description.
         
         Args:
             user_prompt: The user's input describing what they want to model
             thread_id: Unique identifier for the conversation thread
+            detail_level: Level of detail (concise, moderate, comprehensive)
             
         Returns:
             Dictionary containing:
@@ -342,7 +372,8 @@ class PromptRefinementAgent:
             "reasoning_steps": [],
             "refined_prompt": "",
             "is_detailed": False,
-            "iteration_count": 0
+            "iteration_count": 0,
+            "detail_level": detail_level
         }
         
         # Run the graph
@@ -436,11 +467,11 @@ class PromptRefinementAgent:
             print(f"⚠️ Failed to save refined prompt: {e}")
             # Don't raise - saving is optional, shouldn't break the main flow
     
-    async def arefine_prompt(self, user_prompt: str, thread_id: str = "default") -> dict:
+    async def arefine_prompt(self, user_prompt: str, thread_id: str = "default", detail_level: str = "comprehensive") -> dict:
         """Async version of refine_prompt"""
         # For now, call the sync version
         # TODO: Implement fully async version if needed
-        return self.refine_prompt(user_prompt, thread_id)
+        return self.refine_prompt(user_prompt, thread_id, detail_level)
 
 
 def main():

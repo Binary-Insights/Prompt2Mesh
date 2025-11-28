@@ -91,7 +91,21 @@ def main():
         )
         
         if use_refinement:
-            st.info("💡 Simple prompts will be automatically expanded with comprehensive details")
+            detail_level = st.selectbox(
+                "Detail Level",
+                options=["concise", "moderate", "comprehensive"],
+                index=2,  # Default to comprehensive
+                help="Control how detailed the AI expansion should be"
+            )
+            
+            level_info = {
+                "concise": "💡 Basic structure, key features, and materials (300-500 words)",
+                "moderate": "💡 Balanced detail with structure, components, materials, and key specs (500-1000 words)",
+                "comprehensive": "💡 Exhaustive detail with all specifications, measurements, and rendering info (1000+ words)"
+            }
+            st.info(level_info[detail_level])
+        else:
+            detail_level = "comprehensive"  # Default when refinement is off
         
         st.divider()
         
@@ -168,7 +182,8 @@ def main():
                     # Call backend API for prompt refinement
                     refinement_result = st.session_state.client.refine_prompt(
                         prompt=prompt,
-                        thread_id=st.session_state.client._session_id
+                        thread_id=st.session_state.client._session_id,
+                        detail_level=detail_level
                     )
                     
                     refined_prompt = refinement_result["refined_prompt"]
