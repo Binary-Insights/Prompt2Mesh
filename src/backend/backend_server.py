@@ -51,6 +51,7 @@ class RefinePromptRequest(BaseModel):
     """Request model for prompt refinement endpoint"""
     prompt: str
     thread_id: str = "default"
+    detail_level: str = "comprehensive"  # Options: concise, moderate, comprehensive
 
 
 class RefinePromptResponse(BaseModel):
@@ -211,7 +212,7 @@ async def chat(request: ChatRequest):
         )
     
     try:
-        print(f"\n=== User Message ===\n{request.message}\n==================\n")
+        # print(f"\n=== User Message ===\n{request.message}\n==================\n")
         result = await agent.chat(request.message)
         
         return ChatResponse(
@@ -277,7 +278,8 @@ async def refine_prompt(request: RefinePromptRequest):
         
         result = refinement_agent.refine_prompt(
             user_prompt=request.prompt,
-            thread_id=request.thread_id
+            thread_id=request.thread_id,
+            detail_level=request.detail_level
         )
         
         print(f"✅ Refinement complete: {len(result['refined_prompt'])} characters")

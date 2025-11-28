@@ -73,3 +73,55 @@ See `SETUP_GUIDE.md` for configuration instructions.
 - Use an MCP client for production use
 
 See `SETUP_GUIDE.md` for more details.
+
+## 🤖 AI Agents
+
+This project includes advanced AI agents for autonomous 3D modeling:
+
+### Artisan Agent - Autonomous 3D Modeling
+
+An intelligent agent that reads requirements and autonomously builds 3D models in Blender.
+
+**Features:**
+- 📖 Reads detailed requirements from JSON files
+- 🧠 Plans sequential modeling steps using Claude Sonnet 4.5
+- 🔧 Executes Blender MCP tools automatically
+- 📸 Captures viewport screenshots for visual feedback
+- 🔄 Iterates until modeling is complete
+- 📊 Full LangSmith tracing for debugging
+
+**Quick Start:**
+
+```bash
+# Command line
+python src/artisan_agent/run_artisan.py --input-file data/prompts/json/your_requirement.json
+
+# Web interface
+streamlit run src/artisan_agent/streamlit_artisan.py
+```
+
+See [Artisan Agent README](src/artisan_agent/README.md) for detailed documentation.
+
+### Prompt Refinement Agent
+
+Expands simple user prompts into detailed 3D modeling specifications.
+
+**Features:**
+- Analyzes user intent
+- Generates comprehensive technical specifications
+- Includes dimensions, materials, textures, and rendering details
+- Multiple detail levels (concise/moderate/comprehensive)
+- Saves requirements as JSON for Artisan Agent
+
+**Usage:**
+
+```bash
+# Backend API
+uvicorn src.backend.backend_server:app --reload
+
+# Frontend
+streamlit run src/frontend/streamlit_blender_chat_with_refinement.py
+```
+
+See [Prompt Refinement README](src/refinement_agent/) for more details.
+

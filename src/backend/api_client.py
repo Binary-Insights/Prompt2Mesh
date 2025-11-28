@@ -53,11 +53,11 @@ class BlenderChatAPIClient:
         response.raise_for_status()
         return response.json()
     
-    def refine_prompt(self, prompt: str, thread_id: str = "default") -> Dict[str, Any]:
-        """Refine a user prompt into comprehensive 3D modeling description"""
+    def refine_prompt(self, prompt: str, thread_id: str = "default", detail_level: str = "comprehensive") -> Dict[str, Any]:
+        """Refine a user prompt into 3D modeling description with specified detail level"""
         response = requests.post(
             f"{self.base_url}/refine-prompt",
-            json={"prompt": prompt, "thread_id": thread_id}
+            json={"prompt": prompt, "thread_id": thread_id, "detail_level": detail_level}
         )
         response.raise_for_status()
         return response.json()
