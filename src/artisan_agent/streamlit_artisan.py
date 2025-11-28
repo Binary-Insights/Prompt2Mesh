@@ -1,19 +1,56 @@
 """
 Streamlit Interface for Artisan Agent
-Provides web UI for running 3D modeling tasks
+Provides web UI for running 3D modeling tasks via Backend API
 """
 import streamlit as st
-import asyncio
+import requests
+import time
 import sys
 from pathlib import Path
 from datetime import datetime
 import json
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Backend API configuration
+BACKEND_URL = "http://localhost:8000"
 
-from src.artisan_agent import ArtisanAgent
+
+def check_backend_status():
+    """Check if backend server is running"""
+    try:
+        response = requests.get(f"{BACKEND_URL}/", timeout=2)
+        return response.status_code == 200
+    except:
+        return False
+
+
+def start_modeling_task(requirement_file: str, use_resume: bool = True) -> dict:
+    """Start a modeling task via API"""
+    try:
+        response = requests.post(
+            f"{BACKEND_URL}/artisan/model",
+            json={
+                "requirement_file": requirement_file,
+                "use_resume": use_resume
+            },
+            timeout=10
+        )
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        raise Exception(f"Failed to start modeling task: {str(e)}")
+
+
+def get_task_status(task_id: str) -> dict:
+    """Get status of a modeling task"""
+    try:
+        response = requests.get(
+            f"{BACKEND_URL}/artisan/status/{task_id}",
+            timeout=5
+        )
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        raise Exception(f"Failed to get task status: {str(e)}")
 
 
 class StreamlitDisplay:
@@ -80,25 +117,6 @@ def display_json_preview(json_path: Path):
             )
     except Exception as e:
         st.error(f"Error loading preview: {e}")
-
-
-async def run_artisan_agent(json_path: str, session_id: str, display_callback, use_resume: bool = True):
-    """Run the artisan agent asynchronously"""
-    agent = ArtisanAgent(
-        session_id=session_id,
-        display_callback=display_callback
-    )
-    
-    try:
-        await agent.initialize()
-        results = await agent.run(json_path, use_deterministic_session=use_resume)
-        return results
-    finally:
-        try:
-            await agent.cleanup()
-        except Exception:
-            # Suppress cleanup errors
-            pass
 
 
 def main():
@@ -184,8 +202,12 @@ def main():
     if st.session_state.running and selected_file:
         st.header("🔄 Modeling in Progress")
         
-        # Create display callback
-        display = StreamlitDisplay()
+        # Check backend status
+        if not check_backend_status():
+            st.error("❌ Backend server is not running!")
+            st.info("Start the backend server with: `python src/backend/backend_server.py`")
+            st.session_state.running = False
+            st.stop()
         
         # Progress container
         progress_container = st.container()
@@ -193,53 +215,88 @@ def main():
         with progress_container:
             st.info(f"Processing: {selected_file.name}")
             
-            # Run agent
             try:
-                with st.spinner("Initializing Artisan Agent..."):
-                    results = asyncio.run(
-                        run_artisan_agent(
-                            str(selected_file),
-                            session_id,
-                            display,
-                            use_resume=use_resume
-                        )
+                # Start modeling task
+                with st.spinner("Starting modeling task..."):
+                    task_response = start_modeling_task(
+                        requirement_file=str(selected_file.absolute()),
+                        use_resume=use_resume
                     )
+                    task_id = task_response["task_id"]
+                    st.success(f"✅ Task started with ID: {task_id}")
                 
-                # Display results
-                st.success("✅ Modeling Complete!")
+                # Poll for status
+                progress_bar = st.progress(0)
+                status_text = st.empty()
                 
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("Steps Executed", results['steps_executed'])
-                with col2:
-                    st.metric("Screenshots", results['screenshots_captured'])
-                with col3:
-                    st.metric("Success", "✅" if results['success'] else "❌")
+                poll_count = 0
+                max_polls = 600  # 10 minutes max (600 * 1 second)
                 
-                # Screenshot directory
-                st.info(f"📁 Screenshots saved in: `{results['screenshot_directory']}`")
-                
-                # Tool results
-                with st.expander("🔧 Tool Execution Details"):
-                    for i, tool_result in enumerate(results['tool_results'], 1):
-                        status = "✅" if tool_result['success'] else "❌"
-                        st.markdown(f"**{i}. {status} {tool_result['tool_name']}**")
-                        st.code(json.dumps(tool_result.get('arguments', {}), indent=2))
-                        if not tool_result['success']:
-                            st.error(f"Error: {tool_result['result']}")
-                        st.divider()
-                
-                # Display screenshots
-                screenshot_dir = Path(results['screenshot_directory'])
-                if screenshot_dir.exists():
-                    screenshots = sorted(screenshot_dir.glob("*.png"))
-                    if screenshots:
-                        st.subheader("📸 Viewport Screenshots")
+                while poll_count < max_polls:
+                    # Get task status
+                    status_response = get_task_status(task_id)
+                    task_status = status_response["status"]
+                    
+                    # Update progress
+                    steps_executed = status_response.get("steps_executed", 0)
+                    status_text.text(f"Status: {task_status} | Steps: {steps_executed}")
+                    
+                    if task_status == "completed":
+                        progress_bar.progress(100)
+                        st.success("✅ Modeling Complete!")
                         
-                        cols = st.columns(3)
-                        for idx, screenshot in enumerate(screenshots):
-                            with cols[idx % 3]:
-                                st.image(str(screenshot), caption=screenshot.name, use_container_width=True)
+                        # Display results
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Steps Executed", status_response['steps_executed'])
+                        with col2:
+                            st.metric("Screenshots", status_response['screenshots_captured'])
+                        with col3:
+                            st.metric("Success", "✅" if status_response['success'] else "❌")
+                        
+                        # Screenshot directory
+                        st.info(f"📁 Screenshots saved in: `{status_response['screenshot_directory']}`")
+                        
+                        # Tool results
+                        if status_response.get('tool_results'):
+                            with st.expander("🔧 Tool Execution Details"):
+                                for i, tool_result in enumerate(status_response['tool_results'], 1):
+                                    status_icon = "✅" if tool_result.get('success', False) else "❌"
+                                    st.markdown(f"**{i}. {status_icon} {tool_result['tool_name']}**")
+                                    st.code(json.dumps(tool_result.get('arguments', {}), indent=2))
+                                    if not tool_result.get('success', False):
+                                        st.error(f"Error: {tool_result.get('result', '')}")
+                                    st.divider()
+                        
+                        # Display screenshots
+                        screenshot_dir = Path(status_response.get('screenshot_directory', ''))
+                        if screenshot_dir.exists():
+                            screenshots = sorted(screenshot_dir.glob("*.png"))
+                            if screenshots:
+                                st.subheader("📸 Viewport Screenshots")
+                                
+                                cols = st.columns(3)
+                                for idx, screenshot in enumerate(screenshots):
+                                    with cols[idx % 3]:
+                                        st.image(str(screenshot), caption=screenshot.name, use_container_width=True)
+                        
+                        break
+                    
+                    elif task_status == "failed":
+                        progress_bar.progress(0)
+                        st.error(f"❌ Task Failed: {status_response.get('error', 'Unknown error')}")
+                        break
+                    
+                    elif task_status in ["running", "initializing"]:
+                        # Update progress based on steps
+                        progress_value = min(95, int((steps_executed / 10) * 100))  # Cap at 95%
+                        progress_bar.progress(progress_value)
+                        time.sleep(1)  # Poll every second
+                    
+                    poll_count += 1
+                
+                if poll_count >= max_polls:
+                    st.warning("⚠️ Task is taking longer than expected. Check backend logs for status.")
                 
             except Exception as e:
                 st.error(f"❌ Error: {str(e)}")
@@ -255,6 +312,15 @@ def main():
     else:
         # Welcome screen
         st.header("👋 Welcome to Artisan Agent")
+        
+        # Check backend status
+        backend_online = check_backend_status()
+        if backend_online:
+            st.success("✅ Backend server is running")
+        else:
+            st.error("❌ Backend server is not running")
+            st.warning("Please start the backend server:")
+            st.code("python src/backend/backend_server.py", language="bash")
         
         st.markdown("""
         ### What is Artisan Agent?
