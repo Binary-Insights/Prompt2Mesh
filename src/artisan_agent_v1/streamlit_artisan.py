@@ -82,7 +82,7 @@ def display_json_preview(json_path: Path):
         st.error(f"Error loading preview: {e}")
 
 
-async def run_artisan_agent(json_path: str, session_id: str, display_callback, use_resume: bool = True):
+async def run_artisan_agent(json_path: str, session_id: str, display_callback):
     """Run the artisan agent asynchronously"""
     agent = ArtisanAgent(
         session_id=session_id,
@@ -91,7 +91,7 @@ async def run_artisan_agent(json_path: str, session_id: str, display_callback, u
     
     try:
         await agent.initialize()
-        results = await agent.run(json_path, use_deterministic_session=use_resume)
+        results = await agent.run(json_path)
         return results
     finally:
         try:
@@ -153,16 +153,6 @@ def main():
         
         st.divider()
         
-        # Resume mode
-        st.subheader("⚙️ Options")
-        use_resume = st.checkbox(
-            "Enable Resume Mode",
-            value=True,
-            help="If enabled, the agent will continue from previous work on the same file"
-        )
-        
-        st.divider()
-        
         # Execution controls
         st.subheader("🚀 Execution")
         
@@ -200,8 +190,7 @@ def main():
                         run_artisan_agent(
                             str(selected_file),
                             session_id,
-                            display,
-                            use_resume=use_resume
+                            display
                         )
                     )
                 

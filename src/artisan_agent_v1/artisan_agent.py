@@ -7,7 +7,6 @@ import asyncio
 import base64
 import json
 import logging
-import hashlib
 from typing import TypedDict, Annotated, Sequence, List, Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
@@ -46,9 +45,6 @@ class AgentState(TypedDict):
     current_step: int  # Current step being executed
     is_complete: bool  # Whether modeling is complete
     feedback_history: List[str]  # Visual feedback from screenshots
-    initial_scene_state: Dict[str, Any]  # Initial Blender scene state
-    completed_steps: List[str]  # Steps already completed (for resume)
-    is_resuming: bool  # Whether this is a resumed session
 
 
 class BlenderMCPConnection:
@@ -225,18 +221,16 @@ class ArtisanAgent:
         workflow = StateGraph(AgentState)
         
         # Add nodes
-        workflow.add_node("analyze_scene", self._analyze_scene_node)
         workflow.add_node("plan", self._plan_node)
         workflow.add_node("execute_step", self._execute_step_node)
         workflow.add_node("capture_feedback", self._capture_feedback_node)
         workflow.add_node("evaluate_progress", self._evaluate_progress_node)
         workflow.add_node("complete", self._complete_node)
         
-        # Set entry point - start with scene analysis
-        workflow.set_entry_point("analyze_scene")
+        # Set entry point
+        workflow.set_entry_point("plan")
         
         # Add edges
-        workflow.add_edge("analyze_scene", "plan")
         workflow.add_edge("plan", "execute_step")
         workflow.add_edge("execute_step", "capture_feedback")
         workflow.add_edge("capture_feedback", "evaluate_progress")
@@ -255,66 +249,11 @@ class ArtisanAgent:
         
         return workflow.compile(checkpointer=self.memory)
     
-    @traceable(name="analyze_scene_state")
-    async def _analyze_scene_node(self, state: AgentState) -> AgentState:
-        """Analyze current Blender scene to detect existing work"""
-        logger = logging.getLogger(__name__)
-        self.display_callback("Analyzing current scene state...", "info")
-        
-        # Get scene info
-        scene_info_result = await self.mcp.call_tool("get_scene_info", {})
-        
-        # Capture initial viewport screenshot
-        screenshot_result = await self.mcp.call_tool("get_viewport_screenshot", {"max_size": 800})
-        
-        initial_state = {
-            "scene_info": scene_info_result.get("result", "No scene info"),
-            "has_screenshot": screenshot_result["success"],
-            "objects_present": "objects" in scene_info_result.get("result", "").lower()
-        }
-        
-        # Save initial screenshot if available
-        if screenshot_result["success"] and screenshot_result.get("image_data"):
-            screenshot_path = state["screenshot_dir"] / "initial_scene.png"
-            image_bytes = base64.b64decode(screenshot_result["image_data"])
-            screenshot_path.write_bytes(image_bytes)
-            logger.info(f"Saved initial scene screenshot: {screenshot_path}")
-            self.display_callback("Initial scene captured", "screenshot")
-        
-        state["initial_scene_state"] = initial_state
-        
-        # Log scene state
-        logger.info(f"Initial scene state: {json.dumps(initial_state, indent=2)}")
-        self.display_callback(f"Scene objects detected: {initial_state['objects_present']}", "info")
-        
-        return state
-    
     @traceable(name="plan_modeling_steps")
-    async def _plan_node(self, state: AgentState) -> AgentState:
+    def _plan_node(self, state: AgentState) -> AgentState:
         """Plan the steps needed to complete the 3D modeling task"""
         logger = logging.getLogger(__name__)
         self.display_callback("Planning modeling steps...", "plan")
-        
-        # Check if scene has existing work
-        scene_state = state.get("initial_scene_state", {})
-        scene_info = scene_state.get("scene_info", "Empty scene")
-        has_existing_work = scene_state.get("objects_present", False)
-        
-        # Build planning prompt with scene context
-        scene_context = ""
-        if has_existing_work:
-            scene_context = f"""
-
-CURRENT SCENE STATE:
-{scene_info}
-
-IMPORTANT: The scene already contains objects. Analyze what's been done and continue building from there.
-Do NOT start from scratch - build upon existing work."""
-            self.display_callback("Detected existing work - planning to resume", "thinking")
-            state["is_resuming"] = True
-        else:
-            self.display_callback("Starting fresh - no existing work detected", "info")
-            state["is_resuming"] = False
         
         planning_prompt = f"""You are an expert 3D modeling planner for Blender. 
         
@@ -322,7 +261,7 @@ Given this modeling requirement, break it down into sequential, actionable steps
 Each step should be a specific Blender operation that can be executed.
 
 Requirement:
-{state['requirement'][:1000]}...{scene_context}
+{state['requirement'][:1000]}...
 
 Create a detailed step-by-step plan. Each step should:
 1. Be specific and actionable
@@ -388,101 +327,15 @@ Provide at least 5-10 concrete steps to build the model."""
         for i, step in enumerate(steps, 1):
             logger.debug(f"Step {i}: {step[:100]}")
         
-        # If resuming, detect completed steps with detailed object inspection
-        if state.get("is_resuming", False) and scene_state.get("objects_present", False):
-            logger.info("Analyzing which steps are already completed...")
-            self.display_callback("Detecting completed work...", "thinking")
-            
-            # Get detailed object information for better detection
-            object_details = []
-            try:
-                import json
-                scene_data = json.loads(scene_info)
-                for obj in scene_data.get("objects", [])[:5]:  # Inspect first 5 objects in detail
-                    obj_info_result = await self.mcp.call_tool("get_object_info", {"object_name": obj["name"]})
-                    if obj_info_result["success"]:
-                        object_details.append(f"{obj['name']}: {obj_info_result['result'][:200]}")
-            except Exception as e:
-                logger.warning(f"Could not get detailed object info: {e}")
-            
-            detailed_scene_context = f"""
-Scene Summary: {scene_info}
-
-Detailed Object Inspection (first 5 objects):
-{chr(10).join(object_details) if object_details else 'Could not inspect objects in detail'}
-"""
-            
-            # Ask LLM to identify completed steps with strict criteria
-            detection_prompt = f"""Based on the current scene state, identify which of these planned steps appear to be FULLY completed with actual geometry, not just placeholder objects.
-
-Planned Steps:
-{chr(10).join(f"{i+1}. {step}" for i, step in enumerate(steps))}
-
-Current Scene:
-{detailed_scene_context}
-
-IMPORTANT CRITERIA:
-- Only mark a step as done if there is SUBSTANTIAL geometry present (not empty curves, not basic primitives)
-- Look for evidence of modifiers, particle systems, complex geometry, materials applied
-- Empty or placeholder objects (like named curves with no geometry) do NOT count as completed
-- Be VERY conservative - when in doubt, mark as NOT done
-
-Respond with ONLY the step numbers that are FULLY completed (e.g., "1,2,3" or "none" if starting fresh).
-If objects exist but appear to be placeholders or incomplete, respond with "none"."""
-            
-            detection_response = self.llm.invoke([HumanMessage(content=detection_prompt)])
-            completed_text = detection_response.content.strip().lower()
-            
-            logger.info(f"LLM completed steps detection: {completed_text}")
-            
-            # Parse completed step numbers
-            completed_indices = []
-            if completed_text != "none" and completed_text:
-                try:
-                    # Extract numbers from response
-                    import re
-                    numbers = re.findall(r'\d+', completed_text)
-                    completed_indices = [int(n) - 1 for n in numbers if 0 <= int(n) - 1 < len(steps)]
-                    
-                    # Additional safety: Don't skip more than 30% of steps to avoid false positives
-                    max_skip = max(1, int(len(steps) * 0.3))
-                    if len(completed_indices) > max_skip:
-                        logger.warning(f"LLM detected {len(completed_indices)} completed steps, but limiting to {max_skip} for safety")
-                        completed_indices = completed_indices[:max_skip]
-                except Exception as e:
-                    logger.warning(f"Could not parse completed steps: {e}")
-            
-            if completed_indices:
-                state["completed_steps"] = [steps[i] for i in completed_indices]
-                state["current_step"] = max(completed_indices) + 1
-                logger.info(f"Resuming from step {state['current_step'] + 1} (skipped {len(completed_indices)} completed steps)")
-                self.display_callback(f"Resuming from step {state['current_step'] + 1} (found {len(completed_indices)} completed)", "success")
-            else:
-                state["completed_steps"] = []
-                state["current_step"] = 0
-                logger.info("No completed steps detected, starting from beginning")
-                self.display_callback("No completed steps detected - building from scratch", "info")
-        else:
-            state["completed_steps"] = []
-            state["current_step"] = 0
-        
         state["planning_steps"] = steps
-        state["messages"].append(AIMessage(content=f"Created plan with {len(steps)} steps (starting at step {state['current_step'] + 1})"))
+        state["current_step"] = 0
+        state["messages"].append(AIMessage(content=f"Created plan with {len(steps)} steps"))
         
         self.display_callback(f"Created {len(steps)}-step plan", "success")
-        
-        # Show completed steps if resuming
-        if state.get("completed_steps"):
-            self.display_callback(f"✓ Skipping {len(state['completed_steps'])} completed steps", "success")
-            for i, step in enumerate(state["completed_steps"], 1):
-                self.display_callback(f"  ✓ {i}. {step[:80]}", "success")
-        
-        # Show remaining steps to execute
-        remaining_steps = steps[state["current_step"]:]
-        for i, step in enumerate(remaining_steps[:5], state["current_step"] + 1):
+        for i, step in enumerate(steps[:5], 1):  # Show first 5 steps
             self.display_callback(f"  {i}. {step[:100]}", "plan")
-        if len(remaining_steps) > 5:
-            self.display_callback(f"  ... and {len(remaining_steps) - 5} more steps", "plan")
+        if len(steps) > 5:
+            self.display_callback(f"  ... and {len(steps) - 5} more steps", "plan")
         
         return state
     
@@ -630,22 +483,13 @@ After significant changes, get a viewport screenshot for verification."""
         state["messages"].append(AIMessage(content="3D modeling task completed successfully"))
         return state
     
-    @staticmethod
-    def generate_session_id(requirement_json_path: str) -> str:
-        """Generate deterministic session ID from input file path"""
-        # Use hash of absolute path to ensure same ID for same file
-        abs_path = str(Path(requirement_json_path).resolve())
-        hash_obj = hashlib.sha256(abs_path.encode())
-        return hash_obj.hexdigest()[:16]  # Use first 16 chars of hash
-    
     @traceable(name="run_modeling_task")
-    async def run(self, requirement_json_path: str, use_deterministic_session: bool = True) -> Dict[str, Any]:
+    async def run(self, requirement_json_path: str) -> Dict[str, Any]:
         """
         Run the modeling task from a JSON requirement file
         
         Args:
             requirement_json_path: Path to JSON file with refined_prompt
-            use_deterministic_session: Use file-based session ID for resume capability
             
         Returns:
             Dictionary with results
@@ -662,14 +506,6 @@ After significant changes, get a viewport screenshot for verification."""
         
         self.display_callback(f"Requirement loaded: {len(refined_prompt)} characters", "success")
         
-        # Override session ID with deterministic one if requested
-        if use_deterministic_session:
-            original_session_id = self.session_id
-            self.session_id = self.generate_session_id(requirement_json_path)
-            if original_session_id != self.session_id:
-                self.display_callback(f"Using deterministic session ID: {self.session_id}", "info")
-                self.display_callback("This allows resuming from previous runs of the same file", "info")
-        
         # Create screenshot directory
         screenshot_dir = Path("data/blender/screenshots") / self.session_id
         screenshot_dir.mkdir(parents=True, exist_ok=True)
@@ -685,10 +521,7 @@ After significant changes, get a viewport screenshot for verification."""
             "planning_steps": [],
             "current_step": 0,
             "is_complete": False,
-            "feedback_history": [],
-            "initial_scene_state": {},
-            "completed_steps": [],
-            "is_resuming": False
+            "feedback_history": []
         }
         
         # Run the graph
