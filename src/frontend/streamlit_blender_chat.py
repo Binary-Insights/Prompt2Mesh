@@ -17,6 +17,7 @@ import base64
 from io import BytesIO
 from PIL import Image as PILImage
 from api_client import BlenderChatAPIClient
+from src.config import get_backend_url
 
 # Page config
 st.set_page_config(
@@ -25,9 +26,8 @@ st.set_page_config(
     layout="wide"
 )
 
-# Initialize API client with configurable backend URL
-import os
-BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
+# Initialize API client with dynamic backend URL
+BACKEND_URL = get_backend_url()
 api_client = BlenderChatAPIClient(BACKEND_URL)
 
 # Initialize session state

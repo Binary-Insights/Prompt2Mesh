@@ -14,6 +14,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.backend.api_client import BlenderChatAPIClient
+from src.config import get_backend_url
 
 
 def extract_image_from_result(result_text: str) -> tuple[str, str]:
