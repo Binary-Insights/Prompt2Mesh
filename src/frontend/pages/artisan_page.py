@@ -1,9 +1,11 @@
 """
 Artisan Agent page - Protected by authentication
+Enhanced chat interface with AI refinement
 """
 import streamlit as st
 import requests
 import time
+import re
 from pathlib import Path
 from datetime import datetime
 import json
@@ -14,7 +16,25 @@ import sys
 parent_dir = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(parent_dir))
 
-from config import get_backend_url
+# Add src directory to path for Docker compatibility
+src_dir = parent_dir / "src"
+if src_dir.exists():
+    sys.path.insert(0, str(src_dir))
+
+# Try different import patterns for local vs Docker
+try:
+    from backend.api_client import BlenderChatAPIClient
+    from config import get_backend_url
+except ImportError:
+    try:
+        from src.backend.api_client import BlenderChatAPIClient
+        from src.config import get_backend_url
+    except ImportError:
+        # Fallback for pages subdirectory
+        sys.path.insert(0, str(parent_dir / "src" / "backend"))
+        sys.path.insert(0, str(parent_dir / "src"))
+        from api_client import BlenderChatAPIClient
+        from config import get_backend_url
 
 # Backend API configuration
 BACKEND_URL = get_backend_url()
@@ -92,38 +112,22 @@ def check_backend_status():
         return False
 
 
-def start_modeling_task(requirement_file: str, use_resume: bool = True) -> dict:
-    """Start a modeling task via API"""
-    try:
-        response = requests.post(
-            f"{BACKEND_URL}/artisan/model",
-            json={
-                "requirement_file": requirement_file,
-                "use_resume": use_resume
-            },
-            timeout=10
-        )
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        raise Exception(f"Failed to start modeling task: {str(e)}")
-
-
-def get_task_status(task_id: str) -> dict:
-    """Get status of a modeling task"""
-    try:
-        response = requests.get(
-            f"{BACKEND_URL}/artisan/status/{task_id}",
-            timeout=5
-        )
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        raise Exception(f"Failed to get task status: {str(e)}")
+def extract_image_from_result(result_text: str) -> tuple[str, str]:
+    """Extract base64 image data from result text"""
+    pattern = r'\[Image: data:image/(\w+);base64,([A-Za-z0-9+/=]+)\]'
+    match = re.search(pattern, result_text)
+    
+    if match:
+        image_format = match.group(1)
+        image_data = match.group(2)
+        clean_text = re.sub(pattern, '', result_text).strip()
+        return clean_text, image_data
+    
+    return result_text, None
 
 
 def main():
-    """Main Artisan Agent interface"""
+    """Main Artisan Agent chat interface"""
     st.set_page_config(
         page_title="Artisan Agent - Prompt2Mesh",
         page_icon="🎨",
@@ -138,7 +142,7 @@ def main():
     col1, col2, col3 = st.columns([3, 1, 1])
     
     with col1:
-        st.title("🎨 Artisan Agent - Autonomous 3D Modeling")
+        st.title("🎨 Artisan Agent - AI-Powered 3D Modeling")
     
     with col2:
         st.info(f"👤 {st.session_state.get('username', 'User')}")
@@ -148,189 +152,240 @@ def main():
             logout_user()
             st.switch_page("login_page.py")
     
+    st.markdown("*AI-powered prompt expansion for detailed 3D modeling*")
     st.markdown("---")
     
-    # Check backend status
-    backend_online = check_backend_status()
+    # Initialize clients in session state
+    if 'client' not in st.session_state:
+        st.session_state.client = BlenderChatAPIClient()
     
-    if not backend_online:
-        st.error("❌ Backend server is offline")
-        st.code("python src/backend/backend_server.py", language="bash")
-        return
+    if 'messages' not in st.session_state:
+        st.session_state.messages = []
     
-    st.success("✅ Backend server is online")
+    if 'connected' not in st.session_state:
+        st.session_state.connected = False
     
-    # Main interface
-    st.header("📋 Modeling Task Configuration")
-    
-    # File selection
-    project_root = Path(__file__).parent.parent.parent
-    requirements_dir = project_root / "requirements"
-    
-    # Get list of requirement files
-    requirement_files = []
-    if requirements_dir.exists():
-        requirement_files = sorted([f.name for f in requirements_dir.glob("*.json")])
-    
-    if not requirement_files:
-        st.warning("⚠️ No requirement files found in 'requirements/' directory")
-        st.info("Create a JSON requirement file to get started")
-        return
-    
-    # File selector
-    selected_file = st.selectbox(
-        "Select Requirement File",
-        options=requirement_files,
-        help="Choose a JSON file containing modeling requirements"
-    )
-    
-    # Session resume option
-    use_resume = st.checkbox(
-        "Enable Session Resume",
-        value=True,
-        help="Continue from previous session if available"
-    )
-    
-    # Display file preview
-    if selected_file:
-        file_path = requirements_dir / selected_file
+    # Sidebar
+    with st.sidebar:
+        st.header("⚙️ Settings")
         
-        with st.expander("📄 View Requirements", expanded=False):
-            try:
-                with open(file_path, 'r') as f:
-                    requirements_data = json.load(f)
-                st.json(requirements_data)
-            except Exception as e:
-                st.error(f"Error reading file: {str(e)}")
-    
-    st.markdown("---")
-    
-    # Start modeling button
-    col1, col2, col3 = st.columns([1, 2, 1])
-    
-    with col2:
-        if st.button("🚀 Start Modeling Task", use_container_width=True, type="primary"):
-            if not selected_file:
-                st.error("Please select a requirement file")
-                return
+        # Connection status
+        backend_status = st.session_state.client.health_check()
+        
+        if backend_status:
+            st.success("✅ Backend Connected")
             
-            # Start task
-            file_path = str(requirements_dir / selected_file)
+            if not st.session_state.connected:
+                if st.button("🔌 Connect to Blender", use_container_width=True):
+                    with st.spinner("Connecting to Blender..."):
+                        result = st.session_state.client.connect()
+                        if result.get("connected"):
+                            st.session_state.connected = True
+                            st.success(f"Connected! {result.get('num_tools', 0)} tools available")
+                            st.rerun()
+                        else:
+                            st.error(f"Connection failed: {result.get('error', 'Unknown error')}")
+            else:
+                st.success("✅ Blender Connected")
+                if st.button("🔌 Disconnect", use_container_width=True):
+                    st.session_state.client.disconnect()
+                    st.session_state.connected = False
+                    st.rerun()
+        else:
+            st.error("❌ Backend Offline")
+            st.info("Start backend: `python src/backend/backend_server.py`")
+        
+        st.divider()
+        
+        # Prompt refinement toggle
+        st.subheader("🧠 AI Prompt Refinement")
+        use_refinement = st.toggle(
+            "Enable Prompt Expansion",
+            value=True,
+            help="AI will expand simple prompts into detailed 3D modeling descriptions"
+        )
+        
+        if use_refinement:
+            detail_level = st.selectbox(
+                "Detail Level",
+                options=["concise", "moderate", "comprehensive"],
+                index=2,  # Default to comprehensive
+                help="Control how detailed the AI expansion should be"
+            )
             
-            with st.spinner("🎬 Starting modeling task..."):
-                try:
-                    result = start_modeling_task(file_path, use_resume)
-                    task_id = result.get("task_id")
+            level_info = {
+                "concise": "💡 Basic structure, key features, and materials (300-500 words)",
+                "moderate": "💡 Balanced detail with structure, components, materials, and key specs (500-1000 words)",
+                "comprehensive": "💡 Exhaustive detail with all specifications, measurements, and rendering info (1000+ words)"
+            }
+            st.info(level_info[detail_level])
+        else:
+            detail_level = "comprehensive"  # Default when refinement is off
+        
+        st.divider()
+        
+        # Clear chat
+        if st.button("🗑️ Clear Chat", use_container_width=True):
+            st.session_state.messages = []
+            st.rerun()
+        
+        # Show conversation history
+        if st.session_state.connected:
+            with st.expander("📜 Conversation History"):
+                history = st.session_state.client.get_history()
+                st.json(history)
+    
+    # Main chat area
+    st.header("💬 Chat")
+    
+    # Display messages
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+            
+            # Display image if present
+            if "image" in message and message["image"]:
+                st.image(f"data:image/png;base64,{message['image']}", caption="Viewport Screenshot")
+            
+            # Display tool calls in expander
+            if "tool_calls" in message and message["tool_calls"]:
+                with st.expander(f"🔧 Tool Executions ({len(message['tool_calls'])})"):
+                    for tool_call in message["tool_calls"]:
+                        st.markdown(f"**Tool:** `{tool_call.get('tool_name')}`")
+                        st.markdown(f"**Success:** {'✅' if tool_call.get('success') else '❌'}")
+                        
+                        # Show arguments
+                        if tool_call.get('arguments'):
+                            st.markdown("**Arguments:**")
+                            st.json(tool_call['arguments'])
+                        
+                        # Show result
+                        result_text = tool_call.get('result', '')
+                        clean_result, _ = extract_image_from_result(result_text)
+                        st.markdown("**Result:**")
+                        st.code(clean_result, language=None)
+                        st.divider()
+            
+            # Display refinement info if present
+            if "refinement_info" in message:
+                with st.expander("🧠 AI Prompt Refinement"):
+                    info = message["refinement_info"]
+                    st.markdown(f"**Original:** {info['original']}")
+                    st.markdown(f"**Was Detailed:** {'Yes ✅' if info['was_detailed'] else 'No, expanded ➡️'}")
                     
-                    if task_id:
-                        st.success(f"✅ Task started! ID: {task_id}")
-                        
-                        # Store task ID in session state
-                        st.session_state.current_task_id = task_id
-                        st.session_state.task_running = True
-                        
-                        st.rerun()
-                    else:
-                        st.error("Failed to start task")
+                    if info.get('reasoning_steps'):
+                        st.markdown("**Reasoning Steps:**")
+                        for i, step in enumerate(info['reasoning_steps'], 1):
+                            st.text(f"{i}. {step}")
+    
+    # Chat input
+    if prompt := st.chat_input("Describe what you want to create in Blender...", disabled=not st.session_state.connected):
+        
+        # Display user message
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        # Refine prompt if enabled
+        refined_prompt = prompt
+        refinement_info = None
+        
+        if use_refinement:
+            with st.spinner("🧠 AI is analyzing and expanding your prompt..."):
+                try:
+                    # Call backend API for prompt refinement
+                    refinement_result = st.session_state.client.refine_prompt(
+                        prompt=prompt,
+                        thread_id=st.session_state.client._session_id,
+                        detail_level=detail_level
+                    )
+                    
+                    refined_prompt = refinement_result["refined_prompt"]
+                    refinement_info = {
+                        "original": prompt,
+                        "was_detailed": refinement_result["is_detailed"],
+                        "reasoning_steps": refinement_result["reasoning_steps"]
+                    }
+                    
+                    # Show refinement notification
+                    if not refinement_result["is_detailed"]:
+                        st.info("🧠 AI expanded your prompt with detailed specifications")
                 
                 except Exception as e:
-                    st.error(f"Error: {str(e)}")
-    
-    st.markdown("---")
-    
-    # Task monitoring section
-    if st.session_state.get("task_running") and st.session_state.get("current_task_id"):
-        st.header("📊 Task Progress")
+                    st.warning(f"Prompt refinement failed, using original: {e}")
+                    refined_prompt = prompt
         
-        task_id = st.session_state.current_task_id
-        
-        # Create placeholders for dynamic updates
-        status_placeholder = st.empty()
-        progress_placeholder = st.empty()
-        details_placeholder = st.empty()
-        
-        # Poll for status updates
-        max_iterations = 600  # 10 minutes max (600 seconds / 1 second interval)
-        iteration = 0
-        
-        while iteration < max_iterations:
-            try:
-                status_data = get_task_status(task_id)
-                
-                task_status = status_data.get("status", "unknown")
-                steps_executed = status_data.get("steps_executed", 0)
-                screenshots_captured = status_data.get("screenshots_captured", 0)
-                
-                # Update status
-                status_placeholder.info(f"**Status:** {task_status.upper()}")
-                
-                # Update progress bar (estimate total steps as 15)
-                estimated_total = 15
-                progress_value = min(steps_executed / estimated_total, 1.0)
-                progress_placeholder.progress(
-                    progress_value,
-                    text=f"Progress: {steps_executed} steps executed"
-                )
-                
-                # Display details
-                with details_placeholder.container():
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        st.metric("Steps Executed", steps_executed)
-                    
-                    with col2:
-                        st.metric("Screenshots Captured", screenshots_captured)
-                
-                # Check if task is complete
-                if task_status == "completed":
-                    st.success("✅ Task completed successfully!")
-                    
-                    # Display results
-                    st.subheader("📸 Results")
-                    
-                    screenshot_dir = status_data.get("screenshot_directory")
-                    if screenshot_dir:
-                        st.info(f"Screenshots saved to: {screenshot_dir}")
-                    
-                    # Display session info
-                    session_id = status_data.get("session_id")
-                    if session_id:
-                        st.info(f"Session ID: {session_id}")
-                    
-                    # Clear running state
-                    st.session_state.task_running = False
-                    
-                    # Show restart button
-                    if st.button("🔄 Start New Task"):
-                        st.session_state.current_task_id = None
-                        st.rerun()
-                    
-                    break
-                
-                elif task_status == "failed":
-                    error_msg = status_data.get("error", "Unknown error")
-                    st.error(f"❌ Task failed: {error_msg}")
-                    
-                    st.session_state.task_running = False
-                    
-                    if st.button("🔄 Start New Task"):
-                        st.session_state.current_task_id = None
-                        st.rerun()
-                    
-                    break
-                
-                # Wait before next poll
-                time.sleep(1)
-                iteration += 1
+        # Send to Blender agent
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
             
-            except Exception as e:
-                st.error(f"Error getting task status: {str(e)}")
-                break
-        
-        if iteration >= max_iterations:
-            st.warning("⏱️ Monitoring timeout reached")
-            st.session_state.task_running = False
+            with st.spinner("🤖 Processing with Blender..."):
+                try:
+                    response = st.session_state.client.chat(refined_prompt)
+                    
+                    # Combine responses
+                    full_response = "\n\n".join(response.get("responses", ["No response"]))
+                    tool_calls = response.get("tool_calls", [])
+                    
+                    # Extract image from any tool call
+                    image_data = None
+                    for tool_call in tool_calls:
+                        if tool_call.get("image_data"):
+                            image_data = tool_call["image_data"]
+                            break
+                    
+                    # Display response
+                    message_placeholder.markdown(full_response)
+                    
+                    # Display image if captured
+                    if image_data:
+                        st.image(f"data:image/png;base64,{image_data}", caption="Viewport Screenshot")
+                    
+                    # Display tool calls
+                    if tool_calls:
+                        with st.expander(f"🔧 Tool Executions ({len(tool_calls)})"):
+                            for tool_call in tool_calls:
+                                st.markdown(f"**Tool:** `{tool_call.get('tool_name')}`")
+                                st.markdown(f"**Success:** {'✅' if tool_call.get('success') else '❌'}")
+                                
+                                if tool_call.get('arguments'):
+                                    st.markdown("**Arguments:**")
+                                    st.json(tool_call['arguments'])
+                                
+                                result_text = tool_call.get('result', '')
+                                clean_result, _ = extract_image_from_result(result_text)
+                                st.markdown("**Result:**")
+                                st.code(clean_result, language=None)
+                                st.divider()
+                    
+                    # Show refinement info if present
+                    if refinement_info:
+                        with st.expander("🧠 AI Prompt Refinement"):
+                            st.markdown(f"**Original:** {refinement_info['original']}")
+                            st.markdown(f"**Was Detailed:** {'Yes ✅' if refinement_info['was_detailed'] else 'No, expanded ➡️'}")
+                            
+                            if refinement_info.get('reasoning_steps'):
+                                st.markdown("**Reasoning Steps:**")
+                                for i, step in enumerate(refinement_info['reasoning_steps'], 1):
+                                    st.text(f"{i}. {step}")
+                    
+                    # Add to messages
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": full_response,
+                        "tool_calls": tool_calls,
+                        "image": image_data,
+                        "refinement_info": refinement_info
+                    })
+                
+                except Exception as e:
+                    error_msg = f"Error: {str(e)}"
+                    message_placeholder.error(error_msg)
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": error_msg
+                    })
 
 
 if __name__ == "__main__":

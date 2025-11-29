@@ -27,6 +27,7 @@ services:
   blender:
     image: linuxserver/blender:latest
     container_name: prompt2mesh-blender
+    hostname: blender
     restart: unless-stopped
     environment:
       PUID: 1000
@@ -37,11 +38,19 @@ services:
       - ./blender_projects:/blender_projects
       - ../requirements:/blender_projects/requirements
       - ../screenshots:/blender_projects/screenshots
+      - ../src/addon/addon.py:/config/.config/blender/5.0/scripts/addons/blender_mcp_addon.py:ro
+      - ../src/addon/addon.py:/config/.config/blender/4.2/scripts/addons/blender_mcp_addon.py:ro
+      - ./install_addon.sh:/install_addon.sh:ro
+      - ./enable_addon_auto.py:/tmp/enable_addon_auto.py:ro
+      - ./auto_start_mcp.sh:/auto_start_mcp.sh:ro
     ports:
       # Blender Web UI (KasmVNC)
       - "3000:3000"
       # Blender VNC (optional)
       - "3001:3001"
+      # Blender MCP Server (internal only, not exposed to host)
+    expose:
+      - "9876"
     networks:
       - prompt2mesh-network
 
@@ -61,9 +70,12 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
       JWT_EXPIRY_HOURS: 24
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/prompt2mesh_auth
+      BLENDER_HOST: blender
+      BLENDER_PORT: 9876
       PYTHONUNBUFFERED: 1
     volumes:
       - ../src:/app/src
+      - ../main.py:/app/main.py
       - ../requirements:/app/requirements
       - ../screenshots:/app/screenshots
       - ../logs:/app/logs
@@ -96,8 +108,11 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/prompt2mesh_auth
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      BLENDER_HOST: blender
+      BLENDER_PORT: 9876
     volumes:
       - ../src:/app/src
+      - ../main.py:/app/main.py
     ports:
       - "8501:8501"
     networks:
