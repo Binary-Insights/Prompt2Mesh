@@ -48,3 +48,7 @@ streamlit run src/frontend/login_page.py
 wsl bash -c "sudo -u postgres psql -d prompt2mesh_auth -c 'GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres; GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO postgres;'"
 wsl bash -c "sudo -u postgres psql -d prompt2mesh_auth -c '\dt'"
 wsl bash -c "sudo -u postgres psql -d prompt2mesh_auth -c 'SELECT id, username, is_active, created_at FROM users;'"
+
+docker exec prompt2mesh-blender ps aux | Select-String -Pattern "blender|python" | Select-Object -First 5
+docker exec prompt2mesh-backend nc -zv blender 9876 2>&1
+docker exec prompt2mesh-backend python -c "import socket; s=socket.socket(); s.settimeout(2); result=s.connect_ex(('blender',9876)); print('Port OPEN' if result==0 else f'Port CLOSED (error {result})'); s.close()"

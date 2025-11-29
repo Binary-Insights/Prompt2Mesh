@@ -32,10 +32,13 @@ class BlenderChatAgent:
         # Get the absolute path to main.py
         main_py_path = os.path.join(os.getcwd(), "main.py")
         
+        # Pass environment variables to subprocess
+        env = os.environ.copy()
+        
         server_params = StdioServerParameters(
             command="python",
             args=[main_py_path],
-            env=None
+            env=env
         )
         
         self.stdio_context = stdio_client(server_params)
