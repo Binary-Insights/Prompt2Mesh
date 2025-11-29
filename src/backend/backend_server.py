@@ -8,6 +8,7 @@ import asyncio
 from typing import Dict, Any, List, Optional
 from contextlib import asynccontextmanager
 from pathlib import Path
+from datetime import datetime
 
 # Add the project root to Python path
 project_root = Path(__file__).parent.parent.parent
@@ -91,6 +92,8 @@ class ArtisanTaskStatus(BaseModel):
     success: bool = False
     error: Optional[str] = None
     tool_results: List[Dict[str, Any]] = []
+    messages: List[str] = []  # Add messages list
+    progress: int = 0  # Add progress percentage
 
 
 class LoginRequest(BaseModel):
@@ -417,7 +420,9 @@ async def start_artisan_modeling(request: ArtisanModelingRequest):
             "requirement_file": request.requirement_file,
             "use_resume": request.use_resume,
             "result": None,
-            "error": None
+            "error": None,
+            "messages": [],  # Add message log
+            "progress": 0  # Add progress tracking
         }
         
         # Start task in background
@@ -446,16 +451,26 @@ async def _run_artisan_task(task_id: str):
     task_info = artisan_tasks[task_id]
     agent = task_info["agent"]
     
+    def log_message(msg: str):
+        """Helper to log messages"""
+        print(f"[Task {task_id}] {msg}")
+        task_info["messages"].append(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+    
     try:
         # Update status
         task_info["status"] = "running"
+        task_info["progress"] = 10
         
         # Initialize agent
-        print(f"[Task {task_id}] Initializing Artisan Agent...")
+        log_message("Initializing Artisan Agent...")
         await agent.initialize()
+        task_info["progress"] = 20
+        log_message("Agent initialized successfully")
         
         # Run modeling task
-        print(f"[Task {task_id}] Running modeling task: {task_info['requirement_file']}")
+        log_message(f"Running modeling task: {task_info['requirement_file']}")
+        task_info["progress"] = 30
+        
         result = await agent.run(
             task_info["requirement_file"],
             use_deterministic_session=task_info["use_resume"]
@@ -464,21 +479,25 @@ async def _run_artisan_task(task_id: str):
         # Store result
         task_info["result"] = result
         task_info["status"] = "completed"
-        print(f"[Task {task_id}] Completed successfully")
+        task_info["progress"] = 100
+        log_message("Completed successfully")
         
     except Exception as e:
         import traceback
         error_msg = f"Error: {str(e)}\n{traceback.format_exc()}"
         task_info["error"] = str(e)
         task_info["status"] = "failed"
-        print(f"[Task {task_id}] Failed: {error_msg}")
+        task_info["progress"] = 0
+        log_message(f"Failed: {str(e)}")
+        print(f"[Task {task_id}] Full error:\n{error_msg}")
         
     finally:
         # Cleanup agent
         try:
             await agent.cleanup()
-        except Exception:
-            pass
+            log_message("Agent cleaned up")
+        except Exception as e:
+            log_message(f"Error during cleanup: {e}")
 
 
 @app.get("/artisan/status/{task_id}", response_model=ArtisanTaskStatus)
@@ -499,7 +518,9 @@ async def get_artisan_task_status(task_id: str):
     response = ArtisanTaskStatus(
         task_id=task_id,
         status=task_info["status"],
-        error=task_info.get("error")
+        error=task_info.get("error"),
+        messages=task_info.get("messages", []),
+        progress=task_info.get("progress", 0)
     )
     
     # Add result details if available

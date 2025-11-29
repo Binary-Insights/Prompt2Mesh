@@ -60,10 +60,13 @@ class BlenderMCPConnection:
     @traceable(name="initialize_blender_mcp")
     async def initialize(self) -> int:
         """Initialize MCP connection to Blender"""
+        # Pass environment variables to subprocess
+        env = os.environ.copy()
+        
         server_params = StdioServerParameters(
             command="python",
             args=["main.py"],
-            env=None
+            env=env
         )
         
         self.stdio_context = stdio_client(server_params)

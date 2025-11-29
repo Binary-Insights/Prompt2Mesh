@@ -79,6 +79,7 @@ services:
       - ../requirements:/app/requirements
       - ../screenshots:/app/screenshots
       - ../logs:/app/logs
+      - ../data:/app/data
     ports:
       - "8000:8000"
     networks:
@@ -113,6 +114,7 @@ services:
     volumes:
       - ../src:/app/src
       - ../main.py:/app/main.py
+      - ../data:/app/data
     ports:
       - "8501:8501"
     networks:
