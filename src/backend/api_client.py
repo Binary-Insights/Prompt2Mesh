@@ -4,13 +4,24 @@ Provides a simple interface for the Streamlit frontend to communicate with the F
 """
 import requests
 import uuid
+import os
+import sys
 from typing import Dict, Any, List
+from pathlib import Path
+
+# Add parent directory to path for imports
+parent_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(parent_dir))
+
+from config import get_backend_url
 
 
 class BlenderChatAPIClient:
     """Client for communicating with the Blender Chat FastAPI backend"""
     
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = None):
+        if base_url is None:
+            base_url = get_backend_url()
         self.base_url = base_url.rstrip('/')
         self._session_id = str(uuid.uuid4())  # Generate unique session ID
     

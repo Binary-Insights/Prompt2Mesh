@@ -7,9 +7,17 @@ import time
 from pathlib import Path
 from datetime import datetime
 import json
+import os
+import sys
+
+# Add parent directory to path for imports
+parent_dir = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(parent_dir))
+
+from config import get_backend_url
 
 # Backend API configuration
-BACKEND_URL = "http://localhost:8000"
+BACKEND_URL = get_backend_url()
 
 
 def verify_authentication():

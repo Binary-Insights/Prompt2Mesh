@@ -4,10 +4,19 @@ Login page for Prompt2Mesh application
 import streamlit as st
 import requests
 import time
+import os
+import sys
 from typing import Optional
+from pathlib import Path
+
+# Add parent directory to path for imports
+parent_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(parent_dir))
+
+from config import get_backend_url
 
 # Backend API configuration
-BACKEND_URL = "http://localhost:8000"
+BACKEND_URL = get_backend_url()
 
 
 def check_backend_status() -> bool:
