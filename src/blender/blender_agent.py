@@ -29,9 +29,12 @@ class BlenderChatAgent:
         
     async def initialize_mcp(self) -> int:
         """Initialize MCP connection to Blender"""
+        # Get the absolute path to main.py
+        main_py_path = os.path.join(os.getcwd(), "main.py")
+        
         server_params = StdioServerParameters(
             command="python",
-            args=["main.py"],
+            args=[main_py_path],
             env=None
         )
         
