@@ -17,12 +17,17 @@ if str(src_path) not in sys.path:
 # Try multiple import paths
 try:
     from config import get_backend_url
+    from backend.api_client import BlenderChatAPIClient
 except ImportError:
     try:
         from src.config import get_backend_url
+        from src.backend.api_client import BlenderChatAPIClient
     except ImportError:
         def get_backend_url():
             return "http://backend:8000"
+        # Fallback import
+        sys.path.insert(0, str(src_path / "src" / "backend"))
+        from api_client import BlenderChatAPIClient
 
 import requests
 
@@ -30,12 +35,67 @@ import requests
 BACKEND_URL = get_backend_url()
 
 
-def check_auth():
-    """Check if user is authenticated"""
-    if 'token' not in st.session_state:
-        st.warning("⚠️ Please login first")
-        st.stop()
-    return st.session_state.token
+def verify_authentication():
+    """Check if user is authenticated, redirect to login if not"""
+    if "authenticated" not in st.session_state or not st.session_state.authenticated:
+        st.error("⚠️ Please login first")
+        time.sleep(1)
+        st.switch_page("login_page.py")
+        return False
+    
+    if "token" not in st.session_state or not st.session_state.token:
+        st.error("⚠️ Session expired. Please login again.")
+        time.sleep(1)
+        st.switch_page("login_page.py")
+        return False
+    
+    # Verify token is still valid
+    try:
+        response = requests.post(
+            f"{BACKEND_URL}/auth/verify",
+            json={"token": st.session_state.token},
+            timeout=5
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if not data.get("valid", False):
+                st.session_state.authenticated = False
+                st.session_state.token = None
+                st.error("⚠️ Session expired. Please login again.")
+                time.sleep(1)
+                st.switch_page("login_page.py")
+                return False
+        else:
+            st.session_state.authenticated = False
+            st.session_state.token = None
+            st.switch_page("login_page.py")
+            return False
+    
+    except Exception:
+        st.error("⚠️ Unable to verify session. Please login again.")
+        time.sleep(1)
+        st.switch_page("login_page.py")
+        return False
+    
+    return True
+
+
+def logout_user():
+    """Logout user"""
+    try:
+        if st.session_state.get("token"):
+            requests.post(
+                f"{BACKEND_URL}/auth/logout",
+                json={"token": st.session_state.token},
+                timeout=5
+            )
+    except Exception:
+        pass
+    
+    st.session_state.authenticated = False
+    st.session_state.token = None
+    st.session_state.username = None
 
 
 def load_json_files():
@@ -120,18 +180,68 @@ def main():
         layout="wide"
     )
     
-    # Check authentication
-    token = check_auth()
+    # Check authentication first
+    if not verify_authentication():
+        return
     
-    st.title("📦 Batch Artisan Agent")
+    # Header with user info and logout
+    col1, col2, col3 = st.columns([3, 1, 1])
+    
+    with col1:
+        st.title("📦 Batch Artisan Agent")
+    
+    with col2:
+        st.info(f"👤 {st.session_state.get('username', 'User')}")
+    
+    with col3:
+        if st.button("🚪 Logout", use_container_width=True):
+            logout_user()
+            st.switch_page("login_page.py")
+    
     st.markdown("*Load refined prompts from JSON and run autonomous 3D modeling*")
     
     # Info banner
     st.info("💡 This page runs the Artisan agent using pre-refined prompts saved as JSON files in `data/prompts/json/`")
     
+    # Initialize API client in session state
+    if 'blender_client' not in st.session_state:
+        st.session_state.blender_client = BlenderChatAPIClient()
+    
+    if 'blender_connected' not in st.session_state:
+        st.session_state.blender_connected = False
+    
     # Sidebar
     with st.sidebar:
         st.header("⚙️ Configuration")
+        
+        # Blender connection status
+        st.subheader("🔌 Blender Connection")
+        backend_status = st.session_state.blender_client.health_check()
+        
+        if backend_status:
+            st.success("✅ Backend Connected")
+            
+            if not st.session_state.blender_connected:
+                if st.button("🔌 Connect to Blender", use_container_width=True):
+                    with st.spinner("Connecting to Blender..."):
+                        result = st.session_state.blender_client.connect()
+                        if result.get("connected"):
+                            st.session_state.blender_connected = True
+                            st.success(f"Connected! {result.get('num_tools', 0)} tools available")
+                            st.rerun()
+                        else:
+                            st.error(f"Connection failed: {result.get('error', 'Unknown error')}")
+            else:
+                st.success("✅ Blender Connected")
+                if st.button("🔌 Disconnect", use_container_width=True):
+                    st.session_state.blender_client.disconnect()
+                    st.session_state.blender_connected = False
+                    st.rerun()
+        else:
+            st.error("❌ Backend Offline")
+            st.info("Make sure the backend container is running")
+        
+        st.divider()
         
         # Load available JSON files
         json_files = load_json_files()
@@ -175,7 +285,11 @@ def main():
         if 'batch_running' not in st.session_state:
             st.session_state.batch_running = False
         
-        start_disabled = selected_file is None or st.session_state.batch_running
+        # Disable start button if: no file selected, already running, or not connected to Blender
+        start_disabled = selected_file is None or st.session_state.batch_running or not st.session_state.blender_connected
+        
+        if not st.session_state.blender_connected:
+            st.warning("⚠️ Connect to Blender first")
         
         if st.button("🎬 Start Modeling", disabled=start_disabled, use_container_width=True):
             st.session_state.batch_running = True
@@ -233,7 +347,7 @@ def main():
             with status_container:
                 with st.spinner("Starting modeling task..."):
                     try:
-                        result = start_modeling_task(selected_file, use_resume, token)
+                        result = start_modeling_task(selected_file, use_resume, st.session_state.token)
                         st.session_state.batch_task_id = result.get('task_id')
                         st.success(f"✅ Task started: {st.session_state.batch_task_id}")
                     except Exception as e:
@@ -261,7 +375,7 @@ def main():
         
         while st.session_state.batch_running and iteration < max_iterations:
             try:
-                status_data = get_task_status(task_id, token)
+                status_data = get_task_status(task_id, st.session_state.token)
                 
                 task_status = status_data.get('status', 'unknown')
                 

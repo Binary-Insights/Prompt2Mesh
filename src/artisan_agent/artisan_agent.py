@@ -33,6 +33,33 @@ load_dotenv()
 # Configure LangSmith
 os.environ["LANGCHAIN_CALLBACKS_BACKGROUND"] = "true"
 
+# Blender Version Compatibility Helper
+BLENDER_COMPAT_CODE = '''
+# Blender 4.x/5.x compatibility helper
+def set_principled_bsdf_property(bsdf, property_name, value):
+    """Set BSDF property with version compatibility"""
+    # Blender 4.x renamed some properties
+    property_mapping = {
+        'Specular': 'Specular IOR',  # Blender 4.x change
+        'Emission': 'Emission Color',  # Blender 4.x change
+    }
+    
+    # Try original name first
+    try:
+        bsdf.inputs[property_name].default_value = value
+        return True
+    except KeyError:
+        # Try mapped name if original fails
+        mapped_name = property_mapping.get(property_name)
+        if mapped_name:
+            try:
+                bsdf.inputs[mapped_name].default_value = value
+                return True
+            except KeyError:
+                pass
+    return False
+'''
+
 
 class AgentState(TypedDict):
     """State of the Artisan Agent"""
@@ -49,6 +76,15 @@ class AgentState(TypedDict):
     initial_scene_state: Dict[str, Any]  # Initial Blender scene state
     completed_steps: List[str]  # Steps already completed (for resume)
     is_resuming: bool  # Whether this is a resumed session
+    critical_error: Optional[str]  # Critical error that halts execution
+    # Refinement loop fields
+    vision_feedback: List[str]  # Vision-based quality feedback from screenshots
+    execution_errors: List[str]  # Execution errors for debugging
+    quality_scores: List[Dict[str, Any]]  # Quality scores per step
+    refinement_attempts: int  # Number of refinement attempts for current step
+    max_refinements_per_step: int  # Maximum refinements allowed per step
+    needs_refinement: bool  # Whether current step needs refinement
+    refinement_feedback: Optional[str]  # Specific feedback for refinement
 
 
 class BlenderMCPConnection:
@@ -224,7 +260,7 @@ class ArtisanAgent:
         self.display_callback("Agent workflow initialized", "success")
     
     def _create_graph(self) -> StateGraph:
-        """Create the LangGraph workflow"""
+        """Create the LangGraph workflow with refinement loop"""
         workflow = StateGraph(AgentState)
         
         # Add nodes
@@ -232,6 +268,8 @@ class ArtisanAgent:
         workflow.add_node("plan", self._plan_node)
         workflow.add_node("execute_step", self._execute_step_node)
         workflow.add_node("capture_feedback", self._capture_feedback_node)
+        workflow.add_node("assess_quality", self._assess_quality_node)  # NEW: Quality assessment
+        workflow.add_node("refine_step", self._refine_step_node)  # NEW: Refinement execution
         workflow.add_node("evaluate_progress", self._evaluate_progress_node)
         workflow.add_node("complete", self._complete_node)
         
@@ -242,7 +280,20 @@ class ArtisanAgent:
         workflow.add_edge("analyze_scene", "plan")
         workflow.add_edge("plan", "execute_step")
         workflow.add_edge("execute_step", "capture_feedback")
-        workflow.add_edge("capture_feedback", "evaluate_progress")
+        workflow.add_edge("capture_feedback", "assess_quality")  # NEW: Always assess quality
+        
+        # NEW: Conditional edge from quality assessment
+        workflow.add_conditional_edges(
+            "assess_quality",
+            self._should_refine,
+            {
+                "refine": "refine_step",  # Quality issues detected - refine
+                "continue": "evaluate_progress"  # Quality acceptable - continue
+            }
+        )
+        
+        # NEW: After refinement, capture feedback again
+        workflow.add_edge("refine_step", "capture_feedback")
         
         # Conditional edge: continue or complete
         workflow.add_conditional_edges(
@@ -392,7 +443,25 @@ Provide at least 5-10 concrete steps to build the model."""
             logger.debug(f"Step {i}: {step[:100]}")
         
         # If resuming, detect completed steps with detailed object inspection
+        # CRITICAL: Only attempt resume if there are SUBSTANTIAL objects (not just templates)
         if state.get("is_resuming", False) and scene_state.get("objects_present", False):
+            # SAFETY: Check if we actually have meaningful geometry
+            import json
+            try:
+                scene_data = json.loads(scene_info)
+                num_objects = len(scene_data.get("objects", []))
+                
+                # If we only have 1-3 objects, likely just templates - start fresh
+                if num_objects <= 3:
+                    logger.warning(f"Only {num_objects} objects found - likely templates, starting fresh")
+                    self.display_callback("Few objects detected - building from scratch", "info")
+                    state["completed_steps"] = []
+                    state["current_step"] = 0
+                    state["planning_steps"] = steps
+                    return state
+            except:
+                pass
+                
             logger.info("Analyzing which steps are already completed...")
             self.display_callback("Detecting completed work...", "thinking")
             
@@ -514,6 +583,22 @@ If objects exist but appear to be placeholders or incomplete, respond with "none
 Previous context:
 {chr(10).join(state['feedback_history'][-3:]) if state['feedback_history'] else 'Starting fresh'}
 
+IMPORTANT - Blender Version Compatibility:
+When setting Principled BSDF properties, use this compatibility pattern to handle Blender 4.x/5.x differences:
+
+{BLENDER_COMPAT_CODE}
+
+Example usage:
+```python
+bsdf = mat.node_tree.nodes.get("Principled BSDF")
+if bsdf:
+    bsdf.inputs['Base Color'].default_value = (1.0, 0.0, 0.0, 1.0)
+    bsdf.inputs['Roughness'].default_value = 0.5
+    # Use helper for renamed properties
+    set_principled_bsdf_property(bsdf, 'Specular', 0.5)  # Handles Blender 4.x rename
+    set_principled_bsdf_property(bsdf, 'Emission', (1.0, 1.0, 1.0, 1.0))  # Handles Blender 4.x rename
+```
+
 Use the appropriate Blender MCP tools to accomplish this step.
 For code execution, use execute_blender_code.
 After significant changes, get a viewport screenshot for verification."""
@@ -552,11 +637,37 @@ After significant changes, get a viewport screenshot for verification."""
                 )
                 tool_messages.append(tool_message)
                 
-                if result["success"]:
-                    self.display_callback(f"  ✅ {tool_call['name']} completed", "success")
+                # ENHANCED: Check for errors even when success=True
+                result_str = str(result.get('result', '')).lower()
+                has_error = (
+                    not result.get('success', False) or
+                    'error' in result_str or
+                    'failed' in result_str or
+                    'not found' in result_str
+                )
+                
+                if has_error:
+                    error_msg = result.get('result', '')[:200]
+                    logger.error(f"Tool {tool_call['name']} had errors: {error_msg}")
+                    self.display_callback(f"  ⚠️ {tool_call['name']} completed with errors", "error")
+                    self.display_callback(f"Tool {tool_call['name']} had errors: {error_msg}", "error")
+                    
+                    # Store error for later analysis
+                    if "execution_errors" not in state:
+                        state["execution_errors"] = []
+                    state["execution_errors"].append(f"Step {state['current_step']}: {error_msg}")
+                    
+                    # CRITICAL: Halt on Blender code execution errors in early steps
+                    if tool_call['name'] == 'execute_blender_code' and state['current_step'] <= 5:
+                        error_lower = str(result.get('result', '')).lower()
+                        if any(pattern in error_lower for pattern in ['not found', 'no attribute', 'keyerror']):
+                            state['critical_error'] = f"Step {state['current_step']} failed: {error_msg}"
+                            logger.critical(f"🛑 CRITICAL ERROR in step {state['current_step']}: {error_msg}")
+                            self.display_callback(f"🛑 CRITICAL ERROR: {error_msg}", "error")
+                            self.display_callback("Execution halted due to critical error", "error")
+                            return state
                 else:
-                    logger.error(f"Tool {tool_call['name']} failed: {result['result'][:200]}")
-                    self.display_callback(f"  ❌ {tool_call['name']} failed: {result['result'][:100]}", "error")
+                    self.display_callback(f"  ✅ {tool_call['name']} completed", "success")
         else:
             logger.warning("LLM did not request any tool calls!")
             if hasattr(response, 'content'):
@@ -572,8 +683,9 @@ After significant changes, get a viewport screenshot for verification."""
     
     @traceable(name="capture_viewport_feedback")
     async def _capture_feedback_node(self, state: AgentState) -> AgentState:
-        """Capture viewport screenshot for visual feedback"""
-        self.display_callback("Capturing viewport screenshot...", "screenshot")
+        """Capture viewport screenshot and analyze with vision model"""
+        logger = logging.getLogger(__name__)
+        self.display_callback("📸 Capturing viewport screenshot...", "screenshot")
         
         # Call screenshot tool
         screenshot_result = await self.mcp.call_tool("get_viewport_screenshot", {"max_size": 800})
@@ -581,27 +693,72 @@ After significant changes, get a viewport screenshot for verification."""
         if screenshot_result["success"] and screenshot_result.get("image_data"):
             # Save screenshot
             screenshot_count = state["screenshot_count"]
-            screenshot_path = state["screenshot_dir"] / f"step_{state['current_step']}_screenshot_{screenshot_count}.png"
+            refine_suffix = f"_refine{state.get('refinement_attempts', 0)}" if state.get('refinement_attempts', 0) > 0 else ""
+            screenshot_path = state["screenshot_dir"] / f"step_{state['current_step']}_screenshot_{screenshot_count}{refine_suffix}.png"
             
             # Decode and save
             image_bytes = base64.b64decode(screenshot_result["image_data"])
             screenshot_path.write_bytes(image_bytes)
             
             state["screenshot_count"] += 1
-            self.display_callback(f"Screenshot saved: {screenshot_path.name}", "success")
+            self.display_callback(f"✅ Screenshot saved: {screenshot_path.name}", "success")
+            
+            # NEW: Vision-based analysis
+            try:
+                vision_model = ChatAnthropic(model="claude-sonnet-4-20250514", max_tokens=1024)
+                
+                current_step_desc = state["planning_steps"][state["current_step"]] if state["current_step"] < len(state["planning_steps"]) else "Final step"
+                
+                vision_prompt = f"""Analyze this 3D modeling screenshot from Blender.
+
+Current Step ({state['current_step'] + 1}): {current_step_desc}
+
+Evaluate:
+1. Does the geometry match the step description?
+2. Is there sufficient detail and complexity?
+3. Are there any visual errors or missing elements?
+4. Overall quality rating (1-10)?
+
+Provide a brief analysis focusing on quality issues that need refinement."""
+                
+                # Create vision message with image
+                vision_message = HumanMessage(
+                    content=[
+                        {"type": "text", "text": vision_prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/png;base64,{screenshot_result['image_data']}"},
+                        },
+                    ]
+                )
+                
+                vision_response = await vision_model.ainvoke([vision_message])
+                vision_feedback = vision_response.content
+                
+                # Store vision feedback
+                if "vision_feedback" not in state:
+                    state["vision_feedback"] = []
+                state["vision_feedback"].append(vision_feedback)
+                
+                logger.info(f"Vision Analysis: {vision_feedback[:200]}...")
+                self.display_callback("🔍 Vision analysis complete", "success")
+                
+            except Exception as e:
+                logger.error(f"Vision analysis failed: {e}")
+                self.display_callback(f"⚠️ Vision analysis failed: {e}", "error")
             
             # Get scene info for feedback
             scene_info = await self.mcp.call_tool("get_scene_info", {})
             feedback = f"Step {state['current_step']} - Scene: {scene_info.get('result', 'Unknown')[:200]}"
             state["feedback_history"].append(feedback)
         else:
-            self.display_callback("Screenshot capture failed", "error")
+            self.display_callback("❌ Screenshot capture failed", "error")
         
         return state
     
     @traceable(name="evaluate_modeling_progress")
     def _evaluate_progress_node(self, state: AgentState) -> AgentState:
-        """Evaluate whether modeling is complete"""
+        """Evaluate whether modeling is complete with quality check"""
         logger = logging.getLogger(__name__)
         self.display_callback("Evaluating progress...", "thinking")
         
@@ -609,6 +766,25 @@ After significant changes, get a viewport screenshot for verification."""
         
         # Check if all steps are done
         if state["current_step"] >= len(state["planning_steps"]):
+            # ENHANCED: Check quality before marking complete
+            if state.get("vision_feedback"):
+                # Analyze recent vision feedback for quality issues
+                recent_feedback = state["vision_feedback"][-3:] if len(state["vision_feedback"]) >= 3 else state["vision_feedback"]
+                combined_feedback = "\n\n".join(recent_feedback)
+                
+                # Check for common quality issues
+                quality_issues = []
+                if "error" in combined_feedback.lower():
+                    quality_issues.append("execution errors detected")
+                if "missing" in combined_feedback.lower():
+                    quality_issues.append("missing elements")
+                if "basic" in combined_feedback.lower() or "simple" in combined_feedback.lower():
+                    quality_issues.append("lacks detail or decoration")
+                
+                if quality_issues:
+                    logger.warning(f"Quality issues detected: {', '.join(quality_issues)}")
+                    self.display_callback(f"⚠️ Quality issues: {', '.join(quality_issues)}", "info")
+            
             state["is_complete"] = True
             logger.info("All steps completed, marking task as complete")
             self.display_callback("All steps completed!", "success")
@@ -619,8 +795,158 @@ After significant changes, get a viewport screenshot for verification."""
         
         return state
     
+    @traceable(name="assess_step_quality")
+    async def _assess_quality_node(self, state: AgentState) -> AgentState:
+        """Assess quality of current step using vision feedback"""
+        logger = logging.getLogger(__name__)
+        self.display_callback("🎯 Assessing quality...", "thinking")
+        
+        # Initialize quality tracking if needed
+        if "quality_scores" not in state:
+            state["quality_scores"] = []
+        if "refinement_attempts" not in state:
+            state["refinement_attempts"] = 0
+        if "max_refinements_per_step" not in state:
+            state["max_refinements_per_step"] = 2  # Max 2 refinements per step
+        
+        # Get most recent vision feedback
+        vision_feedback = state.get("vision_feedback", [])[-1] if state.get("vision_feedback") else ""
+        
+        if not vision_feedback:
+            logger.warning("No vision feedback available, skipping quality assessment")
+            state["needs_refinement"] = False
+            return state
+        
+        # Parse quality score from vision feedback
+        quality_score = 5  # Default medium score
+        try:
+            # Look for rating pattern like "8/10" or "rating: 7"
+            import re
+            score_match = re.search(r'(\d+)\s*/\s*10|rating[:\s]+(\d+)', vision_feedback.lower())
+            if score_match:
+                quality_score = int(score_match.group(1) or score_match.group(2))
+        except Exception as e:
+            logger.warning(f"Could not parse quality score: {e}")
+        
+        # Determine if refinement is needed
+        refinement_threshold = 6  # Require score >= 6 to pass
+        needs_refinement = quality_score < refinement_threshold
+        
+        # Don't refine if we've hit max attempts
+        if needs_refinement and state["refinement_attempts"] >= state["max_refinements_per_step"]:
+            logger.warning(f"Max refinement attempts ({state['max_refinements_per_step']}) reached for step {state['current_step']}")
+            needs_refinement = False
+            self.display_callback(f"⚠️ Max refinements reached, accepting current result", "info")
+        
+        # Critical steps (1-5) should have higher standards
+        if state["current_step"] < 5 and quality_score < 7:
+            needs_refinement = True
+            logger.info(f"Critical step {state['current_step']} requires higher quality (score: {quality_score})")
+        
+        # Store quality assessment
+        quality_data = {
+            "step": state["current_step"],
+            "score": quality_score,
+            "needs_refinement": needs_refinement,
+            "attempt": state["refinement_attempts"],
+            "feedback": vision_feedback[:200]
+        }
+        state["quality_scores"].append(quality_data)
+        state["needs_refinement"] = needs_refinement
+        
+        if needs_refinement:
+            state["refinement_feedback"] = vision_feedback
+            self.display_callback(f"🔄 Quality score: {quality_score}/10 - Refinement needed", "info")
+            logger.info(f"Step {state['current_step']} needs refinement (score: {quality_score})")
+        else:
+            state["refinement_feedback"] = None
+            state["refinement_attempts"] = 0  # Reset for next step
+            self.display_callback(f"✅ Quality score: {quality_score}/10 - Acceptable", "success")
+            logger.info(f"Step {state['current_step']} quality acceptable (score: {quality_score})")
+        
+        return state
+    
+    @traceable(name="refine_current_step")
+    async def _refine_step_node(self, state: AgentState) -> AgentState:
+        """Refine current step based on quality feedback"""
+        logger = logging.getLogger(__name__)
+        
+        state["refinement_attempts"] = state.get("refinement_attempts", 0) + 1
+        self.display_callback(f"🔧 Refining step {state['current_step']} (attempt {state['refinement_attempts']})...", "thinking")
+        
+        # Get current step description
+        current_step_desc = state["planning_steps"][state["current_step"]] if state["current_step"] < len(state["planning_steps"]) else "Final step"
+        
+        # Create refinement prompt
+        refinement_prompt = f"""You previously executed this step:
+{current_step_desc}
+
+Vision analysis identified these quality issues:
+{state.get('refinement_feedback', 'Quality issues detected')}
+
+Generate improved Blender Python code to address these issues. Focus on:
+1. Adding more detail and complexity
+2. Fixing any geometry errors
+3. Improving visual realism
+4. Maintaining compatibility with existing scene objects
+
+Use the execute_blender_code tool to apply improvements.
+
+{BLENDER_COMPAT_CODE}
+
+IMPORTANT: The code should ENHANCE the existing work, not replace it entirely unless necessary."""
+        
+        # Create message for LLM
+        messages = [
+            SystemMessage(content="You are an expert 3D modeler refining Blender scenes based on visual feedback."),
+            HumanMessage(content=refinement_prompt)
+        ]
+        
+        # Bind tools to LLM
+        llm_with_tools = self.llm.bind_tools([tool.to_langchain_tool() for tool in self.mcp.tools.values()])
+        
+        try:
+            response = await llm_with_tools.ainvoke(messages)
+            
+            # Execute tool calls
+            if hasattr(response, 'tool_calls') and response.tool_calls:
+                self.display_callback(f"  🔧 Executing refinement code...", "info")
+                
+                for tool_call in response.tool_calls:
+                    logger.info(f"Refinement calling tool: {tool_call['name']}")
+                    
+                    result = await self.mcp.call_tool(
+                        tool_call['name'],
+                        tool_call.get('args', {})
+                    )
+                    
+                    if result.get('success'):
+                        self.display_callback(f"  ✅ Refinement applied", "success")
+                    else:
+                        self.display_callback(f"  ⚠️ Refinement had issues: {result.get('result', '')[:100]}", "error")
+                        logger.warning(f"Refinement tool result: {result}")
+            else:
+                logger.warning("LLM did not generate refinement tool calls")
+                self.display_callback("⚠️ No refinement actions generated", "info")
+        
+        except Exception as e:
+            logger.error(f"Refinement execution failed: {e}")
+            self.display_callback(f"❌ Refinement failed: {e}", "error")
+        
+        return state
+    
+    def _should_refine(self, state: AgentState) -> str:
+        """Decide whether to refine current step or continue"""
+        if state.get("needs_refinement", False):
+            return "refine"
+        return "continue"
+    
     def _should_continue(self, state: AgentState) -> str:
         """Decide whether to continue or complete"""
+        # Check for critical errors first
+        if state.get("critical_error"):
+            self.logger.critical(f"Workflow halted due to critical error: {state['critical_error']}")
+            return "complete"  # End workflow on critical error
         return "complete" if state["is_complete"] else "continue"
     
     @traceable(name="complete_modeling")
