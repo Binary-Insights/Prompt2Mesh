@@ -416,6 +416,16 @@ async def refine_prompt(request: RefinePromptRequest):
     """Refine a user prompt into a comprehensive 3D modeling description"""
     global refinement_agent
     
+    # Handle "as-is" detail level - skip refinement
+    if request.detail_level == "as-is":
+        print(f"📝 Using prompt as-is (no refinement): {request.prompt[:100]}...")
+        return RefinePromptResponse(
+            refined_prompt=request.prompt,
+            reasoning_steps=["Used prompt as-is without refinement"],
+            is_detailed=True,
+            original_prompt=request.prompt
+        )
+    
     if not refinement_agent:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -468,8 +478,12 @@ async def start_artisan_modeling(request: ArtisanModelingRequest):
         import uuid
         task_id = str(uuid.uuid4())[:8]
         
-        # Create new artisan agent instance for this task
-        task_agent = ArtisanAgent()
+        # Create cancellation check function
+        def is_cancelled():
+            return artisan_tasks.get(task_id, {}).get("cancelled", False)
+        
+        # Create new artisan agent instance for this task with cancellation support
+        task_agent = ArtisanAgent(cancellation_check=is_cancelled)
         
         # Store task info
         artisan_tasks[task_id] = {
@@ -480,7 +494,8 @@ async def start_artisan_modeling(request: ArtisanModelingRequest):
             "result": None,
             "error": None,
             "messages": [],  # Add message log
-            "progress": 0  # Add progress tracking
+            "progress": 0,  # Add progress tracking
+            "cancelled": False  # Add cancellation flag
         }
         
         # Start task in background
@@ -515,6 +530,13 @@ async def _run_artisan_task(task_id: str):
         task_info["messages"].append(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
     
     try:
+        # Check if cancelled before starting
+        if task_info.get("cancelled", False):
+            task_info["status"] = "cancelled"
+            task_info["progress"] = 0
+            log_message("Task cancelled before initialization")
+            return
+        
         # Update status
         task_info["status"] = "running"
         task_info["progress"] = 10
@@ -522,6 +544,14 @@ async def _run_artisan_task(task_id: str):
         # Initialize agent
         log_message("Initializing Artisan Agent...")
         await agent.initialize()
+        
+        # Check cancellation after initialization
+        if task_info.get("cancelled", False):
+            task_info["status"] = "cancelled"
+            task_info["progress"] = 0
+            log_message("Task cancelled after initialization")
+            return
+        
         task_info["progress"] = 20
         log_message("Agent initialized successfully")
         
@@ -533,6 +563,13 @@ async def _run_artisan_task(task_id: str):
             task_info["requirement_file"],
             use_deterministic_session=task_info["use_resume"]
         )
+        
+        # Check if cancelled after completion (task may have been cancelled mid-execution)
+        if task_info.get("cancelled", False):
+            task_info["status"] = "cancelled"
+            task_info["progress"] = 0
+            log_message("Task was cancelled during execution")
+            return
         
         # Store result
         task_info["result"] = result
@@ -611,6 +648,39 @@ async def list_artisan_tasks():
         "tasks": tasks_summary,
         "total": len(tasks_summary)
     }
+
+
+@app.post("/artisan/cancel/{task_id}")
+async def cancel_artisan_task(task_id: str):
+    """Cancel a running artisan modeling task"""
+    global artisan_tasks
+    
+    if task_id not in artisan_tasks:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task {task_id} not found"
+        )
+    
+    task_info = artisan_tasks[task_id]
+    
+    # Only cancel if task is running or initializing
+    if task_info["status"] in ["initializing", "running"]:
+        task_info["cancelled"] = True
+        task_info["status"] = "cancelled"
+        task_info["progress"] = 0
+        task_info["messages"].append(f"[{datetime.now().strftime('%H:%M:%S')}] Task cancelled by user")
+        
+        return {
+            "task_id": task_id,
+            "status": "cancelled",
+            "message": "Task cancellation requested"
+        }
+    else:
+        return {
+            "task_id": task_id,
+            "status": task_info["status"],
+            "message": f"Task cannot be cancelled (current status: {task_info['status']})"
+        }
 
 
 # ============================================================================
