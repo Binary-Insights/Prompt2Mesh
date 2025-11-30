@@ -220,10 +220,36 @@ async def connect():
     
     # Check if already connected
     if agent and not agent._cleanup_done:
-        return ConnectionStatus(
-            connected=True,
-            num_tools=len(agent.tools)
-        )
+        # Test if Blender is actually reachable
+        try:
+            test_result = await agent.call_mcp_tool("get_scene_info", {})
+            # Check both the success flag and result content for errors
+            result_str = str(test_result.get("result", "")).lower()
+            if (not test_result.get("success", False) or 
+                "unknown tool" in result_str or
+                "connection refused" in result_str or 
+                "could not connect" in result_str or
+                "error executing" in result_str or
+                "failed to connect" in result_str):
+                # Connection is broken, clean up
+                await agent.cleanup()
+                agent = None
+                return ConnectionStatus(
+                    connected=False,
+                    error="Blender MCP addon is not running. Please enable the addon in Blender."
+                )
+            return ConnectionStatus(
+                connected=True,
+                num_tools=len(agent.tools)
+            )
+        except Exception:
+            # Connection test failed, clean up
+            await agent.cleanup()
+            agent = None
+            return ConnectionStatus(
+                connected=False,
+                error="Blender MCP addon is not running. Please enable the addon in Blender."
+            )
     
     try:
         # Check for API key
@@ -240,12 +266,44 @@ async def connect():
         # Initialize MCP connection using await (we're in an async function)
         num_tools = await agent.initialize_mcp()
         
-        return ConnectionStatus(
-            connected=True,
-            num_tools=num_tools
-        )
+        # Test actual Blender connection by calling a simple tool
+        try:
+            test_result = await agent.call_mcp_tool("get_scene_info", {})
+            
+            # Check both the success flag and result content for errors
+            result_str = str(test_result.get("result", "")).lower()
+            
+            # The MCP server returns "Unknown tool" when Blender isn't connected
+            # or returns error messages containing connection failures
+            if (not test_result.get("success", False) or 
+                "unknown tool" in result_str or
+                "connection refused" in result_str or 
+                "could not connect" in result_str or
+                "error executing" in result_str or
+                "failed to connect" in result_str):
+                await agent.cleanup()
+                agent = None
+                return ConnectionStatus(
+                    connected=False,
+                    error="Blender MCP addon is not running. Please enable the addon in Blender."
+                )
+            
+            return ConnectionStatus(
+                connected=True,
+                num_tools=num_tools
+            )
+        except Exception as test_error:
+            # Test call failed, cleanup and return error
+            await agent.cleanup()
+            agent = None
+            return ConnectionStatus(
+                connected=False,
+                error=f"Blender MCP addon is not running. Please enable the addon in Blender. ({str(test_error)})"
+            )
     
     except Exception as e:
+        if agent:
+            await agent.cleanup()
         agent = None
         return ConnectionStatus(
             connected=False,

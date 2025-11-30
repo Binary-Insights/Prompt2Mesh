@@ -73,6 +73,13 @@ services:
       BLENDER_HOST: blender
       BLENDER_PORT: 9876
       PYTHONUNBUFFERED: 1
+      # Langsmith/Langchain Tracing
+      LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2:-true}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+      LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT:-Prompt2Mesh}
+      LANGCHAIN_CALLBACKS_BACKGROUND: ${LANGCHAIN_CALLBACKS_BACKGROUND:-true}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
+      LANGGRAPH_RECURSION_LIMIT: ${LANGGRAPH_RECURSION_LIMIT:-100}
     volumes:
       - ../src:/app/src
       - ../main.py:/app/main.py
@@ -111,6 +118,13 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
       BLENDER_HOST: blender
       BLENDER_PORT: 9876
+      # Langsmith/Langchain Tracing
+      LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2:-true}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+      LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT:-Prompt2Mesh}
+      LANGCHAIN_CALLBACKS_BACKGROUND: ${LANGCHAIN_CALLBACKS_BACKGROUND:-true}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
+      LANGGRAPH_RECURSION_LIMIT: ${LANGGRAPH_RECURSION_LIMIT:-100}
     volumes:
       - ../src:/app/src
       - ../main.py:/app/main.py
