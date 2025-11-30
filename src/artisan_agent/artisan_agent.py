@@ -206,16 +206,18 @@ class ArtisanAgent:
     5. Iterates until completion
     """
     
-    def __init__(self, session_id: Optional[str] = None, display_callback: Optional[callable] = None):
+    def __init__(self, session_id: Optional[str] = None, display_callback: Optional[callable] = None, cancellation_check: Optional[callable] = None):
         """
         Initialize the Artisan Agent
         
         Args:
             session_id: Optional session ID (generated if not provided)
             display_callback: Optional callback for displaying progress (for Streamlit)
+            cancellation_check: Optional callback that returns True if task should be cancelled
         """
         self.session_id = session_id or str(uuid4())
         self.display_callback = display_callback or self._console_display
+        self.cancellation_check = cancellation_check or (lambda: False)
         
         # Initialize LLM
         self.llm = ChatAnthropic(
@@ -562,6 +564,14 @@ If objects exist but appear to be placeholders or incomplete, respond with "none
     async def _execute_step_node(self, state: AgentState) -> AgentState:
         """Execute the current modeling step"""
         logger = logging.getLogger(__name__)
+        
+        # Check for cancellation
+        if self.cancellation_check():
+            logger.info("Task cancelled - stopping execution")
+            state["is_complete"] = True
+            state["critical_error"] = "Task cancelled by user"
+            return state
+        
         current_idx = state["current_step"]
         
         logger.info(f"Execute step node - current_step: {current_idx}, total_steps: {len(state['planning_steps'])}")
@@ -807,7 +817,14 @@ Provide a brief analysis focusing on quality issues that need refinement."""
         if "refinement_attempts" not in state:
             state["refinement_attempts"] = 0
         if "max_refinements_per_step" not in state:
-            state["max_refinements_per_step"] = 2  # Max 2 refinements per step
+            # Load from environment (.env already processed by load_dotenv)
+            raw_refinements = os.getenv("REFINEMENT_STEPS", "2")
+            try:
+                max_refinements = int(raw_refinements)
+            except ValueError:
+                max_refinements = 2  # fallback
+            # Ensure non-negative
+            state["max_refinements_per_step"] = max(0, max_refinements)
         
         # Get most recent vision feedback
         vision_feedback = state.get("vision_feedback", [])[-1] if state.get("vision_feedback") else ""
@@ -828,20 +845,21 @@ Provide a brief analysis focusing on quality issues that need refinement."""
         except Exception as e:
             logger.warning(f"Could not parse quality score: {e}")
         
-        # Determine if refinement is needed
-        refinement_threshold = 6  # Require score >= 6 to pass
-        needs_refinement = quality_score < refinement_threshold
+        # Determine if refinement is needed based on step type
+        # Critical steps (1-5) have higher threshold
+        if state["current_step"] < 5:
+            refinement_threshold = 7  # Critical steps need 7+
+            needs_refinement = quality_score < refinement_threshold
+        else:
+            refinement_threshold = 6  # Normal steps need 6+
+            needs_refinement = quality_score < refinement_threshold
         
-        # Don't refine if we've hit max attempts
-        if needs_refinement and state["refinement_attempts"] >= state["max_refinements_per_step"]:
-            logger.warning(f"Max refinement attempts ({state['max_refinements_per_step']}) reached for step {state['current_step']}")
-            needs_refinement = False
-            self.display_callback(f"⚠️ Max refinements reached, accepting current result", "info")
-        
-        # Critical steps (1-5) should have higher standards
-        if state["current_step"] < 5 and quality_score < 7:
-            needs_refinement = True
-            logger.info(f"Critical step {state['current_step']} requires higher quality (score: {quality_score})")
+        # IMPORTANT: Don't refine if we've hit max attempts (this overrides everything)
+        if state["refinement_attempts"] >= state["max_refinements_per_step"]:
+            if needs_refinement:
+                logger.warning(f"⚠️ Max refinement attempts ({state['max_refinements_per_step']}) reached for step {state['current_step']}")
+                self.display_callback(f"⚠️ Max refinements reached (score: {quality_score}/10), accepting current result", "warning")
+            needs_refinement = False  # Force accept even if score is low
         
         # Store quality assessment
         quality_data = {
@@ -856,13 +874,13 @@ Provide a brief analysis focusing on quality issues that need refinement."""
         
         if needs_refinement:
             state["refinement_feedback"] = vision_feedback
-            self.display_callback(f"🔄 Quality score: {quality_score}/10 - Refinement needed", "info")
-            logger.info(f"Step {state['current_step']} needs refinement (score: {quality_score})")
+            self.display_callback(f"🔄 Quality score: {quality_score}/10 (threshold: {refinement_threshold}) - Refinement needed", "info")
+            logger.info(f"Step {state['current_step']} needs refinement (score: {quality_score}/{refinement_threshold}, attempt: {state['refinement_attempts']})")
         else:
             state["refinement_feedback"] = None
             state["refinement_attempts"] = 0  # Reset for next step
-            self.display_callback(f"✅ Quality score: {quality_score}/10 - Acceptable", "success")
-            logger.info(f"Step {state['current_step']} quality acceptable (score: {quality_score})")
+            self.display_callback(f"✅ Quality score: {quality_score}/10 (threshold: {refinement_threshold}) - Acceptable", "success")
+            logger.info(f"Step {state['current_step']} quality acceptable (score: {quality_score}/{refinement_threshold})")
         
         return state
     
@@ -902,11 +920,11 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
             HumanMessage(content=refinement_prompt)
         ]
         
-        # Bind tools to LLM
-        llm_with_tools = self.llm.bind_tools([tool.to_langchain_tool() for tool in self.mcp.tools.values()])
+        # Get tool schemas for Claude (same as execute_step_node)
+        tools = self.mcp.get_tools_schema()
         
         try:
-            response = await llm_with_tools.ainvoke(messages)
+            response = await self.llm.bind_tools(tools).ainvoke(messages)
             
             # Execute tool calls
             if hasattr(response, 'tool_calls') and response.tool_calls:
@@ -1022,14 +1040,18 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
         
         # Run the graph
         # Set high recursion limit for multi-step workflows
-        # Each step goes through: plan → execute → capture → evaluate → (loop)
-        # For 12 steps, we need ~50+ iterations, so set to 100 to be safe
+        # Each step goes through: plan → execute → capture → assess → evaluate → (loop)
+        # For complex models with refinement loops, we need higher limits
+        recursion_limit = int(os.getenv("LANGGRAPH_RECURSION_LIMIT", "100"))
+        
         config = {
             "configurable": {"thread_id": self.session_id},
-            "recursion_limit": int(os.getenv("LANGGRAPH_RECURSION_LIMIT", "100"))
+            "recursion_limit": recursion_limit
         }
         
-        self.display_callback("Starting modeling workflow...", "info")
+        self.display_callback(f"Starting modeling workflow with recursion limit: {recursion_limit}...", "info")
+        logger = logging.getLogger(__name__)
+        logger.info(f"LangGraph recursion limit set to: {recursion_limit}")
         
         final_state = await self.graph.ainvoke(initial_state, config)
         
