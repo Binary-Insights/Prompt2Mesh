@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL Database
@@ -23,7 +23,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Blender Container (UI only)
+  # Blender Container (UI only, running Blender + MCP addon via your scripts)
   blender:
     image: linuxserver/blender:latest
     container_name: prompt2mesh-blender
@@ -48,8 +48,8 @@ services:
       - "3000:3000"
       # Blender VNC (optional)
       - "3001:3001"
-      # Blender MCP Server (internal only, not exposed to host)
     expose:
+      # Blender MCP Server (internal-only, used by backend/Streamlit via BLENDER_HOST/PORT)
       - "9876"
     networks:
       - prompt2mesh-network

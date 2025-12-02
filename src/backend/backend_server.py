@@ -20,6 +20,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 from src.blender.blender_agent import BlenderChatAgent
+from src.blender.blender_network_agent import BlenderNetworkAgent
 from src.refinement_agent import PromptRefinementAgent
 from src.artisan_agent import ArtisanAgent
 from src.login import AuthService, init_db
@@ -218,6 +219,10 @@ async def connect():
     """Connect to Blender MCP server"""
     global agent, agent_loop
     
+    # Determine if we should use network agent (Kubernetes) or stdio agent (local)
+    use_network_agent = os.environ.get("USE_NETWORK_AGENT", "true").lower() == "true"
+    blender_host = os.environ.get("BLENDER_HOST", "localhost")
+    
     # Check if already connected
     if agent and not agent._cleanup_done:
         # Test if Blender is actually reachable
@@ -260,8 +265,13 @@ async def connect():
                 detail="ANTHROPIC_API_KEY not set in environment"
             )
         
-        # Create new agent
-        agent = BlenderChatAgent(api_key=api_key)
+        # Create new agent - use network agent for Kubernetes, stdio for local
+        if use_network_agent:
+            print(f"🌐 Using network agent to connect to Blender at {blender_host}")
+            agent = BlenderNetworkAgent(api_key=api_key)
+        else:
+            print(f"💻 Using stdio agent for local Blender connection")
+            agent = BlenderChatAgent(api_key=api_key)
         
         # Initialize MCP connection using await (we're in an async function)
         num_tools = await agent.initialize_mcp()

@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Kubernetes secrets (contains sensitive API keys)
+k8s/base/secrets.yaml

@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-init
+  namespace: prompt2mesh
+  labels:
+    app: db-init
+spec:
+  # Only run once
+  completions: 1
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: db-init
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+      # Wait for postgres to be ready
+      - name: wait-for-postgres
+        image: postgres:16-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h postgres -p 5432 -U postgres; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+        env:
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: prompt2mesh-secrets
+              key: POSTGRES_PASSWORD
+      containers:
+      - name: db-init
+        # Replace with your actual ECR image URI
+        image: 920120424629.dkr.ecr.us-east-1.amazonaws.com/prompt2mesh-backend:latest
+        command:
+        - python3
+        - init_db.py
+        envFrom:
+        - configMapRef:
+            name: prompt2mesh-config
+        - secretRef:
+            name: prompt2mesh-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

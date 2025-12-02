@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamlit
+  namespace: prompt2mesh
+  labels:
+    app: streamlit
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: streamlit
+  template:
+    metadata:
+      labels:
+        app: streamlit
+    spec:
+      containers:
+      - name: streamlit
+        # Replace with your actual ECR image URI
+        image: 920120424629.dkr.ecr.us-east-1.amazonaws.com/prompt2mesh-streamlit:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8501
+          name: http
+        command:
+        - streamlit
+        - run
+        - src/frontend/login_page.py
+        - --server.port=8501
+        - --server.address=0.0.0.0
+        envFrom:
+        - configMapRef:
+            name: prompt2mesh-config
+        - secretRef:
+            name: prompt2mesh-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8501
+          initialDelaySeconds: 40
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8501
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streamlit
+  namespace: prompt2mesh
+  labels:
+    app: streamlit
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8501
+    targetPort: 8501
+    protocol: TCP
+    name: http
+  selector:
+    app: streamlit

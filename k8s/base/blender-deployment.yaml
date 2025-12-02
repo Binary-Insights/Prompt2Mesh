@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blender
+  namespace: prompt2mesh
+  labels:
+    app: blender
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blender
+  template:
+    metadata:
+      labels:
+        app: blender
+        instance-type: main
+    spec:
+      containers:
+      - name: blender
+        image: linuxserver/blender:latest
+        ports:
+        - containerPort: 3000
+          name: web-ui
+        - containerPort: 3001
+          name: vnc
+        - containerPort: 9876
+          name: mcp-server
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: prompt2mesh-config
+              key: TZ
+        - name: SELKIES_ENABLE_BASIC_AUTH
+          value: "false"
+        - name: SELKIES_BASIC_AUTH_PASSWORD
+          value: ""
+        - name: ENABLE_HTTPS
+          value: "false"
+        volumeMounts:
+        - name: blender-config
+          mountPath: /config
+        - name: blender-projects
+          mountPath: /blender_projects
+        - name: addon-files
+          mountPath: /tmp/addon-files
+          readOnly: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/bash
+              - -c
+              - |
+                sleep 15
+                mkdir -p /config/.config/blender/4.2/scripts/addons
+                mkdir -p /config/.config/blender/5.0/scripts/addons
+                mkdir -p /config/.config/blender/4.2/scripts/startup
+                mkdir -p /config/.config/blender/5.0/scripts/startup
+                cp /tmp/addon-files/addon.py /config/.config/blender/4.2/scripts/addons/blender_mcp_addon.py 2>/dev/null || true
+                cp /tmp/addon-files/addon.py /config/.config/blender/5.0/scripts/addons/blender_mcp_addon.py 2>/dev/null || true
+                cp /tmp/addon-files/enable_addon.py /config/.config/blender/4.2/scripts/startup/enable_mcp.py 2>/dev/null || true
+                cp /tmp/addon-files/enable_addon.py /config/.config/blender/5.0/scripts/startup/enable_mcp.py 2>/dev/null || true
+                echo "Addon files copied to startup directories" > /tmp/addon_setup.log
+                cp /tmp/addon-files/start_mcp_server.py /tmp/start_mcp_server.py
+                chmod +x /tmp/start_mcp_server.py
+                nohup python3 /tmp/start_mcp_server.py > /tmp/mcp_server.log 2>&1 &
+                echo "MCP server started on port 9876" >> /tmp/addon_setup.log
+        # Mount addon scripts (you'll need to include these in a ConfigMap or bake into image)
+        # - name: addon-scripts
+        #   mountPath: /config/.config/blender/5.0/scripts/addons/blender_mcp_addon.py
+        #   subPath: addon.py
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "4000m"
+      volumes:
+      - name: blender-config
+        emptyDir: {}
+      - name: blender-projects
+        emptyDir: {}
+      - name: addon-files
+        configMap:
+          name: blender-addon-scripts
+          defaultMode: 0755
+      # Uncomment if using ConfigMap for addon
+      # - name: addon-scripts
+      #   configMap:
+      #     name: blender-addon
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blender
+  namespace: prompt2mesh
+  labels:
+    app: blender
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: web-ui
+  - port: 3001
+    targetPort: 3001
+    protocol: TCP
+    name: vnc
+  - port: 9876
+    targetPort: 9876
+    protocol: TCP
+    name: mcp-server
+  selector:
+    app: blender
+    instance-type: main

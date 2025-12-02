@@ -1,0 +1,60 @@
+# VCS
+.git
+.gitignore
+
+# Python cache / artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE / editor settings
+.vscode/
+.idea/
+*.swp
+
+# Notebooks / reports
+*.ipynb_checkpoints
+*.ipynb
+
+# Logs and coverage
+*.log
+logs/
+coverage/
+htmlcov/
+.coverage*
+.cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local environment / secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+
+# Test data (optional – keep if you need it in container)
+tests/
+test/
+__tests__/
+
+# Node / frontend (if any, for smaller images; keep only if not needed in image)
+node_modules/
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml

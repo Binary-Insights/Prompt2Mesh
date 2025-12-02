@@ -1,0 +1,81 @@
+name: Deploy to EKS
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Images to ECR"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  AWS_REGION: us-east-1  # Change to your region
+  EKS_CLUSTER_NAME: prompt2mesh-cluster  # Change to your cluster name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+    
+    - name: Deploy to EKS
+      run: |
+        # Apply base components
+        kubectl apply -f k8s/base/namespace.yaml
+        kubectl apply -f k8s/base/secrets.yaml
+        kubectl apply -f k8s/base/configmap.yaml
+        kubectl apply -f k8s/base/postgres-pvc.yaml
+        kubectl apply -f k8s/base/postgres-deployment.yaml
+        
+        # Wait for postgres
+        kubectl wait --for=condition=ready pod -l app=postgres -n prompt2mesh --timeout=300s || true
+        
+        # Initialize database
+        kubectl apply -f k8s/base/db-init-job.yaml
+        
+        # Deploy backend and frontend
+        kubectl apply -f k8s/base/backend-deployment.yaml
+        kubectl apply -f k8s/base/streamlit-deployment.yaml
+        kubectl apply -f k8s/base/blender-deployment.yaml
+        kubectl apply -f k8s/base/ingress.yaml
+        
+        # Wait for rollout
+        kubectl rollout status deployment/backend -n prompt2mesh --timeout=300s
+        kubectl rollout status deployment/streamlit -n prompt2mesh --timeout=300s
+    
+    - name: Verify deployment
+      run: |
+        kubectl get pods -n prompt2mesh
+        kubectl get svc -n prompt2mesh
+        kubectl get ingress -n prompt2mesh
+    
+    - name: Get ALB DNS
+      run: |
+        ALB_DNS=$(kubectl get ingress prompt2mesh-ingress -n prompt2mesh -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        echo "Application is available at: http://$ALB_DNS"

@@ -1,0 +1,167 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-instance-{{ USER_ID }}-config
+  namespace: prompt2mesh
+  labels:
+    app: user-instance
+    user-id: "{{ USER_ID }}"
+data:
+  USER_ID: "{{ USER_ID }}"
+  BACKEND_URL: http://backend:8000
+  BLENDER_HOST: blender-{{ USER_ID }}
+  BLENDER_PORT: "9876"
+  DATABASE_URL: postgresql://postgres:postgres@postgres:5432/prompt2mesh_auth
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  TZ: America/New_York
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blender-{{ USER_ID }}
+  namespace: prompt2mesh
+  labels:
+    app: blender
+    user-id: "{{ USER_ID }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blender
+      user-id: "{{ USER_ID }}"
+  template:
+    metadata:
+      labels:
+        app: blender
+        user-id: "{{ USER_ID }}"
+    spec:
+      containers:
+      - name: blender
+        image: linuxserver/blender:latest
+        ports:
+        - containerPort: 3000
+          name: web-ui
+        - containerPort: 3001
+          name: vnc
+        - containerPort: 9876
+          name: mcp-server
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "America/New_York"
+        - name: USER_ID
+          value: "{{ USER_ID }}"
+        - name: SELKIES_ENABLE_BASIC_AUTH
+          value: "false"
+        - name: SELKIES_BASIC_AUTH_PASSWORD
+          value: ""
+        - name: ENABLE_HTTPS
+          value: "false"
+        volumeMounts:
+        - name: blender-config
+          mountPath: /config
+        - name: blender-projects
+          mountPath: /blender_projects
+        - name: addon-files
+          mountPath: /tmp/addon-files
+          readOnly: true
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/bash
+              - -c
+              - |
+                sleep 15
+                mkdir -p /config/.config/blender/4.2/scripts/addons
+                mkdir -p /config/.config/blender/5.0/scripts/addons
+                mkdir -p /config/.config/blender/4.2/scripts/startup
+                mkdir -p /config/.config/blender/5.0/scripts/startup
+                cp /tmp/addon-files/addon.py /config/.config/blender/4.2/scripts/addons/blender_mcp_addon.py 2>/dev/null || true
+                cp /tmp/addon-files/addon.py /config/.config/blender/5.0/scripts/addons/blender_mcp_addon.py 2>/dev/null || true
+                cp /tmp/addon-files/enable_addon.py /config/.config/blender/4.2/scripts/startup/enable_mcp.py 2>/dev/null || true
+                cp /tmp/addon-files/enable_addon.py /config/.config/blender/5.0/scripts/startup/enable_mcp.py 2>/dev/null || true
+                echo "Addon files copied to startup directories" > /tmp/addon_setup.log
+                cp /tmp/addon-files/start_mcp_server.py /tmp/start_mcp_server.py
+                chmod +x /tmp/start_mcp_server.py
+                nohup python3 /tmp/start_mcp_server.py > /tmp/mcp_server.log 2>&1 &
+                echo "MCP server started on port 9876" >> /tmp/addon_setup.log
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+      volumes:
+      - name: blender-config
+        emptyDir: {}
+      - name: blender-projects
+        emptyDir: {}
+      - name: addon-files
+        configMap:
+          name: blender-addon-scripts
+          defaultMode: 0755
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blender-{{ USER_ID }}
+  namespace: prompt2mesh
+  labels:
+    app: blender
+    user-id: "{{ USER_ID }}"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: web-ui
+  - port: 3001
+    targetPort: 3001
+    protocol: TCP
+    name: vnc
+  - port: 9876
+    targetPort: 9876
+    protocol: TCP
+    name: mcp-server
+  selector:
+    app: blender
+    user-id: "{{ USER_ID }}"
+# Agent pod removed - artisan agent requests are handled by the shared backend
+# The backend will communicate with the per-user Blender instance
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: user-{{ USER_ID }}-ingress
+  namespace: prompt2mesh
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+spec:
+  rules:
+  - host: user-{{ USER_ID }}.prompt2mesh.example.com  # Per-user subdomain
+    http:
+      paths:
+      - path: /blender
+        pathType: Prefix
+        backend:
+          service:
+            name: blender-{{ USER_ID }}
+            port:
+              number: 3000
+      - path: /agent
+        pathType: Prefix
+        backend:
+          service:
+            name: agent-{{ USER_ID }}
+            port:
+              number: 8000
