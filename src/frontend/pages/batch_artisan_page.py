@@ -138,9 +138,20 @@ def display_json_preview(json_path: Path):
         st.error(f"Error loading preview: {e}")
 
 
-def start_modeling_task(requirement_file: str, use_resume: bool, token: str):
+def start_modeling_task(requirement_file: str, use_resume: bool, enable_refinement: bool, token: str):
     """Start a modeling task via backend API"""
     try:
+        # Load the JSON file to modify it with enable_refinement setting
+        with open(requirement_file, 'r', encoding='utf-8') as f:
+            requirement_data = json.load(f)
+        
+        # Update the enable_refinement_steps field
+        requirement_data['enable_refinement_steps'] = enable_refinement
+        
+        # Save the modified data back to the file
+        with open(requirement_file, 'w', encoding='utf-8') as f:
+            json.dump(requirement_data, f, indent=2, ensure_ascii=False)
+        
         headers = {"Authorization": f"Bearer {token}"}
         response = requests.post(
             f"{BACKEND_URL}/artisan/model",
@@ -309,6 +320,17 @@ def main():
             help="If enabled, the agent will continue from previous work on the same file"
         )
         
+        enable_refinement_steps = st.checkbox(
+            "Enable Refinement Steps",
+            value=False,
+            help="When enabled, the agent will refine steps that don't meet quality thresholds. When disabled, it will proceed to the next step regardless of quality."
+        )
+        
+        if enable_refinement_steps:
+            st.info("✅ Agent will refine low-quality steps automatically")
+        else:
+            st.warning("⚠️ Agent will skip refinement and proceed with all steps")
+        
         st.divider()
         
         # Execution controls
@@ -374,13 +396,10 @@ def main():
             - ✅ **Resume Mode**: Continue from where the agent left off
             - ✅ **Real-time Status**: Monitor agent progress
             - ✅ **Tool Execution**: See each Blender command executed
-            - ✅ **Screenshots**: Visual feedback from Blender
             """)
     
     elif st.session_state.batch_running:
-        # Run the modeling task
-        st.subheader("🎬 Modeling in Progress")
-        
+        # Show execution status
         status_container = st.container()
         progress_container = st.container()
         log_container = st.container()
@@ -390,7 +409,7 @@ def main():
             with status_container:
                 with st.spinner("Starting modeling task..."):
                     try:
-                        result = start_modeling_task(selected_file, use_resume, st.session_state.token)
+                        result = start_modeling_task(str(selected_file), use_resume, enable_refinement_steps, st.session_state.token)
                         st.session_state.batch_task_id = result.get('task_id')
                         st.success(f"✅ Task started: {st.session_state.batch_task_id}")
                     except Exception as e:
@@ -441,6 +460,8 @@ def main():
                     status_placeholder.error(f"**Status:** {task_status}")
                 elif task_status in ['initializing', 'running']:
                     status_placeholder.info(f"**Status:** {task_status}")
+                elif task_status == 'partial_completion':
+                    status_placeholder.warning(f"**Status:** Recursion limit reached (partial completion)")
                 elif task_status == 'completed':
                     status_placeholder.success(f"**Status:** {task_status}")
                 elif task_status == 'cancelled':
@@ -457,6 +478,11 @@ def main():
                 error_msg = status_data.get('error')
                 if error_msg:
                     st.error(f"**Error Details:** {error_msg}")
+                
+                # Show resume info if present (for partial completion)
+                resume_info = status_data.get('resume_info')
+                if resume_info:
+                    st.info(f"ℹ️ **Resume Information:** {resume_info}")
                 
                 # Update log with messages from backend
                 messages = status_data.get('messages', [])
@@ -479,11 +505,18 @@ def main():
                     log_placeholder.code(log_text, language="text")
                 
                 # Check if done
-                if task_status in ['completed', 'failed', 'cancelled']:
+                if task_status in ['completed', 'failed', 'cancelled', 'partial_completion']:
                     st.session_state.batch_running = False
                     if task_status == 'completed':
                         st.success("✅ Modeling task completed!")
                         st.balloons()
+                    elif task_status == 'partial_completion':
+                        st.warning("⚠️ Task paused - Recursion limit reached")
+                        st.info("💡 **How to continue:** Enable 'Resume Mode' in the sidebar and click 'Start Modeling' again to continue from where it left off.")
+                        # Show detailed progress
+                        steps_done = status_data.get('steps_executed', 0)
+                        if steps_done > 0:
+                            st.info(f"📊 Progress: {steps_done} steps completed")
                     elif task_status == 'cancelled':
                         st.warning("⚠️ Task was cancelled")
                     else:

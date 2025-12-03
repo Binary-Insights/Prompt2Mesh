@@ -40,9 +40,8 @@ services:
       - ../screenshots:/blender_projects/screenshots
       - ../src/addon/addon.py:/config/.config/blender/5.0/scripts/addons/blender_mcp_addon.py:ro
       - ../src/addon/addon.py:/config/.config/blender/4.2/scripts/addons/blender_mcp_addon.py:ro
-      - ./install_addon.sh:/install_addon.sh:ro
       - ./enable_addon_auto.py:/tmp/enable_addon_auto.py:ro
-      - ./auto_start_mcp.sh:/auto_start_mcp.sh:ro
+      - ./99-mcp-autostart:/tmp/99-mcp-autostart:ro
     ports:
       # Blender Web UI (KasmVNC)
       - "3000:3000"

@@ -573,9 +573,36 @@ async def _run_artisan_task(task_id: str):
         
         # Store result
         task_info["result"] = result
-        task_info["status"] = "completed"
-        task_info["progress"] = 100
-        log_message("Completed successfully")
+        task_info["session_id"] = result.get("session_id")
+        task_info["steps_executed"] = result.get("steps_executed", 0)
+        
+        # Check if recursion limit was reached
+        if result.get("recursion_limit_reached", False) or result.get("partial_completion", False):
+            task_info["status"] = "partial_completion"
+            steps_done = result.get("steps_executed", 0)
+            total_steps = result.get("total_steps", 0)
+            
+            if total_steps > 0:
+                # Calculate progress percentage
+                task_info["progress"] = int((steps_done / total_steps) * 100)
+            else:
+                task_info["progress"] = 50  # Unknown progress
+            
+            resume_msg = (
+                f"Recursion limit reached. Completed {steps_done}/{total_steps} steps. "
+                f"Use 'Enable Resume Mode' and run again to continue from step {steps_done + 1}."
+            )
+            log_message(resume_msg)
+            task_info["resume_info"] = resume_msg
+        elif result.get("success", False):
+            task_info["status"] = "completed"
+            task_info["progress"] = 100
+            log_message("Completed successfully")
+        else:
+            # Incomplete but not due to recursion limit
+            task_info["status"] = "completed"
+            task_info["progress"] = 90
+            log_message("Workflow finished (may be incomplete)")
         
     except Exception as e:
         import traceback

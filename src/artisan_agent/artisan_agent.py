@@ -23,6 +23,7 @@ from langsmith import traceable
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import ToolNode
+from langgraph.errors import GraphRecursionError
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
@@ -85,6 +86,7 @@ class AgentState(TypedDict):
     max_refinements_per_step: int  # Maximum refinements allowed per step
     needs_refinement: bool  # Whether current step needs refinement
     refinement_feedback: Optional[str]  # Specific feedback for refinement
+    enable_refinement: bool  # Whether refinement loop is enabled (from JSON config)
 
 
 class BlenderMCPConnection:
@@ -366,6 +368,7 @@ CURRENT SCENE STATE:
 
 IMPORTANT: The scene already contains objects. Analyze what's been done and continue building from there.
 Do NOT start from scratch - build upon existing work."""
+            
             self.display_callback("Detected existing work - planning to resume", "thinking")
             state["is_resuming"] = True
         else:
@@ -378,7 +381,7 @@ Given this modeling requirement, break it down into sequential, actionable steps
 Each step should be a specific Blender operation that can be executed.
 
 Requirement:
-{state['requirement'][:1000]}...{scene_context}
+{state['requirement']}...{scene_context}
 
 Create a detailed step-by-step plan. Each step should:
 1. Be specific and actionable
@@ -399,7 +402,12 @@ Provide at least 5-10 concrete steps to build the model."""
         messages = [HumanMessage(content=planning_prompt)]
         logger.info("Sending planning request to LLM...")
         response = self.llm.invoke(messages)
-        
+
+        print(f"📝"*60)
+        # print(f"📝 Requirement preview: {state['requirement'][:1000]}")
+        print(scene_context)
+        print(f"---"*60)
+
         # Parse steps from response
         steps_text = response.content
         logger.info(f"LLM response length: {len(steps_text)} characters")
@@ -955,6 +963,10 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
     
     def _should_refine(self, state: AgentState) -> str:
         """Decide whether to refine current step or continue"""
+        # Check if refinement is enabled at all
+        if not state.get("enable_refinement", True):
+            return "continue"  # Skip refinement entirely if disabled
+        
         if state.get("needs_refinement", False):
             return "refine"
         return "continue"
@@ -1007,7 +1019,11 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
         if not refined_prompt:
             raise ValueError("No 'refined_prompt' found in JSON file")
         
+        # Load refinement setting (default to True for backward compatibility)
+        enable_refinement = requirement_data.get("enable_refinement_steps", True)
+        
         self.display_callback(f"Requirement loaded: {len(refined_prompt)} characters", "success")
+        self.display_callback(f"Refinement steps: {'Enabled ✅' if enable_refinement else 'Disabled ⚠️'}", "info")
         
         # Override session ID with deterministic one if requested
         if use_deterministic_session:
@@ -1035,7 +1051,8 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
             "feedback_history": [],
             "initial_scene_state": {},
             "completed_steps": [],
-            "is_resuming": False
+            "is_resuming": False,
+            "enable_refinement": enable_refinement
         }
         
         # Run the graph
@@ -1053,20 +1070,85 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
         logger = logging.getLogger(__name__)
         logger.info(f"LangGraph recursion limit set to: {recursion_limit}")
         
-        final_state = await self.graph.ainvoke(initial_state, config)
+        final_state = None
+        recursion_limit_reached = False
+        
+        try:
+            final_state = await self.graph.ainvoke(initial_state, config)
+        except GraphRecursionError as e:
+            # Gracefully handle recursion limit
+            recursion_limit_reached = True
+            logger.warning(f"Recursion limit of {recursion_limit} reached. Saving partial progress...")
+            self.display_callback(f"⚠️ Recursion limit reached ({recursion_limit} iterations). Partial progress saved.", "info")
+            
+            # Get the last available state from the graph's checkpointer
+            # The state is automatically saved by LangGraph's checkpointer
+            try:
+                # Try to get the last checkpoint state
+                from langgraph.checkpoint.base import CheckpointTuple
+                checkpoints = list(self.memory.list(config))
+                if checkpoints:
+                    # Get the most recent checkpoint
+                    latest_checkpoint = checkpoints[0]
+                    final_state = latest_checkpoint.checkpoint.get("channel_values", {})
+                    logger.info(f"Retrieved checkpoint state with {final_state.get('current_step', 0)} steps completed")
+                else:
+                    # Fallback to initial state if no checkpoints
+                    logger.warning("No checkpoints found, using initial state")
+                    final_state = initial_state
+            except Exception as checkpoint_error:
+                logger.error(f"Error retrieving checkpoint: {checkpoint_error}")
+                # Use initial state as fallback
+                final_state = initial_state
         
         # Prepare results
-        results = {
-            "session_id": self.session_id,
-            "requirement": refined_prompt,
-            "steps_executed": final_state["current_step"],
-            "screenshots_captured": final_state["screenshot_count"],
-            "screenshot_directory": str(screenshot_dir),
-            "success": final_state["is_complete"],
-            "tool_results": final_state["tool_results"]
-        }
-        
-        self.display_callback("Workflow complete!", "success")
+        if final_state:
+            is_complete = final_state.get("is_complete", False) and not recursion_limit_reached
+            
+            results = {
+                "session_id": self.session_id,
+                "requirement": refined_prompt,
+                "steps_executed": final_state.get("current_step", 0),
+                "total_steps": len(final_state.get("planning_steps", [])),
+                "screenshots_captured": final_state.get("screenshot_count", 0),
+                "screenshot_directory": str(screenshot_dir),
+                "success": is_complete,
+                "partial_completion": recursion_limit_reached,
+                "can_resume": recursion_limit_reached or not is_complete,
+                "tool_results": final_state.get("tool_results", []),
+                "recursion_limit_reached": recursion_limit_reached
+            }
+            
+            if recursion_limit_reached:
+                steps_completed = final_state.get("current_step", 0)
+                total_steps = len(final_state.get("planning_steps", []))
+                remaining = total_steps - steps_completed
+                
+                self.display_callback(
+                    f"⚠️ Workflow paused at step {steps_completed}/{total_steps}. "
+                    f"{remaining} steps remaining. Use resume mode to continue.",
+                    "info"
+                )
+                logger.info(f"Partial results: {steps_completed}/{total_steps} steps completed")
+            else:
+                self.display_callback("✅ Workflow complete!", "success")
+        else:
+            # Fallback if state retrieval completely failed
+            results = {
+                "session_id": self.session_id,
+                "requirement": refined_prompt,
+                "steps_executed": 0,
+                "total_steps": 0,
+                "screenshots_captured": 0,
+                "screenshot_directory": str(screenshot_dir),
+                "success": False,
+                "partial_completion": True,
+                "can_resume": True,
+                "tool_results": [],
+                "recursion_limit_reached": recursion_limit_reached,
+                "error": "Failed to retrieve workflow state after recursion limit"
+            }
+            self.display_callback("⚠️ Workflow interrupted. State could not be recovered.", "error")
         
         return results
     
