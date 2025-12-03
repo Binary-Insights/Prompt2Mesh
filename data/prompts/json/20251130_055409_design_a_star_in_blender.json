@@ -6,5 +6,6 @@
   "detail_level": "as-is",
   "reasoning_steps": [
     "Used prompt as-is (as-is)"
-  ]
+  ],
+  "enable_refinement_steps": false
 }

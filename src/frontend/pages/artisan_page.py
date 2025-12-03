@@ -225,6 +225,21 @@ def main():
         
         st.divider()
         
+        # Refinement steps control
+        st.subheader("🔄 Quality Refinement")
+        enable_refinement_steps = st.checkbox(
+            "Enable Refinement Steps",
+            value=False,
+            help="When enabled, the agent will refine steps that don't meet quality thresholds. When disabled, it will proceed to the next step regardless of quality."
+        )
+        
+        if enable_refinement_steps:
+            st.info("✅ Agent will refine low-quality steps automatically")
+        else:
+            st.warning("⚠️ Agent will skip refinement and proceed with all steps")
+        
+        st.divider()
+        
         # Save chat as Artisan prompt
         st.subheader("💾 Save for Artisan Agent")
         
@@ -453,7 +468,8 @@ def main():
                     "refined_prompt": refined_prompt_text,
                     "is_detailed": refinement_info.get("was_detailed", True),
                     "detail_level": refinement_info.get("detail_level", detail_level),
-                    "reasoning_steps": refinement_info.get("reasoning_steps", [])
+                    "reasoning_steps": refinement_info.get("reasoning_steps", []),
+                    "enable_refinement_steps": enable_refinement_steps
                 }
                 
                 # Save JSON file

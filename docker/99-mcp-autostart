@@ -1,0 +1,64 @@
+#!/usr/bin/with-contenv bash
+# MCP Auto-Start Init Script
+# This script sets up the Blender autostart to enable MCP automatically
+
+echo "=================================="
+echo "🚀 Blender MCP Auto-Start Init"
+echo "=================================="
+
+# Ensure custom-cont-init.d exists
+mkdir -p /config/custom-cont-init.d
+
+# This script modifies the openbox autostart to include MCP auto-enable
+AUTOSTART_FILE="/config/.config/openbox/autostart"
+
+# Check if autostart file exists
+if [ ! -f "$AUTOSTART_FILE" ]; then
+    echo "⚠️  Autostart file not found, creating..."
+    mkdir -p /config/.config/openbox
+    echo "DRI_PRIME=1 blender &" > "$AUTOSTART_FILE"
+fi
+
+# Check if our MCP start command is already there
+if grep -q "enable_addon_auto.py" "$AUTOSTART_FILE"; then
+    echo "✅ MCP auto-start already configured in autostart"
+else
+    echo "🔧 Adding MCP auto-start to openbox autostart..."
+    
+    # Backup original
+    cp "$AUTOSTART_FILE" "${AUTOSTART_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+    
+    # Create new autostart with MCP enable
+    cat > "$AUTOSTART_FILE" << 'EOF'
+#!/bin/bash
+# Start Blender
+DRI_PRIME=1 blender &
+BLENDER_PID=$!
+
+# Auto-enable MCP in background
+(
+    sleep 25
+    echo "[$(date)] 🔧 Auto-enabling MCP addon..." >> /tmp/mcp_autostart.log
+    if [ -f "/tmp/enable_addon_auto.py" ]; then
+        blender --background --python /tmp/enable_addon_auto.py >> /tmp/mcp_autostart.log 2>&1
+        if [ $? -eq 0 ]; then
+            echo "[$(date)] ✅ MCP addon enabled successfully" >> /tmp/mcp_autostart.log
+        else
+            echo "[$(date)] ⚠️  MCP enable failed" >> /tmp/mcp_autostart.log
+        fi
+    fi
+) &
+
+wait $BLENDER_PID
+EOF
+
+    chmod +x "$AUTOSTART_FILE"
+    chown abc:abc "$AUTOSTART_FILE"
+    
+    echo "✅ Autostart configured successfully"
+    echo "📋 MCP logs will be in: /tmp/mcp_autostart.log"
+fi
+
+echo "=================================="
+echo "✅ MCP Auto-Start Init Complete"
+echo "=================================="

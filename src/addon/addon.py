@@ -2437,6 +2437,27 @@ def register():
     bpy.utils.register_class(BLENDERMCP_OT_StopServer)
 
     print("BlenderMCP addon registered")
+    
+    # Auto-start MCP server in Docker environment
+    import os
+    if os.path.exists("/.dockerenv") or os.path.exists("/run/.containerenv"):
+        print("🐳 Docker environment detected - Auto-starting MCP server...")
+        
+        # Use a timer to start server after Blender fully initializes
+        def auto_start_server():
+            try:
+                if not hasattr(bpy.types, "blendermcp_server") or not bpy.types.blendermcp_server or not bpy.types.blendermcp_server.running:
+                    print("🚀 Auto-starting MCP server on port 9876...")
+                    bpy.ops.blendermcp.start_server()
+                    print("✅ MCP server started automatically")
+                else:
+                    print("✅ MCP server already running")
+            except Exception as e:
+                print(f"⚠️  Auto-start failed: {e}")
+            return None  # Don't repeat timer
+        
+        # Start after 2 seconds to allow Blender to fully initialize
+        bpy.app.timers.register(auto_start_server, first_interval=2.0)
 
 def unregister():
     # Stop the server if it's running
