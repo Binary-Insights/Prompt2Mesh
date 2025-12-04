@@ -1,0 +1,1158 @@
+================================================================================
+PROMPT REFINEMENT OUTPUT
+================================================================================
+
+Timestamp: 2025-12-04 10:50:53
+Thread ID: default
+
+--------------------------------------------------------------------------------
+ORIGINAL PROMPT
+--------------------------------------------------------------------------------
+model a table using blender
+
+--------------------------------------------------------------------------------
+REFINED PROMPT
+--------------------------------------------------------------------------------
+# Comprehensive 3D Modeling Description: Modern Dining Table
+
+## Overall Structure and Shape
+
+**Primary Dimensions:**
+- Total Height: 30 inches (76.2 cm) from floor to tabletop surface
+- Tabletop Length: 72 inches (182.9 cm)
+- Tabletop Width: 36 inches (91.4 cm)
+- Tabletop Thickness: 1.5 inches (3.8 cm)
+- Leg Clearance: 28.5 inches (comfortable seating height)
+
+**Basic Geometric Form:**
+- Rectangular tabletop with clean, straight edges and 2:1 length-to-width ratio
+- Four cylindrical steel legs positioned at corners with 4-inch inset from edges (measured to leg center)
+- Subtle rounded corners on tabletop with 0.5-inch (1.27 cm) radius for safety and visual softness
+- Slight chamfer (0.125 inches/3 mm at 45°) on all top edges of tabletop to prevent chipping and add refinement
+- Legs feature elegant taper from 3 inches diameter at top to 2.75 inches at bottom
+- Leg height: 28.5 inches (accounting for 1.5-inch tabletop thickness)
+- Wooden apron frame connecting legs provides structural rigidity and visual cohesion
+
+**Proportions and Scale:**
+- Classic dining table proportions: seats 6-8 people comfortably
+- Leg placement creates visual stability with 4-inch inset from each corner
+- Apron height (4 inches) provides structural support without limiting knee clearance
+- Visual weight distributed evenly across all four support points
+- Balanced modern aesthetic combining warm wood tones with industrial metal accents
+
+## Components and Parts
+
+### Major Components:
+
+**1. Tabletop Assembly**
+- Main surface panel: 72" × 36" × 1.5" solid white oak construction
+- Edge banding/trim running full perimeter for clean finished appearance
+- Underside support structure with reinforcement strips
+- Four corner mounting plates (4" × 4") for leg attachment
+- Recessed mounting areas (0.5" deep) to accommodate hardware
+
+**2. Leg Assembly (×4 identical units)**
+- Main cylindrical shaft: Powder-coated steel, 28.5" height
+- Top mounting block with threaded inserts (hidden under table)
+- Bottom foot pad: 3" diameter, 0.25" thick with rubber base
+- Internal threaded insert for adjustable leveling bolt (1" adjustment range)
+- Taper profile: Linear reduction from 3" to 2.75" diameter
+
+**3. Apron/Support Frame**
+- Four apron pieces connecting legs in rectangular configuration
+- Long aprons (×2): 64 inches length (connecting legs along table length)
+- Short aprons (×2): 28 inches length (connecting legs along table width)
+- Apron profile: 4 inches height × 0.75 inches thickness
+- Decorative groove detail: 0.125" wide × 0.0625" deep, positioned 0.25" from bottom edge
+- Mortise and tenon joinery at all leg connections
+
+### Sub-Components Detail:
+
+**Tabletop Structure:**
+- Top veneer layer: 0.0625 inches premium white oak (provides beauty and wear surface)
+- Core layer: 1.375 inches solid wood or engineered core (provides stability and strength)
+- Underside reinforcement strips: 2" × 2" cross-section, running perpendicular to length
+- Reinforcement strip spacing: 18-inch intervals (4 strips total) to prevent warping
+- Corner brackets: L-shaped, 4" × 4" × 0.25" thick zinc-plated steel (hidden from view)
+- Edge treatment: Solid wood edges seamlessly integrated with top surface
+
+**Leg Mounting System:**
+- Top mounting plate: 4" × 4" square, 0.375" thick brushed stainless steel (304 grade)
+- Four bolt holes per plate: 0.5" diameter, positioned 1" from plate edges (3" diagonal spacing)
+- Recessed mounting area in tabletop underside: 0.5" deep × 4.5" × 4.5" to hide hardware
+- Rubber gasket between plate and wood: 0.125" thick (prevents squeaking and metal-to-wood contact)
+- Mounting bolts: 0.5" diameter × 2" length, black oxide coated steel with hex heads
+- Washers: 1" diameter × 0.0625" thick, distributes load and prevents wood compression
+
+**Foot Pads:**
+- Circular pad: 3" diameter × 0.25" thick
+- Material: Black thermoplastic body with rubber base layer
+- Recessed center cavity: 0.625" diameter for leveling bolt access
+- Leveling bolt: 0.5" diameter threaded rod, 1-inch adjustment range
+- Hexagonal adjustment socket: 0.5" across flats for easy adjustment
+- Function: Compensates for uneven floors and prevents wobbling
+
+**Apron Joinery Details:**
+- Mortise depth in legs: 1.5 inches
+- Tenon length: 1.25 inches (allowing 0.25" gap for glue and seasonal movement)
+- Tenon thickness: 0.5 inches (centered on 0.75" apron thickness)
+- Tenon width: 3 inches (providing strong glue surface)
+- Joint adhesive: Wood glue (PVA) creating stronger bond than wood itself
+- Slight reveal at joint: 0.01-0.02 inches (tight craftsmanship indicator)
+
+## Materials and Textures
+
+### Tabletop Material:
+**Primary:** Solid White Oak (Quercus alba)
+- **Grain pattern:** Cathedral/plain-sawn, running lengthwise for maximum visual impact
+- **Grain spacing:** 8-12 growth ring lines per inch (characteristic of oak)
+- **Base color:** Honey to medium brown tones (RGB approximately 180, 150, 120)
+- **Color range:** Natural variation from RGB (160, 130, 100) to (200, 170, 140)
+- **Natural characteristics:** 2-3 small tight knots (0.5-1" diameter) randomly placed, adding character
+- **Ray fleck patterns:** Distinctive oak feature, 0.25-0.5" wide lighter streaks perpendicular to grain
+- **Medullary rays:** Visible as subtle perpendicular grain lines creating depth and authenticity
+- **Growth ring contrast:** 10-15% value difference between earlywood (lighter) and latewood (darker)
+
+**Surface Finish:**
+- **Coating type:** Matte polyurethane (3 layers) for durability and water resistance
+- **Sheen level:** 20-30% reflectivity (satin/matte appearance, not glossy)
+- **Tactile quality:** Smooth to touch with subtle wood grain texture remaining perceptible
+- **Micro-texture depth:** 0.01-0.02 inches following natural grain pattern
+- **Build thickness:** Total 0.008-0.012 inches across all three coats
+- **Curing:** Fully cured finish providing hard, protective surface
+- **Maintenance:** Easy to clean, resists water rings and minor scratches
+
+### Leg Material:
+**Primary:** Powder-coated steel tubing
+- **Base metal:** Cold-rolled steel, 0.125" wall thickness (strong yet elegant)
+- **Coating:** Matte black powder coat (electrostatically applied, oven-cured)
+- **Texture:** Fine orange peel texture (60-80 microns) typical of quality powder coating
+- **Surface character:** Smooth but not glossy, slight tactile texture
+- **Color:** True black (RGB: 25, 25, 25) with minimal color shift under different lighting
+- **Durability:** Chip-resistant, corrosion-resistant, suitable for indoor use
+- **Finish thickness:** 2-4 mils (0.002-0.004 inches) uniform coverage
+- **Surface hardness:** Pencil hardness 2H-3H (resistant to scratching)
+
+### Apron Material:
+**Primary:** White Oak matching tabletop
+- **Grain orientation:** Horizontal, parallel to apron length for visual continuity
+- **Finish:** Identical matte polyurethane as tabletop (creates unified appearance)
+- **Color selection:** Slightly lighter oak selection for subtle visual interest and depth
+- **Color coordination:** Within 5-10% RGB value of tabletop (harmonious but not identical)
+- **Grain matching:** Carefully selected to complement tabletop without competing
+- **Edge detail:** Same chamfer treatment as tabletop edges where appropriate
+
+### Hardware Materials:
+- **Mounting plates:** Brushed stainless steel (304 grade) - corrosion-resistant, strong
+- **Mounting bolts:** Black oxide coated steel - matches leg finish, prevents corrosion
+- **Washers:** Zinc-plated steel - load distribution, corrosion protection
+- **Leveling feet:** Black thermoplastic body with rubber base - durable, non-marking
+- **Corner brackets:** Zinc-plated steel (hidden from view) - structural integrity
+- **Threaded inserts:** Brass or steel - secure bolt retention in wood
+
+### Material Performance Characteristics:
+- **Tabletop hardness:** Janka 1360 (white oak) - excellent dent resistance
+- **Finish durability:** Polyurethane provides excellent water and alcohol resistance
+- **Leg strength:** Steel construction supports 500+ lbs distributed load
+- **Apron rigidity:** Prevents racking and provides lateral stability
+- **Hardware longevity:** All metal components resist corrosion and maintain strength
+
+## Fine Details
+
+### Tabletop Surface Features:
+
+**Edge Treatment:**
+- **Primary chamfer:** 45-degree angle, 0.125 inches wide (consistent around entire perimeter)
+- **Secondary micro-bevel:** 0.03 inches to soften sharp arrises and prevent edge damage
+- **Corner radius integration:** 0.5" radius transitions smoothly into edge chamfer (no hard transitions)
+- **Surface quality:** Hand-sanded feel with 220-grit equivalent smoothness
+- **Edge consistency:** Uniform chamfer width ±0.01 inches (high-quality craftsmanship)
+- **Finish coverage:** Polyurethane extends over edges, providing complete protection
+
+**Wood Grain Details:**
+- **Ray fleck patterns:** Characteristic oak feature, 0.25-0.5" wide, appearing as lighter perpendicular streaks
+- **Growth ring visibility:** Subtle but present, creating natural striping effect (8-12 rings per inch)
+- **Medullary rays:** Visible as fine perpendicular grain lines, adding dimensional depth
+- **Color variation:** 10-15% value difference between earlywood (lighter, spring growth) and latewood (darker, summer growth)
+- **Grain direction:** Predominantly straight along length with occasional slight wave or curl
+- **Cathedral patterns:** Arching grain patterns where growth rings create mountain-like formations
+- **Grain depth perception:** Finish allows grain to appear three-dimensional
+
+**Surface Imperfections (for photorealism):**
+- **Mineral deposits:** 3-5 small deposits, 0.125" diameter, slightly darker than surrounding wood
+- **Subtle color variation:** ±5% in RGB values across surface (natural wood characteristic)
+- **Fine sanding marks:** Barely visible, following grain direction, 0.001" deep
+- **Slight undulation:** ±0.02 inches over 12-inch spans (natural wood movement)
+- **Pin knots:** 4-6 tight knots, 0.125" diameter, darker than surrounding wood
+- **Small knots:** 2-3 sound knots, 0.5-1" diameter, 20-30% darker with visible grain swirl
+- **Micro-checks:** Hairline surface checks around knots, 0.01" wide, 0.5-1" long (natural characteristic)
+
+### Leg Details:
+
+**Surface Characteristics:**
+- **Powder coat texture:** Orange peel pattern, 0.002-0.003" peak-to-valley depth
+- **Texture distribution:** Random but uniform across surface (no bare spots or heavy areas)
+- **Weld seam:** Running vertically (if fabricated from sheet), ground smooth but faintly visible as 0.125" wide line
+- **Top edge treatment:** Rolled/rounded edge, 0.0625" radius (prevents sharp edge, professional finish)
+- **Bottom edge:** Sharp transition to foot pad (functional, allows flush mounting)
+- **Surface cleanliness:** No drips, runs, or sags in powder coat (quality application)
+
+**Taper Specifics:**
+- **Taper start point:** 2 inches from top (maintains full diameter for mounting strength)
+- **Taper end point:** 1 inch from bottom (maintains diameter for foot pad attachment)
+- **Taper length:** 25.5 inches (28.5" total - 2" top - 1" bottom)
+- **Taper rate:** 0.25" total reduction over 25.5" length (0.125" per side)
+- **Taper angle:** 0.281 degrees from centerline (0.563 degrees included angle)
+- **Taper profile:** Linear, not curved (clean, modern aesthetic)
+- **Visual effect:** Subtle elegance, prevents heavy appearance while maintaining strength
+
+**Mounting Interface:**
+- **Top surface:** Flat, perpendicular to leg axis, 3" diameter
+- **Mounting plate attachment:** Welded or bolted (hidden by tabletop)
+- **Plate alignment:** Flush with leg top, no protrusion
+- **Bolt access:** From underside through mounting plate
+
+### Apron Details:
+
+**Joinery Indicators:**
+- **Mortise and tenon joints:** Visible as subtle seam lines at leg-to-apron intersections
+- **Joint gap:** 0.01-0.02 inches (tight but visible under close inspection - indicates quality craftsmanship)
+- **Grain direction change:** 90-degree rotation at corners (apron grain perpendicular to adjacent apron)
+- **Shadow line:** Where apron meets leg, 0.125" deep subtle shadow (adds visual definition)
+- **Joint alignment:** Flush surfaces, no proud or recessed joints (±0.01")
+- **Seasonal gap variation:** May expand/contract ±0.01" with humidity changes
+
+**Decorative Elements:**
+- **Horizontal groove:** Runs entire length of each apron piece
+- **Groove position:** 0.25" from bottom edge (creates visual lightness)
+- **Groove width:** 0.125" (subtle but visible detail)
+- **Groove depth:** 0.0625" (provides shadow line without weakening structure)
+- **Groove profile:** Rounded bottom (router bit profile, not sharp V)
+- **Groove finish:** Same polyurethane as apron surface (complete protection)
+- **Visual effect:** Adds horizontal line detail, reduces visual bulk of apron
+
+**Apron-to-Leg Relationship:**
+- **Apron setback:** 0.5" below tabletop underside (creates shadow reveal)
+- **Leg visibility:** Legs extend 0.5" above apron (visible from side view)
+- **Apron-to-leg flush:** Outer apron face flush with outer leg surface (clean alignment)
+- **Corner treatment:** Mitered or butted joints, tight fitting (0.01-0.02" gap)
+
+### Hardware Details:
+
+**Visible Elements (from underside):**
+- **Leveling feet:** Black circular pads, 3" diameter, visible from below
+- **Foot-to-leg gap:** 0.0625" slight gap (allows leveling adjustment visibility)
+- **Adjustment mechanism:** Hexagonal socket, 0.5" across flats, centered in foot pad
+- **Rubber base:** Slightly proud of plastic body by 0.03" (compression contact surface)
+- **Wear pattern:** Center area may show slight compression (authentic detail)
+
+**Hidden Elements (model for structural accuracy):**
+- **Bolt heads:** Hex head, 0.75" across flats, 0.375" height
+- **Bolt positioning:** Four per leg, 1" from mounting plate edges (3" diagonal spacing)
+- **Washers:** 1" diameter, 0.0625" thick, under each bolt head
+- **Wood compression:** Slight indentation around each bolt, 0.01" deep (realistic detail)
+- **Mounting plate recess:** Clean fit within underside recess, minimal visible gap
+- **Gasket visibility:** Rubber gasket may be slightly visible at mounting plate edges
+
+**Hardware Finish Details:**
+- **Bolt finish:** Matte black oxide (matches legs, non-reflective)
+- **Mounting plate finish:** Brushed stainless (linear grain pattern visible)
+- **Brush direction:** Consistent direction on all plates (quality detail)
+- **Washer finish:** Zinc-plated (bright silver, may dull with age)
+- **Leveling bolt:** Black oxide or zinc-plated (functional, not decorative)
+
+## Measurements and Specifications
+
+### Critical Dimensions with Tolerances:
+
+**Tabletop:**
+- Length: 72.000 inches (±0.0625" tolerance / ±1.6 mm)
+- Width: 36.000 inches (±0.0625" tolerance / ±1.6 mm)
+- Thickness: 1.500 inches (±0.03125" tolerance / ±0.8 mm)
+- Edge chamfer: 0.125 inches at 45 degrees (±0.015")
+- Corner radius: 0.500 inches (±0.03125")
+- Underside recess depth: 0.500 inches (±0.03125")
+- Underside recess dimensions: 4.5" × 4.5" per corner
+- Reinforcement strip spacing: 18.000 inches center-to-center (4 strips total)
+- Reinforcement strip cross-section: 2.000" × 2.000"
+- Reinforcement strip length: 32" (short dimension minus clearance for legs)
+
+**Legs:**
+- Overall height: 28.500 inches (±0.0625")
+- Top diameter: 3.000 inches (±0.03125")
+- Bottom diameter: 2.750 inches (±0.03125")
+- Wall thickness: 0.125 inches (if tubular construction)
+- Taper start point: 2.000 inches from top
+- Taper end point: 1.000 inches from bottom
+- Taper length: 25.500 inches
+- Inset from table corner: 4.000 inches to leg centerline (±0.125")
+- Distance from table edge (length): 4.000 inches to leg centerline
+- Distance from table edge (width): 4.000 inches to leg centerline
+
+**Apron:**
+- Height: 4.000 inches (±0.03125")
+- Thickness: 0.750 inches (±0.03125")
+- Long apron length: 64.000 inches between leg centers (±0.0625")
+- Short apron length: 28.000 inches between leg centers (±0.0625")
+- Top edge position: 0.500 inches below tabletop underside
+- Decorative groove position: 0.250 inches from bottom edge (±0.015")
+- Groove width: 0.125 inches (±0.015")
+- Groove depth: 0.0625 inches (±0.015")
+- Groove radius (bottom): 0.0625 inches
+- Tenon length: 1.250 inches
+- Tenon thickness: 0.500 inches (centered on apron)
+- Tenon width: 3.000 inches
+
+**Spacing and Clearances:**
+- Leg center to table edge (length): 4.000 inches
+- Leg center to table edge (width): 4.000 inches
+- Leg center to leg center (length): 64.000 inches
+- Leg center to leg center (width): 28.000 inches
+- Clearance under apron (floor to apron bottom): 24.500 inches
+- Seating clearance (floor to tabletop underside): 28.500 inches
+- Knee clearance (between aprons, length): 64.000 inches
+- Knee clearance (between aprons, width): 28.000 inches
+- Minimum comfortable leg room: 24" width recommended (28" provided)
+
+**Hardware Specifications:**
+- Mounting plate dimensions: 4.000" × 4.000" × 0.375"
+- Mounting plate material thickness: 0.375" (10 gauge equivalent)
+- Bolt hole diameter: 0.500 inches
+- Bolt hole spacing: 3.000 inches center-to-center (diagonal measurement)
+- Bolt hole position from plate edge: 1.000 inches
+- Mounting bolt diameter: 0.500 inches (M12 or 1/2")
+- Mounting bolt length: 2.000 inches
+- Washer outer diameter: 1.000 inches
+- Washer inner diameter: 0.5625 inches (clearance for bolt)
+- Washer thickness: 0.0625 inches
+- Leveling foot diameter: 3.000 inches
+- Leveling foot thickness: 0.250 inches
+- Leveling bolt diameter: 0.500 inches (M12 or 1/2")
+- Leveling adjustment range: 1.000 inches total travel
+- Adjustment socket size: 0.500 inches across flats (hex)
+
+### Angular Specifications:
+- Edge chamfer angle: 45.000 degrees (±1 degree)
+- Leg taper angle: 0.281 degrees from centerline (0.563 degrees included angle)
+- Apron-to-leg joint angle: 90.000 degrees (±0.5 degrees)
+- Corner radius arc: 90.000 degrees (quarter circle)
+- Tabletop to floor: 90.000 degrees (perpendicular)
+- Leg verticality: 90.000 degrees (±0.5 degrees acceptable)
+
+### Material Thicknesses:
+- Tabletop veneer: 0.0625 inches (1/16")
+- Tabletop core: 1.375 inches
+- Total tabletop: 1.500 inches (veneer + core + finish)
+- Apron thickness: 0.750 inches (3/4")
+- Leg wall (if tubular): 0.125 inches (1/8")
+- Mounting plate: 0.375 inches (3/8")
+- Reinforcement strip: 0.750" × 2.000" cross-section
+- Foot pad: 0.250 inches (1/4")
+- Rubber gasket: 0.125 inches (1/8")
+- Finish build (polyurethane): 0.008-0.012 inches total
+
+### Weight Specifications (approximate):
+- Tabletop assembly: 85-95 lbs (white oak, solid construction)
+- Each leg with hardware: 8-10 lbs (steel construction)
+- Apron frame: 15-20 lbs (white oak)
+- Total table weight: 125-155 lbs (stable, substantial piece)
+- Load capacity: 500+ lbs distributed load (dining use)
+
+## Lighting and Rendering Considerations
+
+### Tabletop Light Interaction:
+
+**Reflectivity Properties (Blender Principled BSDF values):**
+- **Base Color:** RGB (180, 150, 120) with variation texture
+- **Metallic:** 0.0 (wood is non-metallic)
+- **Specular:** 0.5 (default, appropriate for polyurethane)
+- **Roughness:** 0.4-0.5 (matte finish, not glossy)
+- **Specular Tint:** 0.0 (neutral reflections)
+- **Anisotropic:** 0.3 (elongated reflections following grain)
+- **Anisotropic Rotation:** Driven by grain direction map (0° or 90° depending on grain orientation)
+- **Sheen:** 0.1-0.2 (subtle fabric-like sheen at grazing angles)
+- **Sheen Tint:** 0.5 (neutral to warm)
+- **Clearcoat:** 0.3 (simulates polyurethane coating)
+- **Clearcoat Roughness:** 0.2 (slightly glossier than base)
+- **IOR (Index of Refraction):** 1.45 (polyurethane coating)
+
+**Subsurface Scattering (SSS):**
+- **Subsurface Weight:** 0.05-0.08 (subtle translucency, visible at edges)
+- **Subsurface Radius:** RGB (2.0, 1.5, 1.0) - warm wood tones, red penetrates deepest
+- **Subsurface Scale:** 0.01 (controls depth of light penetration)
+- **Subsurface IOR:** 1.45 (matches clearcoat)
+- **Effect visibility:** Most prominent at edges (1.5" thickness) and thin sections
+- **Backlighting response:** Creates warm glow when strongly backlit
+- **Realism impact:** Critical for preventing "plastic" appearance
+
+**Texture Mapping Strategy:**
+- **Bump Map:** 0.01-0.02" depth, follows grain pattern (creates tactile grain feel)
+- **Normal Map:** 0.002-0.005" fine grain detail (adds micro-surface variation)
+- **Displacement Map (optional):** 0.005" maximum for ultra-realistic grain (computationally expensive)
+- **Roughness Map:** Varies 0.35-0.5 along grain (smoother in valleys, rougher on peaks)
+- **Color Variation Map:** ±5% RGB variation for natural wood color shifts
+- **Anisotropic Rotation Map:** Black-to-white gradient controlling grain direction (0° to 90°)
+
+**Fresnel Effect:**
+- **Enabled:** Yes (automatic in Principled BSDF with IOR setting)
+- **Impact:** Increases reflectivity at grazing angles (edge of table appears glossier)
+- **Realism:** Essential for natural material appearance
+- **IOR value:** 1.45 (polyurethane) creates appropriate Fresnel curve
+
+### Leg Light Interaction:
+
+**Metal Surface Properties (Blender Principled BSDF values):**
+- **Base Color:** RGB (25, 25, 25) - true matte black
+- **Metallic:** 1.0 (full metallic for accurate metal response)
+- **Roughness:** 0.6-0.7 (matte powder coat, not polished)
+- **Specular:** 0.5 (default, appropriate for coated metal)
+- **Anisotropic:** 0.0 (no directional reflection)
+- **Clearcoat:** 0.0 (powder coat is not glossy)
+- **Sheen:** 0.0 (no fabric-like quality)
+- **IOR:** 1.45 (powder coat polymer)
+
+**Micro-texture Effects:**
+- **Bump Map:** Orange peel texture, 0.002-0.003" depth
+- **Noise Scale:** 0.1 (fine texture, not coarse)
+- **Pattern Type:** Random noise or cellular (simulates powder coat texture)
+- **Effect:** Breaks up reflections, prevents CG "perfect" appearance
+- **Roughness Variation:** ±0.05 variation in roughness map (subtle texture variation)
+
+**Color and Tone:**
+- **Base black:** RGB (25, 25, 25) - not pure black (0, 0, 0)
+- **Slight warmth:** Can add +2-3 to red channel for subtle warm cast
+- **Consistency:** Uniform color across all legs (quality powder coat)
+- **No color shift:** Maintains true black under various lighting (unlike paint)
+
+### Apron Light Interaction:
+
+**Properties (matches tabletop):**
+- All settings identical to tabletop for material consistency
+- Grain direction rotated 90° on perpendicular aprons
+- Slightly lighter base color: RGB (190, 160, 130) vs tabletop (180, 150, 120)
+- Same roughness, SSS, and bump settings as tabletop
+
+### Shadow Behavior:
+
+**Tabletop Shadows:**
+- **Shadow softness:** Soft shadows due to matte finish and diffuse surface
+- **Shadow terminator:** Gradual transition, 3-4" from hard edge to full shadow (depends on light size)
+- **Self-shadowing:** Grain valleys create subtle shadows, 10-20% darker than peaks
+- **Edge shadows:** Slightly harder than surface shadows due to chamfer creating defined edge
+- **Contact shadows:** Darkest where tabletop meets apron, 60-80% black
+- **Ambient occlusion:** Corners and recesses 30-40% darker (use AO shader for realism)
+
+**Leg Shadows:**
+- **Shadow type:** Moderate softness (between hard and very soft)
+- **Cylindrical gradient:** Shadow wraps around leg form, creating gradient from light to dark side
+- **Contact shadows:** Floor contact point darkest, 80-90% black
+- **Shadow falloff:** Exponential decay, reaching 50% darkness at 2" from leg base
+- **Multiple legs:** Overlapping shadows create darker areas where shadows intersect
+- **Shadow color:** Slightly warm black, not pure neutral (reflects environment)
+
+**Apron Shadows:**
+- **Horizontal shadow line:** Cast onto legs, defines apron depth
+- **Shadow depth:** 0.125" (matches apron setback from leg surface)
+- **Corner shadows:** Ambient occlusion in leg-apron-leg corners, 40-50% darker
+- **Underside shadow:** Apron bottom casts shadow on legs below, soft gradient
+- **Interior shadows:** Between aprons under table, creates darker interior zone
+
+**Shadow Interaction:**
+- **Overlapping shadows:** Multiple light sources create layered shadows (more realistic)
+- **Colored shadows:** Environment reflections tint shadows subtly (not pure black)
+- **Shadow sharpness:** Varies with light source distance and size
+- **Ground plane:** Table casts shadow on floor, size depends on light height and angle
+
+### Lighting Setup Recommendations:
+
+**Three-Point Lighting (Classic Setup):**
+
+**1. Key Light:**
+- **Position:** 45° above horizon, 30° to side (front-right or front-left)
+- **Type:** Area light or softbox (creates soft shadows)
+- **Intensity:** 1000-1500 lumens equivalent (or Blender strength 100-150W)
+- **Size:** 3' × 3' equivalent (larger = softer shadows)
+- **Color Temperature:** 5000-5500K (neutral to slightly warm)
+- **Purpose:** Primary illumination, highlights wood grain, creates dimension
+- **Effect on wood:** Brings out grain contrast and surface texture
+- **Effect on metal:** Creates primary highlight on legs
+
+**2. Fill Light:**
+- **Position:** Opposite side from key, lower angle (15-30° above horizon)
+- **Intensity:** 30-40% of key light (300-600 lumens or 30-60W)
+- **Size:** Larger than key (4' × 4') for very soft fill
+- **Color Temperature:** 4500-5000K (slightly cooler than key for depth)
+- **Purpose:** Softens shadows, reveals underside structure, reduces contrast
+- **Effect:** Prevents pure black shadows, maintains detail in shadow areas
+
+**3. Rim/Back Light (Optional but Recommended):**
+- **Position:** Behind and above subject (120-150° from key light)
+- **Intensity:** 50-80% of key light (500-1200 lumens or 50-120W)
+- **Type:** Spotlight or small area light (harder light acceptable)
+- **Color Temperature:** 5500-6000K (slightly cooler, suggests window light)
+- **Purpose:** Edge definition, separates table from background, adds drama
+- **Effect on wood:** Highlights tabletop thickness, creates edge glow
+- **Effect on metal:** Creates secondary highlight, emphasizes leg taper
+
+**HDRI Environment Lighting:**
+- **Type:** Interior HDRI with windows (natural lighting scenario)
+- **Intensity:** 0.3-0.5 (subtle ambient lighting, not primary source)
+- **Rotation:** Align windows with key light direction for consistency
+- **Resolution:** 4K minimum for sharp reflections
+- **Color Temperature:** 4000-5000K (warm interior lighting)
+- **Purpose:** Provides realistic reflections, ambient fill, environment integration
+- **Effect on metal:** Creates realistic environmental reflections in legs
+- **Effect on wood:** Adds subtle color tinting and realistic ambient light
+
+**Alternative: Natural Window Lighting:**
+- **Large area light:** 6' × 8' simulating window
+- **Position:** To one side, 30-45° angle
+- **Intensity:** 2000-3000 lumens (bright daylight)
+- **Color:** 5500-6500K (daylight color temperature)
+- **Softness:** Very soft shadows (large source)
+- **Complement:** Small warm interior light opposite side (500 lumens, 3000K)
+
+### Rendering Settings (Blender Cycles):
+
+**Sample Settings:**
+- **Viewport samples:** 128-256 (for interactive preview)
+- **Render samples:** 1024-2048 (for final high-quality renders)
+- **Minimum samples:** 512 (acceptable quality with denoising)
+- **Maximum samples:** 4096 (diminishing returns beyond this)
+- **Adaptive sampling:** Enabled, 0.01 noise threshold (optimizes render time)
+- **Denoising:** Enabled - OptiX (NVIDIA GPU) or OpenImageDenoise (CPU/AMD)
+- **Denoise at:** Render time (cleaner results than post-processing)
+
+**Light Path Settings:**
+- **Max Bounces:** 12 total (8 minimum for acceptable quality)
+- **Diffuse Bounces:** 4 (wood surface light scattering)
+- **Glossy Bounces:** 8 (important for wood reflections and metal)
+- **Transmission Bounces:** 4 (minimal transmission in this scene)
+- **Volume Bounces:** 2 (if volumetric effects used)
+- **Transparent Bounces:** 8 (if transparency present)
+- **Caustics:** Disabled (not needed for this scene, saves time)
+- **Reflective Caustics:** Disabled
+- **Refractive Caustics:** Disabled
+
+**Color Management:**
+- **View Transform:** Filmic (essential for realistic rendering)
+- **Look:** Medium High Contrast or Base Contrast (adjust to taste)
+- **Exposure:** 0 to +0.5 (depending on scene brightness, adjust to taste)
+- **Gamma:** 1.0 (standard, don't adjust unless specific need)
+- **Sequencer:** sRGB (for final output)
+- **Curve adjustment:** Optional custom curve for fine-tuning contrast
+
+**Performance Optimization:**
+- **Tile size:** Auto (or 256×256 for GPU, 32×32 for CPU)
+- **Device:** GPU Compute (much faster than CPU if available)
+- **Persistent Data:** Enabled (speeds up animation rendering)
+- **Use Layer Samples:** Enabled for multi-layer renders
+- **Light tree:** Enabled (Blender 3.6+, improves many-light scenes)
+
+**Camera Settings:**
+- **Focal length:** 50-85mm (natural perspective, minimal distortion)
+- **Depth of field:** Optional, f/2.8-f/5.6 (subtle blur on background)
+- **Focus distance:** On tabletop front edge
+- **Sensor size:** 36mm (full frame equivalent)
+- **Camera height:** 40-50" (slightly above table, natural viewing angle)
+
+**Output Settings:**
+- **Resolution:** 1920×1080 minimum (Full HD), 3840×2160 for high quality (4K)
+- **Frame rate:** 24-30 fps (if animation)
+- **File format:** PNG (lossless) or OpenEXR (for post-processing)
+- **Color depth:** 16-bit (prevents banding in gradients)
+- **Compression:** PNG compression or ZIP (OpenEXR)
+
+## Variations and Imperfections
+
+### Natural Wood Variations:
+
+**Grain Pattern Irregularities:**
+- **Grain angle deviation:** ±5° variation from perfectly parallel (natural growth)
+- **Occasional swirl/curl:** 1-2 instances across tabletop, 2-4" diameter areas where grain swirls
+- **Cross-grain tear-out:** Very subtle, 0.01" deep, 0.5-1" long, occurring 2-3 times (machining artifact)
+- **Cathedral grain variation:** Peak heights vary ±15%, spacing varies ±20% (natural inconsistency)
+- **Wavy grain:** Slight undulation in grain direction, 1-2° amplitude over 6-12" wavelength
+- **Interlocked grain:** Occasional areas where grain direction reverses (visible as color shift)
+
+**Color Variations:**
+- **Sapwood vs. heartwood:** Sapwood 15-20% lighter (RGB +30 to +40 on all channels)
+- **Sapwood location:** Typically along one or two edges (outer tree growth)
+- **Mineral staining:** Dark streaks, 0.125-0.5" wide, 2-8" long, 30-40% darker
+- **Mineral streak color:** Gray-brown to black (iron compounds in wood)
+- **UV exposure variation:** Slight fading near edges exposed to light, 5-10% lighter
+- **Finish absorption variation:** End grain and porous areas absorb more finish, appear 10-15% darker
+- **Natural oxidation:** Slight amber toning overall (wood darkens with age)
+- **Heartwood variation:** Center wood may be 10% darker/redder than surrounding wood
+
+**Natural Defects (Subtle, Adds Character):**
+- **Small tight knots:** 2-3 per tabletop, 0.5-1" diameter, sound and solid
+- **Knot color:** 20-30% darker than surrounding wood (concentrated growth)
+- **Knot grain pattern:** Swirling pattern around knot center
+- **Pin knots:** 4-6 per tabletop, 0.125" diameter (very small knots)
+- **Checking around knots:** Hairline cracks radiating from knots, 0.01" wide, 0.5-1" long
+- **Bark inclusions:** Rare, 0.125-0.25" dark spots where bark grew into wood
+- **Pitch pockets:** Occasional small voids/dark areas, 0.25" × 0.5" (resin accumulation)
+- **Insect marks:** Very rare, small pin holes or tracks (adds authenticity if present)
+
+### Manufacturing Imperfections:
+
+**Machining Marks:**
+- **Planer marks:** Very subtle parallel lines, 0.002" deep, 0.125" apart (from planer blades)
+- **Planer snipe:** Slight depression at board ends, 0.01-0.02" deep, 2-4" long (common defect)
+- **Sanding swirls:** Barely visible random circular patterns, 0.001" deep (from orbital sander)
+- **Cross-grain sanding scratches:** 3-5 visible scratches, 0.001" deep, 1-3" long (sanding error)
+- **Router burn marks:** Slightly darker areas at edges, 0.0625" wide band (friction darkening)
+- **Tear-out:** Small areas where grain pulled out during machining, 0.01-0.02" deep, 0.25-0.5" size
+- **Chatter marks:** Subtle wavy pattern from machine vibration, 0.005" amplitude (rare on quality work)
+
+**Finish Imperfections:**
+- **Dust nibs:** 3-5 per tabletop, 0.03" diameter bumps (dust in finish)
+- **Slight orange peel:** 0.005" texture variation in finish (application artifact)
+- **Finish pooling:** In grain valleys, 10% thicker finish, appears slightly glossier
+- **Brush marks:** If hand-applied, subtle linear patterns in finish, 0.002" deep
+- **Edge drips:** Underside only, 1-2 instances, 0.125" wide, 0.5-1" long (gravity drips)
+- **Fisheyes:** Rare, small circular defects, 0.125" diameter (contamination repelling finish)
+- **Bubbles:** Occasional tiny bubbles in finish, 0.03" diameter (trapped air)
+- **Uneven sheen:** Slight variation in gloss level, ±5% (application inconsistency)
+
+**Assembly Imperfections:**
+- **Apron-to-leg joint gaps:** 0.01-0.02" variation (wood movement, fitting tolerance)
+- **Seasonal gaps:** ±0.03" variation with humidity (wood expands/contracts across grain)
+- **Glue squeeze-out:** Tiny dried glue beads at joints, 0.03" diameter (cleanup missed spots)
+- **Misaligned grain:** At glue joints, grain doesn't perfectly align (different boards)
+- **Color mismatch:** At joints, ±10% color difference between joined pieces
+- **Mortise visibility:** Slight outline of mortise visible as shadow line, 0.01" wide
+
+### Alignment Variations:
+
+**Geometric Imperfections (Realistic Tolerances):**
+- **Leg verticality:** ±0.5° from perfect vertical (within acceptable tolerance)
+- **Leg spacing:** ±0.125" from perfect measurement (cumulative tolerance)
+- **Tabletop flatness:** ±0.0625" bow over length (wood movement, acceptable)
+- **Tabletop twist:** ±0.03" corner-to-corner (slight wind in tabletop)
+- **Apron alignment:** ±0.0625" variation in height (installation tolerance)
+- **Diagonal measurement:** ±0.125" difference between diagonals (slight racking)
+- **Leg height:** ±0.03125" variation between legs (requires leveling feet)
+- **Chamfer consistency:** ±0.015" variation in chamfer width around perimeter
+
+### Wear and Age Indicators:
+
+**Light Wear (1-2 Years Use):**
+- **Edge rounding:** 0.03" radius on high-contact areas (corners, front edge)
+- **Micro-scratches:** Random direction, 0.001" deep, 20-30 per square foot
+- **Finish dulling:** 5-10% reduction in sheen on high-use center area
+- **Compression marks:** 2-3 per tabletop, 0.125-0.25" diameter, 0.01" deep (from objects)
+- **Scuff marks on legs:** Light marks 12-18" from floor (from feet, vacuum)
+- **Slight patina:** Overall slight darkening, +5% in RGB values (oxidation)
+
+**Moderate Wear (5-7 Years Use):**
+- **Noticeable edge rounding:** 0.0625" radius on frequently touched areas
+- **Deeper scratches:** 3-5 prominent scratches, 0.01" deep, 6-12" long
+- **Finish wear-through:** Small areas (1-2 square inches) showing raw wood
+- **Dents and dings:** 5-8 per tabletop, 0.25-0.5" diameter, 0.03" deep
+- **Water rings:** Faint circular marks, 3-4" diameter (glass condensation)
+- **Leg scuff marks:** 0.5-1" wide bands, 6-12" from floor (concentrated wear)
+- **Apron edge wear:** Slight rounding where hands grip, 0.03" radius
+- **Hardware loosening:** Slight play in leg attachment (requires tightening)
+
+**Heavy Wear (10+ Years Use):**
+- **Significant edge rounding:** 0.125" radius on all edges
+- **Multiple deep scratches:** 10-15 scratches, up to 0.03" deep, random directions
+- **Extensive finish wear:** 10-20% of surface showing raw wood (center and edges)
+- **Major dents:** 3-5 dents, up to 0.5" diameter, 0.0625" deep (impact damage)
+- **Leg finish chipping:** 5-10 chips, 0.25-0.5" diameter, exposing metal underneath
+- **Rust spots:** On exposed metal, 0.125-0.25" diameter (if in humid environment)
+- **Loose joints:** Slight wobble, 0.0625-0.125" movement (glue joint degradation)
+- **Color fading:** Overall lightening, -10% to -15% RGB values (UV exposure)
+- **Structural wear:** Apron joints may show gaps, 0.03-0.0625" (wood movement over time)
+- **Foot pad wear:** Rubber compressed/worn, uneven contact with floor
+
+### Asymmetries for Realism:
+
+**Intentional Variations (Prevent CG "Perfect" Look):**
+- **Leg position variation:** Each leg ±0.0625" from perfect position (tolerance stack-up)
+- **Wood grain per board:** If multi-board construction, each board has unique grain pattern
+- **Color matching:** 95% match between components, not 100% perfect (natural variation)
+- **Finish thickness:** ±0.005" across surface (application variation)
+- **Hardware torque:** Slight variation in bolt tightness creates minor compression differences
+- **Chamfer width:** ±0.015" variation around perimeter (hand-finishing variation)
+- **Leg taper:** Each leg may vary ±0.03" in final diameter (manufacturing tolerance)
+
+**Random Elements (Use Random Seed in Textures):**
+- **Knot placement:** Truly random, no symmetry or pattern
+- **Grain figure:** Unique to each section of wood (no repeating patterns)
+- **Color streaking:** Random width (0.125-0.5"), length (2-8"), and position
+- **Finish dust nibs:** Random distribution, not evenly spaced
+- **Micro-scratches:** Random direction, length, and density
+- **Mineral deposits:** Random size, shape, and location
+- **Wood pores:** Random distribution following grain (use procedural texture)
+- **Powder coat texture:** Random orange peel pattern (no repeating tiles)
+
+**Asymmetric Wear Patterns:**
+- **Dominant side wear:** One side/end shows more wear (where people sit most)
+- **Corner wear:** Corners nearest entry point more worn (traffic pattern)
+- **Leg wear:** Legs facing room entry more scuffed (foot traffic)
+- **Finish wear:** Center area more worn than edges (serving, working area)
+
+---
+
+## Blender-Specific Modeling Notes:
+
+### Recommended Modeling Workflow:
+
+**Phase 1: Basic Geometry**
+1. **Tabletop:**
+   - Start with default cube, scale to 72" × 36" × 1.5"
+   - Apply scale (Ctrl+A > Scale)
+   - Add Subdivision Surface modifier (2 levels, Simple mode initially)
+   - Add Edge Split modifier (prevents unwanted smoothing)
+
+2. **Edge Details:**
+   - Select top edges, Bevel (Ctrl+B): 0.125" width, 2 segments, 45° angle
+   - Select corner edges, Bevel: 0.5" radius, 8-16 segments for smooth curve
+   - Add secondary micro-bevel: 0.03" on sharp edges (prevents unrealistic sharp edges)
+
+3. **Legs:**
+   - Add Cylinder: 3" diameter, 28.5" height, 32 vertices (smooth appearance)
+   - Rotate 90° (align with Z-axis)
+   - Add Simple Deform modifier: Taper mode, 0.0833 factor (3" to 2.75")
+   - Limit taper: Empty object controlling start/end points
+   - Position at 4" inset from corners
+
+4. **Apron:**
+   - Create from cube: 64" × 4" × 0.75" (long apron)
+   - Duplicate and scale for short apron: 28" × 4" × 0.75"
+   - Add decorative groove: Inset face, Extrude inward 0.0625"
+   - Position 0.5" below tabletop underside
+
+5. **Hardware (Optional Detail Level):**
+   - Mounting plates: Cube scaled to 4" × 4" × 0.375"
+   - Bolt heads: Cylinder, 6-sided, 0.75" across flats
+   - Foot pads: Cylinder, 3" diameter × 0.25" height
+   - Use Array modifier for bolt patterns
+
+**Phase 2: UV Unwrapping Strategy**
+
+**Tabletop UV Layout:**
+- **Method:** Project from view (top view), then scale to square
+- **Orientation:** Align UV with grain direction (vertical in UV space)
+- **Island:** Single island for entire top surface (seamless grain flow)
+- **Edges:** Separate UV island (can use different texture scale)
+- **Underside:** Separate island (lower detail acceptable)
+- **Texel density:** 512 pixels per foot (2048×1024 texture for 72" × 36" top)
+- **Margin:** 0.02 (2% margin between islands)
+
+**Leg UV Layout:**
+- **Method:** Cylindrical projection
+- **Seam:** Place seam at back of leg (least visible)
+- **Unwrap:** U > Unwrap or Cylinder Projection
+- **Straighten:** Use Follow Active Quads for straight UV layout
+- **Texel density:** Match tabletop (consistent detail level)
+- **Orientation:** Vertical in UV space (simplifies texture painting)
+
+**Apron UV Layout:**
+- **Method:** Box projection or Smart UV Project
+- **Islands:** Separate island per apron piece (allows grain direction control)
+- **Orientation:** Horizontal grain in UV space
+- **Texel density:** Match tabletop
+- **Groove:** May need separate island for proper texturing
+
+**UV Best Practices:**
+- **Consistent density:** Use Texel Density Checker addon
+- **Minimize stretching:** Check UV > Stretch overlay (blue = good, red = bad)
+- **Straighten edges:** Select UV edges, S > X/Y > 0 (straighten)
+- **Pack efficiently:** UV > Pack Islands (maximize texture space usage)
+- **Non-overlapping:** Ensure no UV overlaps (causes texture errors)
+
+**Phase 3: Material Node Setup**
+
+**Wood Material (Principled BSDF Base):**
+```
+Base Structure:
+- Image Texture (color) → Mix RGB → Base Color
+- Noise Texture → ColorRamp → Mix RGB (color variation)
+- Wave Texture → ColorRamp → Bump → Normal
+- Image Texture (roughness) → Roughness
+- Texture Coordinate → Mapping (control scale/rotation)
+```
+
+**Detailed Node Tree:**
+1. **Color Layer:**
+   - Image Texture (wood color map) → Base Color
+   - Noise Texture (Scale: 25) → ColorRamp → Mix (Factor: 0.05) → Base Color
+   - Purpose: Adds subtle color variation
+
+2. **Bump/Normal Layer:**
+   - Image Texture (normal map) → Normal Map node → Normal input
+   - Bump node (Distance: 0.015) → Normal input (chain with normal map)
+   - Purpose: Creates grain tactile feel
+
+3. **Roughness Layer:**
+   - Image Texture (roughness map, B&W) → Roughness (0.4-0.5 range)
+   - ColorRamp to adjust contrast
+   - Purpose: Varying roughness along grain
+
+4. **Anisotropic Layer:**
+   - Anisotropic: 0.3
+   - Image Texture (grain direction, B&W) → Anisotropic Rotation
+   - Purpose: Elongated reflections following grain
+
+5. **Subsurface Layer:**
+   - Subsurface Weight: 0.05-0.08
+   - Subsurface Radius: (2.0, 1.5, 1.0)
+   - Purpose: Edge translucency
+
+6. **Detail Layers:**
+   - Musgrave Texture → ColorRamp → Mix (subtle grain irregularity)
+   - Voronoi Texture → ColorRamp → Mix (wood pore simulation)
+
+**Metal Material (Legs):**
+```
+Simplified Structure:
+- Base Color: RGB (25, 25, 25)
+- Metallic: 1.0
+- Roughness: 0.65 (with noise variation)
+- Noise Texture → Bump (orange peel texture)
+```
+
+**Detailed Node Tree:**
+1. **Base:**
+   - RGB node (25, 25, 25) → Base Color
+   - Metallic: 1.0
+   - Specular: 0.5
+
+2. **Surface Texture:**
+   - Noise Texture (Scale: 100, Detail: 3) → Bump (Distance: 0.003)
+   - Purpose: Orange peel powder coat texture
+
+3. **Roughness Variation:**
+   - Base Roughness: 0.65
+   - Noise Texture → ColorRamp → Mix with base roughness (Factor: 0.05)
+   - Purpose: Subtle roughness variation
+
+**Phase 4: Texture Creation/Sourcing**
+
+**Option A: Procedural Textures (Fully in Blender)**
+- **Advantages:** Infinite resolution, no UV stretching, easy to modify
+- **Wood grain:** Wave + Musgrave + Voronoi textures combined
+- **Color variation:** Noise + ColorRamp nodes
+- **Roughness:** Noise texture mapped to roughness
+- **Limitation:** Less realistic than photo textures, requires skill to set up
+
+**Option B: Image Textures (Recommended for Realism)**
+- **Source:** Polligon.com, TextureHaven.com, or Poliigon.com
+- **Required maps:**
+  - Diffuse/Albedo (color): 4K resolution minimum
+  - Normal map: 4K (critical for realism)
+  - Roughness map: 2K-4K
+  - Displacement map (optional): 4K (for extreme close-ups)
+- **Wood texture:** Search "white oak" or "oak wood grain"
+- **Metal texture:** Search "powder coat black" or create procedurally
+- **Seamless:** Ensure textures are seamless or use Box Mapping to hide seams
+
+**Option C: Hybrid Approach (Best Results)**
+- Base color from image texture
+- Procedural noise for variation
+- Image normal map for primary grain
+- Procedural bump for micro-detail
+- Combines realism of photos with flexibility of procedural
+
+**Phase 5: Detailing with Geometry Nodes (Optional, Advanced)**
+
+**Micro-Detail Generation:**
+- **Scratches:** Distribute short curve objects randomly on surface
+- **Dust nibs:** Distribute small spheres (0.03" diameter) randomly
+- **Grain variation:** Displace surface following procedural texture
+- **Advantages:** Non-destructive, adjustable density, art-directable
+- **Performance:** Can be heavy, use viewport display settings wisely
+
+**Geometry Nodes Setup Example (Scratches):**
+```
+1. Distribute Points on Faces (Density: 20-30)
+2. Instance on Points (Object: scratch curve)
+3. Randomize rotation and scale
+4. Set Random (control variation)
+5. Join Geometry with main mesh
+```
+
+**Phase 6: Particle Systems for Detail (Alternative to Geo Nodes)**
+
+**Dust/Imperfections:**
+- Particle system: Hair type
+- Count: 50-100 (sparse distribution)
+- Render as: Object (tiny sphere or custom shape)
+- Randomize: Size, rotation
+- Weight paint: Control distribution (more in corners, less in center)
+
+### Modifier Stack Order (Critical for Correct Results):
+
+**Tabletop:**
+1. Mirror (if using symmetry workflow)
+2. Subdivision Surface (2 levels)
+3. Edge Split (prevents unwanted smoothing)
+4. Bevel (edge chamfers)
+5. Weighted Normal (corrects shading artifacts)
+
+**Legs:**
+1. Mirror (if modeling one leg)
+2. Array (if duplicating legs)
+3. Simple Deform (taper)
+4. Subdivision Surface (1-2 levels)
+5. Weighted Normal
+
+**General Rules:**
+- Deformation modifiers before Subdivision Surface
+- Subdivision Surface before detail modifiers (Bevel, etc.)
+- Weighted Normal last (fixes shading)
+
+### Shading and Normal Considerations:
+
+**Smooth vs. Flat Shading:**
+- **Tabletop:** Smooth shading (organic wood surface)
+- **Legs:** Smooth shading (cylindrical form)
+- **Apron:** Smooth shading with Edge Split on hard edges
+- **Hardware:** Depends on form (smooth for rounded, flat for faceted)
+
+**Auto Smooth:**
+- **Enable:** Object Properties > Normals > Auto Smooth
+- **Angle:** 30° (prevents smoothing across hard edges)
+- **Alternative:** Edge Split modifier (more control)
+
+**Weighted Normal Modifier:**
+- **Purpose:** Fixes shading artifacts from bevels and hard edges
+- **Settings:** Keep Sharp: ON, Face Influence: OFF
+- **Placement:** Last in modifier stack
+- **Impact:** Cleaner, more realistic shading
+
+**Custom Normals (Advanced):**
+- Edit Mode > Alt+N > Normal Editing tools
+- Use for precise control over shading
+- Data Transfer modifier can copy normals from high-res mesh
+
+### Camera and Composition:
+
+**Recommended Camera Settings:**
+- **Focal Length:** 50mm (natural perspective) or 85mm (compressed, flattering)
+- **Sensor Size:** 36mm (full frame)
+- **Depth of Field:** Optional, f/4.0-f/5.6 for subtle background blur
+- **Focus:** On front edge of tabletop (closest point to camera)
+- **Camera Height:** 40-50" (slightly above table, natural viewing angle)
+- **Camera Angle:** Slight downward tilt (5-10°) to show tabletop surface
+
+**Composition Guidelines:**
+- **Rule of Thirds:** Position table at intersection points
+- **Headroom:** Leave space above table (don't crop tight to top)
+- **Foreground:** Consider adding foreground element (chair, plant) for depth
+- **Background:** Simple, non-competing (wall, window, subtle environment)
+- **Lighting Direction:** Key light from side creates dimension and interest
+
+**Multiple Angles for Portfolio:**
+1. **Hero shot:** 3/4 view, eye level, shows form and detail
+2. **Top-down:** Directly above, shows proportions and symmetry
+3. **Detail shot:** Close-up of corner, shows joinery and material detail
+4. **In-context:** Table with chairs, place setting (shows scale and use)
+5. **Underside:** Shows construction and hardware (technical documentation)
+
+### Render Layers and Passes (for Post-Processing):
+
+**Essential Passes:**
+- **Combined:** Full beauty render
+- **Diffuse:** Isolate color information
+- **Glossy:** Isolate reflections
+- **Transmission:** If any (minimal in this scene)
+- **Ambient Occlusion:** Contact shadows and crevice darkening
+- **Shadow:** Isolate shadows for adjustment
+- **Mist:** Depth-based fog (optional for atmosphere)
+
+**Utility Passes:**
+- **Normal:** Surface direction (useful for relighting in compositing)
+- **Depth/Z:** Distance from camera (for depth of field in post)
+- **Object Index:** Isolate specific objects for masking
+- **Material Index:** Isolate specific materials
+- **Cryptomatte:** Advanced object/material isolation
+
+**Compositing Workflow:**
+1. Import render layers into Compositor
+2. Adjust AO intensity (multiply over combined)
+3. Color grade (RGB Curves, Hue/Saturation)
+4. Add subtle vignette (Ellipse Mask + Blur + Mix)
+5. Sharpen (Filter node, subtle)
+6. Glare (optional, subtle bloom on highlights)
+7. Output to file
+
+### Performance Optimization Tips:
+
+**Viewport Performance:**
+- **Simplify panel:** Reduce Max Subdivisions in viewport
+- **Display as:** Bounds or Wire for high-poly objects during setup
+- **Culling:** Enable backface culling (speeds up solid view)
+- **HDRI resolution:** Use lower res for viewport (1K), high res for render (8K)
+- **Geometry Nodes:** Use viewport display settings (reduce density)
+
+**Render Performance:**
+- **Adaptive Sampling:** Enabled, 0.01 threshold (stops when converged)
+- **Denoising:** Use GPU denoising (OptiX on NVIDIA, much faster)
+- **Light Path Max Bounces:** Start at 8, increase only if needed
+- **Caustics:** Disabled (not needed, saves time)
+- **Motion Blur:** Disabled (unless animating)
+- **Persistent Data:** Enabled (speeds up animation)
+- **Tile Size:** Auto or 256×256 for GPU
+- **Resolution:** Render at 50-75% for tests, 100% for final
+
+**File Size Management:**
+- **Texture resolution:** Use 2K for distant objects, 4K for hero objects
+- **Pack textures:** File > External Data > Pack All into .blend
+- **Compress .blend:** File > Save As > Compress (reduces file size 50-70%)
+- **Purge unused:** File > Clean Up > Purge All (removes unused data blocks)
+
+### Common Pitfalls and Solutions:
+
+**Problem: Shading artifacts (dark streaks)**
+- **Solution:** Add Weighted Normal modifier last in stack
+- **Alternative:** Enable Auto Smooth with 30° angle
+- **Cause:** Bevels and subdivision creating normal conflicts
+
+**Problem: Wood looks plastic**
+- **Solution:** Add Subsurface Scattering (0.05-0.08 weight)
+- **Solution:** Reduce roughness variation (use roughness map)
+- **Solution:** Add anisotropic reflection (0.3 value)
+- **Cause:** Missing key wood material properties
+
+**Problem: Textures stretched or distorted**
+- **Solution:** Check UV unwrap, ensure proper projection method
+- **Solution:** Verify texel density is consistent
+- **Solution:** Use "Follow Active Quads" for straightening UVs
+- **Cause:** Poor UV unwrapping
+
+**Problem: Render too noisy**
+- **Solution:** Increase samples (1024 minimum)
+- **Solution:** Enable denoising (OptiX or OpenImageDenoise)
+- **Solution:** Increase light intensity (more light = less noise)
+- **Cause:** Insufficient samples or dim lighting
+
+**Problem: Render too dark/bright**
+- **Solution:** Adjust exposure in Color Management (±0.5)
+- **Solution:** Increase/decrease light intensity
+- **Solution:** Check HDRI intensity (0.3-0.5 typical)
+- **Cause:** Lighting imbalance
+
+**Problem: Legs look too perfect/CG**
+- **Solution:** Add bump map for orange peel texture
+- **Solution:** Add slight roughness variation (±0.05)
+- **Solution:** Add small imperfections (scratches, chips)
+- **Cause:** Too uniform, lacks micro-detail
+
+---
+
+## Final Quality Checklist:
+
+**Geometry:**
+- [ ] All dimensions accurate to specifications
+- [ ] Clean topology (no overlapping faces, internal geometry)
+- [ ] Smooth shading on organic surfaces
+- [ ] Edge loops support form
+- [ ] Modifiers applied correctly and in proper order
+- [ ] Scale applied (Ctrl+A > Scale)
+
+**UVs:**
+- [ ] All objects unwrapped
+- [ ] Consistent texel density
+- [ ] Minimal stretching (check UV > Stretch overlay)
+- [ ] Proper seam placement (hidden areas)
+- [ ] Islands packed efficiently
+- [ ] Adequate margin between islands (2%)
+
+**Materials:**
+- [ ] Physically accurate values (roughness, metallic, etc.)
+- [ ] Textures connected properly
+- [ ] Color management set to Filmic
+- [ ] Subsurface scattering on wood
+- [ ] Anisotropic reflection on wood
+- [ ] Bump/normal maps connected
+- [ ] Roughness variation present
+
+**Lighting:**
+- [ ] Three-point lighting or HDRI
+- [ ] Appropriate color temperature (4000-6000K)
+- [ ] Soft shadows (large light sources)
+- [ ] Rim light for edge definition (optional)
+- [ ] No pure black shadows (fill light present)
+- [ ] Realistic light intensity
+
+**Camera:**
+- [ ] Appropriate focal length (50-85mm)
+- [ ] Proper framing and composition
+- [ ] Focus point set correctly
+- [ ] Depth of field (optional but adds realism)
+- [ ] Camera height appropriate (40-50")
+
+**Render Settings:**
+- [ ] Samples: 1024-2048
+- [ ] Denoising enabled
+- [ ] Light paths: Max 12, Glossy 8
+- [ ] Color Management: Filmic
+- [ ] Resolution: 1920×1080 minimum
+- [ ] Output format: PNG or OpenEXR
+
+**Realism Details:**
+- [ ] Imperfections present (scratches, dust nibs)
+- [ ] Natural wood variation (grain, color)
+- [ ] Asymmetries (slight misalignments)
+- [ ] Wear patterns (if aged appearance desired)
+- [ ] Micro-details (bump, normal maps)
+- [ ] Proper scale (check with reference objects)
+
+---
+
+This comprehensive, refined description provides complete technical and artistic guidance for creating a photorealistic 3D model of a modern dining table in Blender, from initial modeling through final rendering, with attention to both accuracy and realism.
+
+--------------------------------------------------------------------------------
+REASONING STEPS
+--------------------------------------------------------------------------------
+1. Analysis: ## Analysis
+
+**Primary Object:** Table
+
+**Specific Details:** 
+- No specific style mentioned (modern, wooden, glass, etc.)
+- No dimensions specified
+- No particular features requested (drawers, shelves, legs style)
+- Software: Blender (specified)
+
+**Complexity:** Low to Medium
+- Basic geometric shape (tabletop + legs)
+- Standard furniture item with well-defined structure
+- Can be created with simple primitives (cubes, cylinders)
+- Suitable for beginner to intermediate 3D modeling
+
+**Recommendation:** Create a simple, generic table with a rectangular top and four legs as a starting point. User can refine with additional details if needed.
+
+2. Assessment: NEEDS_EXPANSION - 0/6 criteria met
+
+**Analysis:**
+The prompt "model a table using blender" contains:
+1. ❌ Specific dimensions/sizes - None provided
+2. ❌ Material descriptions - Not specified
+3. ❌ Texture details - Not mentioned
+4. ❌ Color specifications - Not included
+5. ❌ Structural components - Not detailed (leg style, support structure, etc.)
+6. ❌ Surface features/details - Not described
+
+This is a basic object request with no detailed specifications. To create a proper 3D model, the prompt should be expanded to include information such as:
+- Table dimensions (length, width, height)
+- Style (dining table, coffee table, desk)
+- Material type (wood, metal, glass)
+- Leg design (4 legs, pedestal, trestle)
+- Surface finish and any decorative elements
+
+**Status: NEEDS_EXPANSION**
+
+3. Generated comprehensive details
+
+4. Refined and polished description
+
+--------------------------------------------------------------------------------
+Was Original Detailed: False
+Output Length: 53391 characters
+================================================================================

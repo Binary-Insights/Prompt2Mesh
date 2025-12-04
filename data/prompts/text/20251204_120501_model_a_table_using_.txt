@@ -1,0 +1,2596 @@
+================================================================================
+PROMPT REFINEMENT OUTPUT
+================================================================================
+
+Timestamp: 2025-12-04 12:05:01
+Thread ID: default
+
+--------------------------------------------------------------------------------
+ORIGINAL PROMPT
+--------------------------------------------------------------------------------
+model a table using blender
+
+--------------------------------------------------------------------------------
+REFINED PROMPT
+--------------------------------------------------------------------------------
+# Comprehensive 3D Modeling Description: Standard Dining Table
+
+## 1. Overall Structure and Shape
+
+### Primary Dimensions
+- **Total Height:** 30 inches (76.2 cm) from floor to tabletop surface
+- **Tabletop Length:** 72 inches (182.88 cm)
+- **Tabletop Width:** 36 inches (91.44 cm)
+- **Tabletop Thickness:** 1.5 inches (3.81 cm)
+- **Usable Seating Capacity:** 6-8 people comfortably
+
+### Geometric Form
+- Rectangular tabletop with clean, straight edges and traditional proportions
+- Beveled edge profile at 15-degree angle, creating a 0.25-inch (6.35 mm) chamfer around entire perimeter
+- Four cylindrical legs positioned at corners with traditional inset placement
+- Rectangular apron frame connecting all four legs beneath the tabletop
+- Overall silhouette follows classic farmhouse/craftsman proportions with sturdy, balanced visual weight
+
+### Proportions and Scale
+- Leg placement inset 2 inches (5.08 cm) from each corner edge (measured to leg center)
+- Knee clearance: 26 inches (66.04 cm) from floor to underside of apron
+- Leg-to-tabletop ratio approximately 19:1 (leg height to tabletop thickness)
+- Visual weight distribution: 60% tabletop presence, 40% base structure
+- Overhang beyond apron: 1.25 inches (3.175 cm) on all sides for comfortable seating
+
+---
+
+## 2. Components and Parts
+
+### A. Tabletop Assembly
+
+**Main Surface:**
+- Constructed from five solid wood planks arranged lengthwise
+- Each plank: 7.2 inches (18.29 cm) wide × 72 inches long × 1.5 inches thick
+- Planks run parallel to the 72-inch length dimension
+- Book-matched or sequentially arranged for visual continuity
+- Visible seam lines between planks: 0.0625 inches (1.59 mm) wide, 0.125 inches (3.18 mm) deep
+
+**Edge Treatment:**
+- **Top Edge:** 15-degree chamfer, 0.25 inches (6.35 mm) wide
+- **Bottom Edge:** Subtle roundover with 0.125-inch (3.18 mm) radius for smooth transition
+- **Corners:** Crisp transitions with 0.0625-inch (1.59 mm) radius to prevent sharp points while maintaining definition
+- **Micro-chamfer:** Additional 0.015625-inch (0.4 mm) chamfer on all sharp intersections to prevent chipping
+
+**Underside Details:**
+- Flat, smooth surface with minimal tool marks
+- Figure-8 fastener recesses (not visible from above)
+- Slight shadow gap (0.0625 inches / 1.59 mm) between tabletop and apron top edge
+
+---
+
+### B. Leg Structure (4 Identical Legs)
+
+**Dimensions:**
+- **Total Height:** 28.5 inches (72.39 cm) from floor to apron connection point
+- **Top Diameter:** 3.5 inches (8.89 cm) at apron junction
+- **Mid Diameter:** 3.25 inches (8.26 cm) at minimum taper point
+- **Bottom Diameter:** 3.75 inches (9.53 cm) at floor contact (includes foot flare)
+- **Taper:** Begins 6 inches (15.24 cm) from top, tapers at 0.0125 inches per inch over 20.5 inches
+
+**Design Features:**
+
+*Upper Section (0-6 inches from top):*
+- Straight cylindrical profile at 3.5-inch diameter
+- Smooth transition into apron mortise joint
+
+*Decorative Ring Detail (4 inches from top):*
+- **Total Width:** 1 inch (2.54 cm)
+- **Cove Section:** Concave curve with 0.5-inch (1.27 cm) radius, recessed 0.25 inches (6.35 mm)
+- **Bead Section:** Convex half-round projecting 0.125 inches (3.18 mm) beyond main cylinder diameter
+- Creates distinct shadow line and visual interest
+- Smooth transitions with no sharp edges
+
+*Tapered Section (6-26.5 inches from top):*
+- Gentle taper from 3.5 inches to 3.25 inches diameter
+- Subtle entasis (slight convex curve) prevents optical illusion of concavity
+- Taper angle: 0.35 degrees from vertical
+- Creates elegant, refined proportion
+
+*Foot Flare (bottom 2 inches):*
+- Gradual expansion from 3.25 inches to 3.75 inches diameter
+- Smooth curved transition with 1.5-inch (3.81 cm) radius
+- Provides visual and structural stability
+- Creates defined base without appearing heavy
+
+---
+
+### C. Apron Assembly
+
+**Long Aprons (2 pieces - parallel to 72-inch dimension):**
+- **Length:** 68 inches (172.72 cm) - spans between inside faces of legs
+- **Height:** 4 inches (10.16 cm)
+- **Thickness:** 0.75 inches (1.91 cm)
+- **Positioning:** Top edge sits 0.0625 inches (1.59 mm) below tabletop underside; bottom edge 26 inches from floor
+
+**Short Aprons (2 pieces - parallel to 36-inch dimension):**
+- **Length:** 32 inches (81.28 cm) - spans between inside faces of legs
+- **Height:** 4 inches (10.16 cm)
+- **Thickness:** 0.75 inches (1.91 cm)
+- **Positioning:** Identical vertical placement to long aprons
+
+**Apron Details:**
+
+*Inner Face:*
+- Flat, smooth surface
+- Shows mortise and tenon joint lines where legs connect
+- May include corner block attachment points (hidden from exterior view)
+
+*Outer Face:*
+- Flat primary surface with subtle decorative bead
+- **Decorative Bead:** Half-round profile, 0.25-inch (6.35 mm) diameter
+- **Bead Position:** 0.5 inches (1.27 cm) from bottom edge, runs full length
+- Creates shadow line and adds visual refinement
+
+*Top Edge:*
+- Subtle 5-degree chamfer (0.0625 inches / 1.59 mm wide) where it approaches tabletop
+- Creates clean shadow line in the gap between apron and tabletop
+
+*Bottom Edge:*
+- Clean, straight edge with minimal roundover (0.03125 inches / 0.79 mm radius)
+
+---
+
+### D. Connection and Joinery
+
+**Leg-to-Apron Connections:**
+- **Joint Type:** Mortise and tenon (traditional furniture joinery)
+- **Tenon Dimensions:** 
+  - Length: 1 inch (2.54 cm) deep into leg
+  - Width: 3 inches (7.62 cm) - centered on apron height
+  - Thickness: 0.375 inches (9.53 mm) - half the apron thickness
+- **Visible Seam:** 0.03125-inch (0.79 mm) gap around joint perimeter (quality tight fit)
+- **Corner Reinforcement:** Triangular corner blocks (3×3×3 inches / 7.62 cm) glued and screwed at each inside corner (hidden from view)
+
+**Tabletop-to-Base Attachment:**
+- **Method:** Figure-8 fasteners (allows wood movement)
+- **Quantity:** 8 total (2 per apron section)
+- **Positioning:** Located 8 inches (20.32 cm) from each end on long aprons; centered on short aprons
+- **Recess Depth:** 0.375 inches (9.53 mm) into apron top edge
+- **Gap Created:** 0.0625-inch (1.59 mm) shadow line between apron and tabletop (allows seasonal wood expansion)
+
+**Joint Appearance:**
+- All joints show as fine, tight seam lines
+- No visible fasteners from exterior
+- Clean, professional craftsmanship evident in minimal gaps
+- Slight darkening in joint recesses from shadow accumulation
+
+---
+
+## 3. Materials and Textures
+
+### Primary Material: Solid White Oak Wood
+
+**Tabletop Material:**
+- **Species:** Quarter-sawn white oak (Quercus alba)
+- **Cut Method:** Quarter-sawn for stability and distinctive ray fleck figure
+- **Grain Orientation:** Runs parallel to 72-inch length
+- **Density:** 47 lbs/ft³ (750 kg/m³) - hard, durable hardwood
+
+**Leg Material:**
+- **Species:** White oak (plain-sawn acceptable for turned elements)
+- **Grain Orientation:** Vertical, following leg length
+- **Characteristics:** Shows cathedral grain pattern on two opposing faces, straighter grain on quartered faces
+
+**Apron Material:**
+- **Species:** White oak (rift-sawn preferred)
+- **Cut Method:** Rift-sawn for straight, consistent grain with minimal figure
+- **Grain Orientation:** Runs parallel to apron length
+
+---
+
+### Surface Texture Characteristics
+
+**Machined Surface Quality:**
+- **Overall Smoothness:** Hand-planed appearance with very subtle, organic undulation
+- **Surface Deviation:** ±0.03125 inches (0.79 mm) - creates subtle play of light
+- **Final Sanding:** 400-grit equivalent smoothness
+- **Sanding Marks:** None visible in final finish (proper sanding progression used)
+
+**Wood Texture Relief:**
+- **Earlywood (light growth rings):** 
+  - Slightly softer, sits 0.005 inches (0.127 mm) below latewood
+  - More porous, absorbs more finish
+  - Creates subtle texture variation
+  
+- **Latewood (dark growth rings):** 
+  - Harder, denser wood stands 0.005 inches (0.127 mm) proud
+  - Less porous, takes finish differently
+  - Creates natural relief following growth ring pattern
+
+- **Open Pores:** 
+  - Depth: 0.015 inches (0.381 mm)
+  - Semi-ring-porous structure (pores concentrated in earlywood)
+  - Individual pore diameter: ~0.02 inches (0.51 mm)
+  - Creates subtle tactile texture even through finish
+
+- **Ray Flecks:** 
+  - Perfectly smooth, flush with surrounding wood
+  - Reflective quality different from background grain
+  - Creates visual texture without relief
+
+**Micro-Texture:**
+- Slight orange peel effect in finish: 0.002-0.003 inches (0.051-0.076 mm) variation
+- Occasional dust nibs: 0.03125 inches (0.79 mm) diameter, 0.5-1 per square foot
+- Cross-grain scratches (barely visible): 0.001-0.002 inches (0.025-0.051 mm) deep, 5-10 per square inch
+
+---
+
+### Color Specifications
+
+**Base Wood Color (unfinished):**
+- **Primary Heartwood Tone:** Medium honey brown
+  - RGB: (184, 144, 98)
+  - Hex: #B89062
+  - HSL: (30°, 38%, 55%)
+
+- **Earlywood (lighter growth rings):** Light tan
+  - RGB: (210, 180, 140)
+  - Hex: #D2B48C
+  - 14% lighter than base tone
+
+- **Latewood (darker growth rings):** Rich medium brown
+  - RGB: (139, 105, 64)
+  - Hex: #8B6940
+  - 24% darker than base tone
+
+- **Ray Flecks:** Silvery-tan with reflective quality
+  - RGB: (195, 175, 145)
+  - Hex: #C3AF91
+  - Subtle color shift with viewing angle (iridescent quality)
+
+**Finish Color Modification:**
+- **Finish Type:** Clear satin polyurethane (3-4 coats)
+- **Amber Shift:** Adds warmth to wood tone
+  - +10% yellow channel
+  - +5% red channel
+  - Overall warming effect
+
+- **Final Surface Color:** Warm honey with amber glow
+  - RGB: (194, 149, 103)
+  - Hex: #C29567
+  - Richer, warmer than raw wood
+
+**Color Variation Across Surface:**
+
+*Between Planks:*
+- Luminosity variation: ±8% (some planks lighter/darker)
+- Hue variation: ±5° on color wheel (some warmer/cooler)
+- Creates natural, non-uniform appearance
+
+*Within Each Plank:*
+- Gradual luminosity shift: ±5% from one end to other
+- Growth ring contrast varies: ±3% difference in earlywood/latewood distinction
+- Natural color gradation (never perfectly uniform)
+
+**Special Color Features:**
+
+*Sapwood Inclusions (occasional):*
+- Color: Much lighter cream/tan
+  - RGB: (220, 190, 150)
+  - Hex: #DCBE96
+- Width: 1-3 inches (2.54-7.62 cm)
+- Location: Typically near plank edges
+- Frequency: 1-2 planks may show sapwood streaks
+
+*Mineral Streaks (optional, 30% probability):*
+- Color: Dark gray to black
+  - RGB: (40, 35, 30)
+  - Hex: #28231E
+- Width: 0.03125-0.125 inches (0.79-3.18 mm)
+- Length: 3-10 inches (7.62-25.4 cm)
+- Follow grain direction with slight waviness
+
+*Knots (if included, optional):*
+- Color: Dark brown to black
+  - RGB: (60, 40, 20)
+  - Hex: #3C2814
+- Size: 0.25-1 inch (6.35-25.4 mm) diameter
+- Slightly recessed: 0.03125 inches (0.79 mm)
+- Grain swirls concentrically around knot
+
+---
+
+### Reflectivity and Specularity
+
+**Finish Properties:**
+- **Sheen Level:** Satin (40-50% gloss measured at 60° angle)
+- **Finish Type:** Polyurethane (oil-modified or water-based)
+- **Build Thickness:** 0.008-0.012 inches (0.203-0.305 mm) total
+- **Coating Layers:** 3-4 coats with sanding between
+
+**Specular Reflection Characteristics:**
+
+*Intensity and Distribution:*
+- **Specular Intensity:** 0.35 (on 0-1 scale) - moderate highlights
+- **Diffuse Component:** 0.70 (70% of light scatters diffusely)
+- **Specular Component:** 0.30 (30% creates highlights)
+- **Specular Tint:** Slight warm tint matching wood undertone
+
+*Roughness and Sharpness:*
+- **Specular Roughness:** 0.25 (on 0-1 scale)
+- **Highlight Character:** Soft, gradual falloff (not mirror-sharp)
+- **Distribution Model:** GGX or Beckmann (physically accurate)
+- **Highlight Size:** Medium - visible but not dominant
+
+*Fresnel Effect:*
+- **IOR (Index of Refraction):** 1.52 (typical for polyurethane)
+- **Fresnel Behavior:** 
+  - Straight-on view: Lower reflectivity (~4%)
+  - Grazing angles: Higher reflectivity (~50-60%)
+  - Creates natural viewing angle variation
+- **Edge Brightening:** Tabletop edges appear slightly more reflective
+
+**Anisotropic Properties:**
+- **Anisotropy Value:** 0.15 (subtle directional reflection)
+- **Anisotropy Direction:** Follows wood grain direction
+- **Visual Effect:** 
+  - Highlights stretch parallel to grain
+  - Creates elongated elliptical highlights (3:1 aspect ratio)
+  - Most visible on flat tabletop surface
+  - Less apparent on curved leg surfaces
+
+**Surface Reflection Behavior by Component:**
+
+*Tabletop:*
+- Elongated highlights following grain direction
+- Highlight aspect ratio: 3:1 (length:width)
+- Peak intensity at 35% of incoming light
+- Soft, gradual edges with gentle falloff
+
+*Cylindrical Legs:*
+- Vertical highlight stripe running length of leg
+- Stripe width: 15-20% of leg diameter
+- Consistent intensity except at decorative ring (breaks highlight)
+- Sharper falloff on curved surface
+
+*Apron Faces:*
+- Subtle horizontal highlight on flat outer surface
+- Decorative bead creates secondary, sharper highlight line
+- Bead highlight intensity: 0.45 (brighter than flat surfaces)
+- Inner faces show less specular response (less direct light)
+
+---
+
+### Subsurface Scattering (SSS)
+
+**Oak Wood SSS Properties:**
+
+*Physical Characteristics:*
+- **Scattering Coefficient:** 0.15 (15% of diffuse light penetrates surface)
+- **Scattering Radius:** 
+  - Red channel: 2.0 mm
+  - Green channel: 1.0 mm  
+  - Blue channel: 0.5 mm
+  - (Red penetrates deepest, blue least)
+- **Scattering Color:** Warm orange-yellow
+  - RGB: (255, 220, 180)
+  - Hex: #FFDCB4
+- **Scattering Anisotropy:** 0.6 (forward scattering preferred)
+
+*Visual Effects:*
+- **Edge Glow:** Tabletop edges glow softly when backlit
+- **Translucency:** Thin sections (chamfered edges) show slight light transmission
+- **Depth Perception:** Creates sense of material depth and organic quality
+- **Warmth:** Adds warm, inviting glow to wood appearance
+- **Grain Enhancement:** Earlywood (lighter, more porous) scatters more light than latewood
+
+*Depth Variation:*
+- **Surface Layer (0-1mm):** Minimal scattering, mostly surface reflection
+- **Mid Layer (1-5mm):** Peak scattering activity, maximum glow
+- **Deep Layer (5mm+):** Absorption dominates, light doesn't return
+- **Total Penetration Depth:** 8-10mm before complete absorption
+
+*Lighting Conditions for Maximum Effect:*
+- Strong side lighting or backlighting
+- Raking light across tabletop edge
+- Sunlight through windows hitting edge
+- Less visible under diffuse overhead lighting
+
+---
+
+## 4. Fine Details
+
+### Decorative Elements
+
+**Leg Turning Details:**
+
+*Upper Decorative Ring (4 inches from top):*
+
+**Cove Section (upper portion):**
+- Profile: Concave curve
+- Depth: 0.25 inches (6.35 mm) into leg cylinder
+- Radius: 0.5 inches (1.27 cm) - smooth, consistent arc
+- Width: 0.5 inches (1.27 cm)
+- Creates deep shadow line
+- Transition: Smooth tangent curve to main cylinder
+
+**Bead Section (lower portion):**
+- Profile: Convex half-round
+- Projection: 0.125 inches (3.18 mm) beyond main cylinder
+- Radius: 0.25 inches (6.35 mm) - crisp half-circle
+- Width: 0.5 inches (1.27 cm)
+- Catches highlight above shadow
+- Transition: Smooth tangent curve to main cylinder
+
+**Total Feature:**
+- Combined width: 1 inch (2.54 cm)
+- Creates strong visual accent
+- Breaks up leg length
+- Traditional furniture detail
+- Smooth, machine-turned precision
+
+*Leg Taper (6-26.5 inches from top):*
+- **Starting Diameter:** 3.5 inches (8.89 cm)
+- **Ending Diameter:** 3.25 inches (8.26 cm)
+- **Taper Length:** 20.5 inches (52.07 cm)
+- **Taper Rate:** 0.0122 inches per inch of length
+- **Taper Angle:** 0.35 degrees from vertical
+- **Profile:** Slight entasis (convex curve) prevents optical illusion of concavity
+- **Visual Effect:** Creates elegant, refined proportion without appearing spindly
+
+*Base Foot Flare (bottom 2 inches):*
+- **Start Point:** 2 inches (5.08 cm) from floor
+- **Starting Diameter:** 3.25 inches (8.26 cm)
+- **Final Diameter:** 3.75 inches (9.53 cm)
+- **Expansion:** 0.5 inches (1.27 cm) total diameter increase
+- **Curve Profile:** Smooth, gradual expansion
+- **Transition Radius:** 1.5 inches (3.81 cm) - gentle, flowing curve
+- **Visual Effect:** Creates stable base, prevents leg from appearing to "float"
+- **Functional Benefit:** Increases floor contact area for stability
+
+---
+
+**Apron Decorative Bead:**
+
+*Profile Specifications:*
+- **Shape:** Half-round (semi-circular cross-section)
+- **Diameter:** 0.25 inches (6.35 mm)
+- **Projection:** 0.125 inches (3.18 mm) from flat apron face
+- **Profile Radius:** 0.125 inches (3.18 mm) - perfect half-circle
+
+*Positioning:*
+- **Vertical Position:** 0.5 inches (1.27 cm) from bottom edge of apron
+- **Horizontal Extent:** Runs entire length of each apron piece
+- **End Treatment:** Returns into leg joint (dies into mortise)
+- **Corner Treatment:** Mitered at 45 degrees where long and short aprons meet (inside corners)
+
+*Visual Effect:*
+- Creates horizontal shadow line along apron
+- Adds depth and visual interest to otherwise flat surface
+- Traditional craftsman detail
+- Breaks up vertical plane of apron
+- Catches light along its length
+
+*Transition Details:*
+- **Upper Transition:** Crisp tangent curve to flat apron surface
+- **Lower Transition:** Crisp tangent curve to flat apron surface
+- **No Fillet:** Sharp, defined edges where bead meets flat (not softened)
+- **Consistency:** Perfectly uniform along entire length
+
+---
+
+### Surface Features and Character
+
+**Wood Grain Features:**
+
+*Growth Ring Pattern:*
+- **Ring Spacing:** Varies from 0.0625 to 0.125 inches (1.59-3.18 mm)
+- **Ring Density:** 12-15 growth rings per inch (average)
+- **Earlywood Width:** 60-70% of each ring (lighter, wider section)
+- **Latewood Width:** 30-40% of each ring (darker, denser section)
+- **Ring Curvature:** Follows natural growth pattern
+  - Straighter in quarter-sawn tabletop
+  - More curved/cathedral in plain-sawn legs
+- **Visual Rhythm:** Creates natural, organic pattern across surface
+
+*Ray Fleck Distribution (Quarter-Sawn Characteristic):*
+- **Appearance:** Lighter, reflective rectangular shapes
+- **Orientation:** Perpendicular to grain direction (crosses growth rings)
+- **Size Range:** 
+  - Length: 0.125-0.5 inches (3.18-12.7 mm)
+  - Width: 0.0625-0.125 inches (1.59-3.18 mm)
+- **Density:** 15-20 visible flecks per 12-inch (30.48 cm) section
+- **Distribution:** Random, following natural wood structure
+- **Color:** Silvery-tan, RGB(195, 175, 145)
+- **Reflectivity:** Higher than surrounding grain (catches light differently)
+- **3D Relief:** Flush with surface (no height variation)
+
+*Grain Direction Flow:*
+- **Primary Direction:** Parallel to length dimension
+- **Variation:** ±2-5 degrees deviation from perfectly parallel
+- **Waviness:** Subtle undulation following natural growth
+- **Interlocked Grain:** Occasional slight figure where grain changes direction
+- **Grain Runout:** Grain may angle slightly toward plank edges
+
+*Pore Structure:*
+- **Pore Type:** Semi-ring-porous (concentrated in earlywood)
+- **Pore Size:** ~0.02 inches (0.51 mm) diameter
+- **Pore Depth:** 0.015 inches (0.381 mm)
+- **Pore Distribution:** Follows growth ring pattern
+- **Pore Appearance:** Slightly darker than surrounding wood (finish accumulation)
+- **Filled vs. Open:** Partially filled by finish, still visible
+
+---
+
+**Plank Seam Characteristics:**
+
+*Physical Dimensions:*
+- **Seam Width:** 0.0625 inches (1.59 mm)
+- **Seam Depth:** 0.125 inches (3.18 mm)
+- **Seam Profile:** Straight, parallel walls with flat bottom
+- **Length:** Full 72 inches (182.88 cm) - perfectly straight
+
+*Visual Appearance:*
+- **Color:** Darker than surrounding wood (shadow accumulation)
+  - Approximately 30-40% darker in value
+  - RGB approximately (110, 85, 55)
+- **Edge Quality:** Crisp but with micro-chamfer (0.015625 inches / 0.4 mm)
+- **Consistency:** Uniform width along entire length
+- **Grain Alignment:** Grain pattern may or may not align across seam (realistic variation)
+
+*Seasonal Variation (optional):*
+- **Winter (dry conditions):** Seams widen to ~0.125 inches (3.18 mm)
+- **Summer (humid conditions):** Seams narrow to ~0.03125 inches (0.79 mm)
+- **Realistic Modeling:** Use average 0.0625-inch width for standard conditions
+
+---
+
+**Natural Wood Character:**
+
+*Mineral Streaks (optional, 30% probability):*
+- **Color:** Dark gray to black, RGB(40, 35, 30)
+- **Width:** 0.03125-0.125 inches (0.79-3.18 mm)
+- **Length:** 3-10 inches (7.62-25.4 cm)
+- **Direction:** Follows grain with slight waviness
+- **Frequency:** 1-3 streaks per table (if included)
+- **Depth:** Surface feature, no relief
+- **Appearance:** Looks like dark ink or mineral staining
+
+*Knots (optional, for character):*
+- **Size:** 0.25-1 inch (6.35-25.4 mm) diameter
+- **Frequency:** 0-3 total on tabletop (select grade lumber)
+- **Color:** Dark brown to black, RGB(60, 40, 20)
+- **Depth:** Slightly recessed 0.03125 inches (0.79 mm)
+- **Grain Pattern:** Swirls concentrically around knot
+- **Types:** 
+  - Pin knots: <0.25 inches
+  - Small knots: 0.25-0.5 inches
+  - Medium knots: 0.5-1 inch
+
+*Sapwood Inclusion (occasional):*
+- **Color:** Light cream/tan, RGB(220, 190, 150)
+- **Width:** 1-3 inches (2.54-7.62 cm)
+- **Location:** Typically along plank edges
+- **Frequency:** 1-2 planks may show sapwood
+- **Transition:** Gradual color shift to heartwood
+- **Grain:** Same structure as heartwood, just lighter color
+
+---
+
+### Hardware and Fasteners
+
+**Figure-8 Fasteners (hidden, for technical accuracy):**
+
+*Specifications:*
+- **Type:** Figure-8 tabletop fasteners (allows wood movement)
+- **Quantity:** 8 total
+  - 4 on long aprons (2 per side)
+  - 4 on short aprons (2 per side)
+- **Material:** Steel with zinc plating
+- **Size:** 1.5 inches (3.81 cm) diameter
+- **Thickness:** 0.125 inches (3.18 mm)
+
+*Installation:*
+- **Recess in Apron:** 
+  - Depth: 0.375 inches (9.53 mm) into apron top edge
+  - Diameter: 1.5 inches (3.81 cm)
+  - Creates circular indentation (not visible from exterior)
+- **Screw into Tabletop:**
+  - #8 wood screw, 1.25 inches long
+  - Pilot hole: 0.125 inches (3.18 mm) diameter
+  - Slight countersink in tabletop underside
+
+*Positioning:*
+- **Long Aprons:** 8 inches (20.32 cm) from each end
+- **Short Aprons:** Centered at 16 inches (40.64 cm) from each end
+- **Purpose:** Allows seasonal wood expansion/contraction while securing tabletop
+
+---
+
+**Mortise and Tenon Joints (visible as seam lines):**
+
+*Tenon Specifications:*
+- **Length:** 1 inch (2.54 cm) into leg
+- **Width:** 3 inches (7.62 cm) - centered on 4-inch apron height
+- **Thickness:** 0.375 inches (9.53 mm) - half the apron thickness
+- **Shoulders:** 0.1875-inch (4.76 mm) shoulder on top, bottom, and outside face
+
+*Mortise Specifications:*
+- **Depth:** 1.0625 inches (2.7 cm) - slightly deeper than tenon (glue relief)
+- **Width:** 3.0625 inches (7.78 cm) - slightly wider than tenon
+- **Location:** Centered on leg, aligned with apron height
+
+*Visible Seam:*
+- **Gap Width:** 0.03125 inches (0.79 mm) - very tight, quality fit
+- **Appearance:** Fine dark line around joint perimeter
+- **Color:** Slightly darker than surrounding wood (shadow)
+- **Consistency:** Uniform around entire joint
+
+---
+
+**Corner Blocks (hidden reinforcement):**
+
+*Specifications:*
+- **Shape:** Triangular (right triangle)
+- **Dimensions:** 3×3×3 inches (7.62 cm) - isosceles right triangle
+- **Material:** Hardwood (poplar or oak)
+- **Quantity:** 4 (one at each corner)
+
+*Installation:*
+- **Position:** Inside corner where aprons meet
+- **Attachment:** Glued and screwed to both apron pieces
+- **Screws:** #8 wood screws, 1.5 inches long, 2 per face (4 total per block)
+- **Purpose:** Reinforces corner joints, prevents racking
+- **Visibility:** Completely hidden from exterior view
+
+---
+
+### Edge and Corner Details
+
+**Tabletop Edge Treatment:**
+
+*Primary Chamfer (Top Edge):*
+- **Angle:** 15 degrees from horizontal
+- **Width:** 0.25 inches (6.35 mm) measured on top surface
+- **Vertical Drop:** 0.067 inches (1.7 mm) measured on edge face
+- **Profile:** Flat bevel, crisp transition
+- **Consistency:** Uniform around entire 216-inch perimeter
+
+*Secondary Roundover (Bottom Edge):*
+- **Radius:** 0.125 inches (3.18 mm)
+- **Profile:** Quarter-round (90-degree arc)
+- **Purpose:** Softens underside edge, comfortable to touch
+- **Transition:** Smooth curve from vertical edge to horizontal underside
+
+*Corner Treatment:*
+- **Primary Radius:** 0.0625 inches (1.59 mm) where chamfers meet
+- **Purpose:** Prevents sharp point at corner intersection
+- **Profile:** Small radius maintaining crisp appearance
+- **Secondary Micro-Chamfer:** 0.03125 inches (0.79 mm) at 45 degrees on sharp edges
+
+*Edge Sequence (top to bottom):*
+1. Flat top surface
+2. 15-degree chamfer (0.25 inches wide)
+3. Vertical edge face (1.165 inches tall)
+4. 0.125-inch radius roundover
+5. Flat underside surface
+
+---
+
+**Plank Seam Edge Detail:**
+
+*Seam Profile at Tabletop Edge:*
+- **Visibility:** Seam visible on all four edges of tabletop
+- **Edge Treatment:** Seam continues through chamfer and edge face
+- **Width Consistency:** Maintains 0.0625-inch (1.59 mm) width through edge
+- **Chamfer Intersection:** Seam creates slight V-groove in chamfered surface
+- **Visual Effect:** Emphasizes individual plank construction
+
+*Micro-Chamfer on Seam Edges:*
+- **Size:** 0.015625 inches (0.4 mm) at 45 degrees
+- **Purpose:** Prevents sharp edge that could chip or splinter
+- **Application:** Both edges of seam groove
+- **Visibility:** Barely perceptible, catches light subtly
+
+---
+
+**Apron-to-Leg Joint Seam:**
+
+*Seam Characteristics:*
+- **Width:** 0.03125 inches (0.79 mm) - very tight fit
+- **Depth:** Visible as fine line, actual joint is 1-inch deep
+- **Color:** Darker than surrounding wood (shadow effect)
+  - Approximately 40-50% darker in value
+- **Profile:** Straight, clean line following joint perimeter
+- **Quality Indicator:** Minimal gap indicates quality craftsmanship
+
+*Joint Perimeter:*
+- **Top Edge:** Horizontal line where apron top meets leg
+- **Bottom Edge:** Horizontal line where apron bottom meets leg
+- **Outer Edge:** Vertical line where apron face meets leg
+- **Corners:** Crisp 90-degree intersections (no rounding)
+
+---
+
+**Apron Top Edge Detail:**
+
+*Chamfer Specifications:*
+- **Angle:** 5 degrees from horizontal (subtle)
+- **Width:** 0.0625 inches (1.59 mm) on top surface
+- **Purpose:** Creates clean shadow line in gap between apron and tabletop
+- **Consistency:** Runs full length of all apron pieces
+
+*Gap Between Apron and Tabletop:*
+- **Width:** 0.0625 inches (1.59 mm)
+- **Purpose:** Allows seasonal wood movement, creates shadow line
+- **Visual Effect:** Enhances separation between top and base
+- **Lighting:** Creates distinct shadow, emphasizes floating tabletop appearance
+
+---
+
+## 5. Measurements and Specifications
+
+### Critical Dimensions Summary
+
+**Overall Table Envelope:**
+- **Length:** 72 inches (182.88 cm) ±0.0625 inches (1.59 mm)
+- **Width:** 36 inches (91.44 cm) ±0.0625 inches (1.59 mm)
+- **Height:** 30 inches (76.2 cm) ±0.125 inches (3.18 mm)
+- **Footprint (at floor):** 72 inches × 36 inches (leg centers align with table perimeter)
+- **Weight (estimated):** 85-95 pounds (38.6-43.1 kg) depending on wood moisture content
+
+---
+
+### Tabletop Detailed Measurements
+
+**Primary Dimensions:**
+- **Length:** 72 inches (182.88 cm)
+- **Width:** 36 inches (91.44 cm)
+- **Thickness at Center:** 1.5 inches (3.81 cm)
+- **Thickness at Edge (after chamfer):** 1.25 inches (3.175 cm) effective
+- **Surface Area:** 18 square feet (1.67 m²)
+- **Volume:** 2.25 cubic feet (0.064 m³)
+
+**Edge Treatment Measurements:**
+- **Chamfer Angle:** 15 degrees from horizontal
+- **Chamfer Width (top surface):** 0.25 inches (6.35 mm)
+- **Chamfer Height (edge face):** 0.067 inches (1.7 mm)
+- **Bottom Roundover Radius:** 0.125 inches (3.18 mm)
+- **Corner Radius (where chamfers meet):** 0.0625 inches (1.59 mm)
+- **Micro-Chamfer (sharp edges):** 0.03125 inches (0.79 mm) at 45 degrees
+
+**Plank Configuration:**
+- **Number of Planks:** 5
+- **Individual Plank Width:** 7.2 inches (18.29 cm) nominal
+- **Plank Length:** 72 inches (182.88 cm)
+- **Plank Thickness:** 1.5 inches (3.81 cm)
+- **Seam Gap:** 0.0625 inches (1.59 mm) between planks
+- **Total Width Calculation:** (5 × 7.2) + (4 × 0.0625) = 36.25 inches (adjusted to 36 inches with plank width variation)
+
+**Overhang Beyond Apron:**
+- **All Sides:** 1.25 inches (3.175 cm) from apron outer face to tabletop edge
+- **Purpose:** Provides comfortable seating clearance for legs/knees
+- **Visual Effect:** Creates shadow line, emphasizes tabletop as separate element
+
+---
+
+### Leg Detailed Measurements
+
+**Primary Dimensions:**
+- **Total Height:** 28.5 inches (72.39 cm) from floor to top (apron junction)
+- **Top Diameter:** 3.5 inches (8.89 cm)
+- **Minimum Diameter (after taper):** 3.25 inches (8.26 cm)
+- **Bottom Diameter (with foot flare):** 3.75 inches (9.53 cm)
+- **Floor Contact Area:** 11.04 square inches (71.2 cm²) per leg
+
+**Sectional Measurements (top to bottom):**
+
+*Upper Straight Section (0-6 inches from top):*
+- Length: 6 inches (15.24 cm)
+- Diameter: 3.5 inches (8.89 cm) - constant
+- Profile: Straight cylinder
+- Purpose: Provides consistent mortise area for apron attachment
+
+*Decorative Ring Section (4-5 inches from top):*
+- Position: 4 inches (10.16 cm) from top of leg
+- Total Width: 1 inch (2.54 cm)
+- Cove Depth: 0.25 inches (6.35 mm) into leg
+- Bead Projection: 0.125 inches (3.18 mm) beyond main cylinder
+- Minimum Diameter (at cove): 3.0 inches (7.62 cm)
+- Maximum Diameter (at bead): 3.625 inches (9.21 cm)
+
+*Tapered Section (6-26.5 inches from top):*
+- Length: 20.5 inches (52.07 cm)
+- Starting Diameter: 3.5 inches (8.89 cm)
+- Ending Diameter: 3.25 inches (8.26 cm)
+- Diameter Change: 0.25 inches (6.35 mm) total
+- Taper Rate: 0.0122 inches per inch of length
+- Taper Angle: 0.35 degrees from vertical
+- Profile: Slight entasis (convex curve)
+
+*Foot Flare Section (26.5-28.5 inches from top / bottom 2 inches):*
+- Length: 2 inches (5.08 cm)
+- Starting Diameter: 3.25 inches (8.26 cm)
+- Ending Diameter: 3.75 inches (9.53 cm)
+- Diameter Increase: 0.5 inches (1.27 cm)
+- Curve Radius: 1.5 inches (3.81 cm)
+- Profile: Smooth, gradual expansion
+
+**Leg Positioning:**
+- **Inset from Length Edge:** 2 inches (5.08 cm) to leg center
+- **Inset from Width Edge:** 2 inches (5.08 cm) to leg center
+- **Distance Between Leg Centers (length):** 68 inches (172.72 cm)
+- **Distance Between Leg Centers (width):** 32 inches (81.28 cm)
+- **Tolerance:** ±0.0625 inches (1.59 mm) for realistic hand-placement variation
+
+---
+
+### Apron Detailed Measurements
+
+**Long Aprons (2 pieces - 72-inch sides):**
+- **Length:** 68 inches (172.72 cm) - inside dimension between legs
+- **Height:** 4 inches (10.16 cm)
+- **Thickness:** 0.75 inches (1.91 cm)
+- **Top Edge Position:** 0.0625 inches (1.59 mm) below tabletop underside
+- **Bottom Edge Position:** 26 inches (66.04 cm) from floor
+- **Decorative Bead Position:** 0.5 inches (1.27 cm) from bottom edge
+- **Bead Diameter:** 0.25 inches (6.35 mm)
+
+**Short Aprons (2 pieces - 36-inch sides):**
+- **Length:** 32 inches (81.28 cm) - inside dimension between legs
+- **Height:** 4 inches (10.16 cm)
+- **Thickness:** 0.75 inches (1.91 cm)
+- **Vertical Positioning:** Same as long aprons
+- **Decorative Bead:** Same specifications as long aprons
+
+**Apron-to-Leg Joint:**
+- **Tenon Length:** 1 inch (2.54 cm) into leg
+- **Tenon Width:** 3 inches (7.62 cm)
+- **Tenon Thickness:** 0.375 inches (9.53 mm)
+- **Shoulder Width (top/bottom):** 0.5 inches (1.27 cm) each
+- **Shoulder Width (outer face):** 0.1875 inches (4.76 mm)
+- **Visible Seam Gap:** 0.03125 inches (0.79 mm)
+
+**Clearances:**
+- **Floor to Apron Bottom:** 26 inches (66.04 cm) - knee clearance
+- **Apron Top to Tabletop:** 0.0625 inches (1.59 mm) - shadow gap
+- **Apron Inner Face to Leg Outer Face:** Flush (legs project slightly beyond apron)
+
+---
+
+### Material Thickness Specifications
+
+**Solid Wood Components:**
+- **Tabletop Planks:** 1.5 inches (3.81 cm) solid throughout
+- **Apron Pieces:** 0.75 inches (1.91 cm) solid throughout
+- **Legs:** Solid (not hollow) - 3.25-3.75 inch diameter
+- **Corner Blocks:** 0.75 inches (1.91 cm) thick (hidden)
+
+**Finish Build-Up:**
+- **Total Finish Thickness:** 0.008-0.012 inches (0.203-0.305 mm)
+- **Number of Coats:** 3-4 coats polyurethane
+- **Individual Coat Thickness:** 0.002-0.003 inches (0.051-0.076 mm) per coat
+- **Sanding Between Coats:** Removes ~0.001 inches (0.025 mm)
+- **Final Coat:** Rubbed to satin sheen (no additional thickness)
+
+---
+
+### Spacing and Positioning
+
+**Component Spacing:**
+- **Tabletop-to-Apron Gap:** 0.0625 inches (1.59 mm) - allows wood movement
+- **Plank-to-Plank Seams:** 0.0625 inches (1.59 mm) - consistent
+- **Apron-to-Leg Joint Line:** 0.03125 inches (0.79 mm) - tight fit
+- **Leg-to-Floor Contact:** Full contact (3.75-inch diameter circle)
+
+**Fastener Positioning:**
+- **Figure-8 Fasteners on Long Aprons:** 8 inches (20.32 cm) from each end
+- **Figure-8 Fasteners on Short Aprons:** Centered at 16 inches (40.64 cm) from ends
+- **Fastener Depth in Apron:** 0.375 inches (9.53 mm) recess
+- **Screw Penetration into Tabletop:** 0.75 inches (1.91 cm)
+
+---
+
+### Angles and Curves
+
+**Chamfers and Bevels:**
+- **Tabletop Edge Chamfer:** 15 degrees from horizontal
+- **Apron Top Edge Chamfer:** 5 degrees from horizontal
+- **Micro-Chamfers (sharp edges):** 45 degrees at 0.03125 inches (0.79 mm)
+- **Plank Seam Edge Chamfer:** 45 degrees at 0.015625 inches (0.4 mm)
+
+**Curves and Radii:**
+- **Tabletop Bottom Edge Roundover:** 0.125-inch (3.18 mm) radius
+- **Tabletop Corner Roundover:** 0.0625-inch (1.59 mm) radius
+- **Leg Decorative Cove:** 0.5-inch (1.27 cm) radius (concave)
+- **Leg Decorative Bead:** 0.25-inch (6.35 mm) radius (convex)
+- **Leg Foot Flare Transition:** 1.5-inch (3.81 cm) radius curve
+- **Apron Decorative Bead:** 0.125-inch (3.18 mm) radius (half-round)
+
+**Leg Taper Geometry:**
+- **Taper Start Point:** 6 inches (15.24 cm) from top
+- **Taper Length:** 20.5 inches (52.07 cm)
+- **Diameter Change:** 0.25 inches (6.35 mm)
+- **Taper Rate:** 0.0122 inches per inch
+- **Taper Angle:** 0.35 degrees from vertical
+- **Profile:** Slight entasis (convex curve, ~0.03125 inches / 0.79 mm maximum deviation from straight taper)
+
+---
+
+### Tolerance and Precision
+
+**Machining Tolerances:**
+- **Critical Dimensions (length, width, height):** ±0.0625 inches (1.59 mm)
+- **Thickness Dimensions:** ±0.03125 inches (0.79 mm)
+- **Diameter Dimensions (legs):** ±0.03125 inches (0.79 mm)
+- **Angle Tolerances:** ±1 degree
+- **Surface Flatness:** ±0.03125 inches (0.79 mm) over 12-inch span
+
+**Assembly Tolerances:**
+- **Joint Gaps:** 0.03125-0.0625 inches (0.79-1.59 mm) - tight but visible
+- **Leg Position Variation:** ±0.0625 inches (1.59 mm) from specified position
+- **Apron Height Variation:** ±0.03125 inches (0.79 mm) around table
+- **Tabletop Flatness (assembled):** ±0.0625 inches (1.59 mm) over full length
+
+**Realistic Variations (for authenticity):**
+- Each leg 99.5-100.5% identical (slight turning variations)
+- Decorative ring position may vary ±0.0625 inches between legs
+- Plank widths may vary ±0.1 inches to achieve total 36-inch width
+- Grain alignment across seams is random (not controlled)
+
+---
+
+## 6. Lighting and Rendering Considerations
+
+### Surface Light Interaction
+
+**Diffuse Reflection Properties:**
+
+*Base Albedo (Reflectance):*
+- **Oak Wood Albedo:** 0.45-0.55 (medium-light reflectance)
+  - Reflects 45-55% of incoming diffuse light
+  - Absorbs 45-55% of incoming light
+- **Earlywood (lighter rings):** 0.55-0.60 albedo (more reflective)
+- **Latewood (darker rings):** 0.40-0.45 albedo (less reflective)
+- **Ray Flecks:** 0.60-0.65 albedo (most reflective element)
+
+*Diffuse Characteristics:*
+- **Roughness:** 0.8-0.9 (fairly matte base, before finish)
+- **Color Temperature Shift:** Warm (2800-3200K reflected light)
+  - Adds warmth to neutral light sources
+  - Enhances warm light sources
+- **Lambertian Response:** Primarily Lambertian (diffuse) with slight retro-reflection
+- **Subsurface Component:** 15% of diffuse light penetrates surface (see SSS section)
+
+---
+
+**Specular Reflection Properties:**
+
+*On Flat Tabletop Surface:*
+- **Highlight Shape:** Elongated ellipse following wood grain direction
+- **Aspect Ratio:** 3:1 (length parallel to grain : width perpendicular to grain)
+- **Peak Intensity:** 35% of incoming light (0.35 specular value)
+- **Falloff Profile:** Gradual with soft edges
+  - Distribution: GGX or Beckmann (physically accurate)
+  - Roughness: 0.25 (satin finish)
+- **Size Variation:** Highlight size increases at grazing angles (Fresnel effect)
+- **Color Tint:** Slight warm tint matching wood undertone
+
+*On Cylindrical Leg Surfaces:*
+- **Highlight Pattern:** Vertical stripe running length of leg
+- **Stripe Width:** 15-20% of leg diameter (~0.5-0.7 inches / 1.27-1.78 cm)
+- **Intensity:** Consistent along length, 30-35% of incoming light
+- **Interruption:** Decorative ring breaks highlight into two sections
+  - Cove section: Shadow (no highlight)
+  - Bead section: Bright highlight (45% intensity)
+- **Falloff:** Sharper than tabletop due to curved surface
+
+*On Apron Surfaces:*
+- **Flat Outer Face:** Subtle horizontal highlight
+  - Intensity: 25-30% (less direct light typically)
+  - Shape: Elongated horizontal ellipse
+- **Decorative Bead:** Secondary, sharper highlight line
+  - Intensity: 45% (convex surface catches more light)
+  - Width: Very narrow (~0.125 inches / 3.18 mm)
+  - Creates accent line along apron length
+- **Inner Faces:** Minimal specular (indirect lighting only)
+
+---
+
+### Subsurface Scattering (SSS)
+
+**Physical SSS Properties:**
+
+*Scattering Coefficients:*
+- **Overall SSS Intensity:** 0.15 (15% of diffuse light penetrates surface)
+- **Scattering Radius by Channel:**
+  - Red: 2.0 mm (deepest penetration)
+  - Green: 1.0 mm (medium penetration)
+  - Blue: 0.5 mm (shallowest penetration)
+- **Scattering Color:** Warm orange-yellow
+  - RGB: (255, 220, 180)
+  - Hex: #FFDCB4
+- **Scattering Anisotropy:** 0.6 (forward scattering preferred - light continues in similar direction)
+
+*Depth Variation:*
+- **Surface Layer (0-1mm):** Minimal scattering, primarily surface reflection
+- **Active Layer (1-5mm):** Peak scattering activity, maximum glow effect
+- **Deep Layer (5-10mm):** Absorption begins to dominate
+- **Beyond 10mm:** Complete absorption, no light return
+
+*Density Variation:*
+- **Earlywood (lighter, more porous):** 
+  - Higher scattering: 0.18-0.20
+  - More translucent appearance
+  - Warmer glow
+- **Latewood (darker, denser):** 
+  - Lower scattering: 0.10-0.12
+  - Less translucent
+  - More absorption
+- **Ray Flecks:** 
+  - Minimal scattering: 0.05
+  - Appear more reflective than translucent
+
+---
+
+**Visual SSS Effects:**
+
+*Edge Glow:*
+- **Tabletop Edges:** Soft warm glow when backlit or side-lit
+  - Most visible on chamfered edge (thinnest section)
+  - Glow width: 0.5-1 inch (1.27-2.54 cm) into surface
+  - Color: Warm orange-yellow
+  - Intensity: Subtle (not overpowering)
+- **Plank Edges at Seams:** Slight glow visible in seam gaps
+- **Leg Edges:** Minimal (thicker, less light penetration)
+
+*Translucency:*
+- **Thin Sections:** Chamfered edges show slight light transmission
+  - Can see hint of light source color through edge
+  - Creates warm, organic appearance
+- **Thick Sections:** Minimal translucency (tabletop center, legs)
+
+*Depth and Realism:*
+- **Material Depth Perception:** SSS creates sense of material having volume (not just surface)
+- **Organic Quality:** Warm internal glow makes wood feel alive and natural
+- **Contrast with Non-Organic Materials:** Differentiates wood from plastic or painted surfaces
+
+*Lighting Conditions for Maximum SSS Visibility:*
+- **Optimal:** Strong side lighting or backlighting at low angle
+- **Enhanced:** Raking light across tabletop edge
+- **Minimal:** Diffuse overhead lighting (SSS present but subtle)
+- **Time of Day:** Most dramatic at sunrise/sunset (low angle, warm light)
+
+---
+
+### Shadow Behavior
+
+**Self-Shadowing (Shadows Cast by Object on Itself):**
+
+*Tabletop Chamfer Shadow:*
+- **Location:** On vertical edge face, below chamfered top edge
+- **Width:** 0.15-0.2 inches (3.81-5.08 mm)
+- **Intensity:** Soft shadow, 40-50% darkening
+- **Gradient:** Gradual falloff over 0.1 inches (2.54 mm)
+- **Darkest Point:** Junction where chamfer meets vertical edge
+- **Light Angle Dependency:** Shadow width increases with lower light angles
+
+*Decorative Leg Ring Shadow:*
+- **Cove Section:** Creates sharp, defined shadow line
+  - Intensity: 60-70% darkening (strong shadow)
+  - Width: 0.3-0.4 inches (7.62-10.16 mm)
+  - Edge: Relatively sharp (small radius creates defined shadow)
+- **Bead Section:** Creates highlight above, shadow below
+  - Upper highlight: 45% brighter than surrounding
+  - Lower shadow: 30-40% darker than surrounding
+- **Overall Effect:** Strong visual accent, enhances three-dimensionality
+
+*Apron Decorative Bead Shadow:*
+- **Location:** Below bead, on flat apron face
+- **Width:** 0.125 inches (3.18 mm) - thin line
+- **Intensity:** 30-40% darkening
+- **Sharpness:** Fairly sharp edge (small radius)
+- **Visual Effect:** Creates horizontal accent line along apron
+
+*Plank Seam Self-Shadow:*
+- **Location:** Inside seam groove
+- **Depth Darkening:** 20-30% darker than surrounding surface
+- **Gradient:** Darkest at bottom of groove, lighter toward edges
+- **Visibility:** Most apparent under directional lighting
+
+---
+
+**Cast Shadows (Shadows Cast by Object onto Other Surfaces):**
+
+*Tabletop Shadow on Apron:*
+- **Source:** 0.0625-inch (1.59 mm) gap between tabletop and apron
+- **Shadow Width on Apron:** 0.25-0.5 inches (6.35-12.7 mm) depending on light angle
+- **Intensity:** Soft shadow, 30-40% darkening
+- **Character:** Soft edges, gradual falloff
+- **Darkest Area:** Center of shadow (directly below gap)
+- **Lightest Area:** Shadow edges (indirect light reaches)
+
+*Table Shadow on Floor:*
+
+**Contact Shadow (Directly Under Legs):**
+- **Location:** Circular area under each leg foot
+- **Diameter:** 3.75 inches (9.53 cm) matching foot diameter
+- **Intensity:** Very dark, 80-90% occlusion (minimal light reaches)
+- **Edge:** Relatively sharp where leg meets floor
+- **Color:** Neutral to slightly warm (influenced by wood color bounce light)
+
+**Penumbra (Soft Shadow Extension):**
+- **Extension:** 2-4 inches (5.08-10.16 cm) beyond leg base
+- **Intensity Gradient:** 80% at contact → 20% at outer edge
+- **Softness:** Very soft, gradual falloff
+- **Shape:** Circular, expanding from leg base
+
+**Overall Table Shadow:**
+- **Extension:** 6-12 inches (15.24-30.48 cm) from table perimeter (depends on light source)
+- **Intensity:** Soft, diffused, 30-50% darkening
+- **Character:** Very soft edges, barely perceptible boundary
+- **Directionality:** Points away from primary light source
+- **Multiple Lights:** Multiple overlapping soft shadows from different light sources
+
+---
+
+**Ambient Occlusion (AO):**
+
+*Definition:* Darkening in recessed areas where ambient light has difficulty reaching, independent of specific light sources.
+
+*AO Intensity by Location:*
+
+**Corner Joints (Leg-to-Apron):**
+- **Darkening:** 50-60% (strong AO)
+- **Affected Area:** 0.5-1 inch (1.27-2.54 cm) radius around joint
+- **Gradient:** Darkest at joint line, gradual falloff
+- **Visual Effect:** Emphasizes joint, adds depth
+
+**Plank Seams:**
+- **Darkening:** 20-30% inside groove
+- **Affected Area:** Confined to seam groove (0.0625 inches / 1.59 mm wide)
+- **Gradient:** Darkest at bottom, lighter toward top
+- **Visual Effect:** Makes seams visible, adds realism
+
+**Underside of Tabletop:**
+- **Darkening:** 40-50% overall
+- **Variation:** Darker near center, lighter near edges (some bounce light)
+- **Affected Area:** Entire underside surface
+- **Visual Effect:** Creates depth, shows table has volume
+
+**Decorative Ring Cove:**
+- **Darkening:** 60-70% (strong AO in recessed curve)
+- **Affected Area:** Concave cove section
+- **Gradient:** Darkest at deepest point of curve
+- **Visual Effect:** Enhances shadow line, emphasizes detail
+
+**Apron-to-Tabletop Gap:**
+- **Darkening:** 40-50%
+- **Affected Area:** 0.0625-inch (1.59 mm) gap, plus ~0.25 inches on adjacent surfaces
+- **Gradient:** Darkest in gap, gradual falloff on apron top and tabletop underside
+- **Visual Effect:** Separates tabletop from base visually
+
+**Apron Inner Corners:**
+- **Darkening:** 30-40%
+- **Affected Area:** Inside corners where long and short aprons meet
+- **Gradient:** Darkest at corner, falloff over 1-2 inches
+- **Visual Effect:** Adds depth to base structure
+
+*AO Rendering Settings:*
+- **AO Distance:** 4-6 inches (10.16-15.24 cm) - how far AO rays search
+- **AO Samples:** 16-32 for clean result
+- **AO Color:** Neutral gray or slight warm tint (influenced by wood color)
+
+---
+
+### Material Shader Setup (Technical)
+
+**Blender Principled BSDF Configuration:**
+
+*Base Color:*
+```
+- Input: Wood texture (procedural or image-based)
+- Base RGB: (194, 149, 103) / Hex #C29567
+- Adjustments:
+  • Add ColorRamp node for contrast/variation control
+  • Multiply with Ambient Occlusion (factor: 0.7) for depth
+  • Add slight HSV adjustment for warmth (+5° hue, +10% saturation)
+```
+
+*Subsurface Scattering:*
+```
+- Subsurface: 0.15
+- Subsurface Radius: RGB(2.0, 1.0, 0.5) mm
+- Subsurface Color: RGB(255, 220, 180) / Hex #FFDCB4
+- Subsurface Method: Random Walk (more accurate for wood)
+- Subsurface IOR: 1.52 (matches clearcoat)
+```
+
+*Specular Settings:*
+```
+- Specular: 0.5 (moderate reflectivity)
+- Roughness: 0.25 (satin finish)
+  • Map with texture for variation (0.20-0.30 range)
+  • Earlywood slightly rougher, latewood slightly smoother
+- Anisotropic: 0.15 (elongates highlights along grain)
+- Anisotropic Rotation: 
+  • Connect to grain direction map (0.0 = along length)
+  • Use texture or procedural for wood grain flow
+- Sheen: 0.1 (subtle fabric-like edge glow)
+- Sheen Tint: 0.3 (warm tint matching wood)
+```
+
+*Clearcoat (Polyurethane Finish Layer):*
+```
+- Clearcoat: 0.3 (moderate clear layer)
+- Clearcoat Roughness: 0.15 (slightly smoother than base)
+- Clearcoat Normal: Connect subtle normal map (strength: 0.1)
+  • Represents finish texture/orange peel
+- Effect: Creates separate specular layer above wood
+```
+
+*Normal and Bump Mapping:*
+```
+- Normal Map:
+  • Strength: 0.3
+  • Purpose: Wood grain relief (growth ring ridges)
+  • Source: Procedural noise or texture map
+  
+- Bump Map:
+  • Strength: 0.1
+  • Distance: 0.001 (subtle micro-texture)
+  • Purpose: Fine surface texture, pores
+  
+- Combination:
+  • Use Normal Map node to combine both
+  • Normal map for macro detail (grain)
+  • Bump for micro detail (texture)
+```
+
+*Texture Coordinate Mapping:*
+```
+- Use UV mapping for tabletop planks
+- Use Generated or Object coordinates for legs
+- Apply separate mapping for each component
+- Align grain direction properly:
+  • Tabletop: Along 72-inch length
+  • Apron: Along apron length
+  • Legs: Vertical (up-down)
+```
+
+---
+
+**Procedural Wood Shader Approach (Alternative to Image Textures):**
+
+*Advantages:*
+- Infinite resolution (no pixelation)
+- Full control over grain characteristics
+- No UV unwrapping required for simple shapes
+- Easier to adjust color, scale, variation
+
+*Basic Node Setup:*
+
+1. **Grain Pattern (Wave Texture):**
+   ```
+   - Wave Texture node:
+     • Type: Bands
+     • Scale: 15-20 (controls ring spacing)
+     • Distortion: 0.5-1.0 (creates natural variation)
+     • Detail: 2-3 (adds complexity)
+   - ColorRamp for contrast control
+   ```
+
+2. **Ray Fleck Pattern (Voronoi Texture):**
+   ```
+   - Voronoi Texture:
+     • Feature: F1
+     • Scale: 50-80
+     • Randomness: 0.8
+   - ColorRamp to isolate flecks (narrow band)
+   - Mix with base grain (Add or Overlay)
+   ```
+
+3. **Color Variation (Noise Texture):**
+   ```
+   - Noise Texture:
+     • Scale: 3-5 (large-scale variation)
+     • Detail: 2
+   - ColorRamp to control range
+   - Mix with base color (Multiply or Overlay, factor: 0.15)
+   ```
+
+4. **Combining Textures:**
+   ```
+   - Mix grain, flecks, and color variation
+   - Use different mix modes for each layer
+   - Final result → Base Color input
+   ```
+
+---
+
+### Lighting Recommendations
+
+**Three-Point Lighting Setup (Standard):**
+
+*Key Light (Primary Light Source):*
+```
+Position: 45° from front, 45° elevation
+Intensity: 100-150% (relative to neutral exposure)
+Color Temperature: 5000-5500K (neutral daylight)
+Softness: Medium (2-3 foot / 0.6-0.9m source size)
+Type: Area light or softbox
+Purpose: 
+  - Reveals form and three-dimensionality
+  - Highlights wood grain texture
+  - Creates primary shadows for depth
+  - Shows specular highlights on finish
+```
+
+*Fill Light (Shadow Softener):*
+```
+Position: Opposite side of key (90-135° from key), 30° elevation
+Intensity: 30-40% of key light
+Color Temperature: 4500-5000K (slightly warmer than key)
+Softness: Soft (4-6 foot / 1.2-1.8m source size)
+Type: Large area light or diffused source
+Purpose:
+  - Fills shadows created by key light
+  - Shows detail in dark areas (underside, joints)
+  - Reduces contrast for more natural appearance
+  - Provides ambient illumination
+```
+
+*Rim/Back Light (Edge Separator):*
+```
+Position: Behind and above table (120-150° from camera), 60° elevation
+Intensity: 80-120% of key light (can be brighter than key)
+Color Temperature: 5500-6500K (slightly cool for contrast)
+Hardness: Medium-hard (1-2 foot / 0.3-0.6m source)
+Type: Spot light or small area light
+Purpose:
+  - Separates table from background
+  - Creates edge highlights (rim lighting)
+  - Shows subsurface scattering glow on edges
+  - Adds depth and three-dimensionality
+```
+
+---
+
+**Environmental Lighting:**
+
+*HDRI Environment Map:*
+```
+Type: Interior or studio HDRI
+Intensity: 20-30% contribution (supplements three-point lighting)
+Rotation: Align bright areas with key light direction
+Resolution: 4K minimum for sharp reflections
+Purpose:
+  - Provides ambient illumination from all directions
+  - Creates realistic reflections in specular surfaces
+  - Fills in areas not reached by main lights
+  - Adds environmental context
+```
+
+*Recommended HDRI Types:*
+- Studio setups (neutral, controlled)
+- Interior spaces with windows (natural, warm)
+- Overcast outdoor (soft, even)
+- Avoid: Bright outdoor HDRIs (too much contrast)
+
+---
+
+**Alternate Lighting Scenarios:**
+
+*Natural Window Light (Photographic):*
+```
+Large Area Light (simulating window):
+  - Position: 90° to side, 30° elevation
+  - Size: 6-10 feet (1.8-3m) tall x 4-6 feet wide
+  - Intensity: 200-300%
+  - Color: 5500-6500K (daylight)
+  - Softness: Very soft (large source)
+  
+Bounce Fill:
+  - Position: Opposite window
+  - Intensity: 20-30% of window
+  - Simulates light bouncing off walls
+  
+Result: Natural, photographic appearance with soft shadows
+```
+
+*Dramatic Single Source (Artistic):*
+```
+Single Key Light:
+  - Position: 60° from front, 60° elevation
+  - Intensity: 150-200%
+  - Softness: Medium
+  - Color: 4000-4500K (warm)
+  
+Minimal Fill:
+  - Environment only at 10-15%
+  
+Result: High contrast, dramatic shadows, emphasizes form
+```
+
+*Bright Studio (Commercial):*
+```
+Multiple Large Softboxes:
+  - 3-4 area lights surrounding table
+  - Even intensity (80-100% each)
+  - Very soft (large sources)
+  - Neutral color (5000-5500K)
+  
+Strong Fill:
+  - Environment at 40-50%
+  
+Result: Bright, even lighting with minimal shadows (catalog style)
+```
+
+---
+
+### Camera and Rendering Settings
+
+**Camera Positioning:**
+
+*Standard Product View:*
+```
+Eye Level: 48-60 inches (122-152 cm) from floor
+  - Slightly above table height (30 inches)
+  - Natural human viewing angle
+  
+Distance: 8-12 feet (2.4-3.7 m) from table center
+  - Far enough to see entire table
+  - Close enough for detail visibility
+  
+Viewing Angle: 5-15° down from horizontal
+  - Slight downward angle shows tabletop surface
+  - Not too steep (maintains natural perspective)
+  
+Horizontal Angle: 30-45° from front corner
+  - Shows both length and width
+  - Reveals three-dimensionality
+  - Shows leg and apron details
+```
+
+*Hero Shot (Dramatic):*
+```
+Eye Level: 36-42 inches (91-107 cm) - lower, more dramatic
+Distance: 6-8 feet (1.8-2.4 m) - closer, more intimate
+Angle: 10-20° down, 45° from corner
+Focal Length: 35mm (wider, more environmental)
+```
+
+*Detail Shot (Close-Up):*
+```
+Focus: Corner detail, joint, or grain pattern
+Distance: 2-4 feet (0.6-1.2 m)
+Angle: Varies based on feature
+Focal Length: 50-85mm (moderate telephoto for compression)
+```
+
+---
+
+**Lens Settings:**
+
+*Focal Length:*
+```
+35mm: 
+  - Wider view, more environmental context
+  - Slight perspective distortion (acceptable)
+  - Good for full table in frame
+
+50mm:
+  - Natural perspective (matches human eye)
+  - Minimal distortion
+  - Versatile for most shots
+  - RECOMMENDED for standard product views
+
+85mm:
+  - Slight compression (flattering)
+  - Good for detail shots
+  - Requires more distance for full table
+```
+
+*Depth of Field:*
+```
+F-Stop: f/5.6 to f/8 (moderate DOF)
+  - Front of table sharp
+  - Back of table slightly soft (but recognizable)
+  - Creates photographic look
+  - Directs viewer attention
+
+Focus Point: 
+  - Front edge of tabletop, or
+  - Center of tabletop, or
+  - Specific detail feature
+
+Bokeh:
+  - Use realistic aperture shape (5-7 blades)
+  - Subtle background blur
+  - Enhances depth perception
+```
+
+*Lens Effects (Optional):*
+```
+Chromatic Aberration: 0.01-0.02 (very subtle)
+Vignetting: 0.1-0.2 (darkens corners slightly)
+Lens Distortion: Minimal (0-0.05 barrel distortion for realism)
+```
+
+---
+
+**Render Settings (Blender Cycles):**
+
+*Sampling:*
+```
+Render Samples: 1024-2048
+  - 1024 for clean result with denoising
+  - 2048 for pristine quality without denoising
+  
+Viewport Samples: 128-256
+  - Faster preview while working
+  
+Adaptive Sampling:
+  - Enabled
+  - Noise Threshold: 0.01
+  - Min Samples: 32
+  - Saves render time in simple areas
+```
+
+*Light Path Settings:*
+```
+Max Bounces: 8-12
+  - Allows accurate subsurface scattering
+  - Enables realistic indirect lighting
+  
+Diffuse Bounces: 4-6
+Glossy Bounces: 4-6
+Transmission Bounces: 8-12 (for SSS)
+Volume Bounces: 0 (not needed)
+
+Caustics: Off
+  - Not needed for this scene
+  - Saves render time
+```
+
+*Performance:*
+```
+Tile Size: 
+  - GPU: 256x256 or 512x512
+  - CPU: 32x32 or 64x64
+  
+Device: GPU if available (much faster)
+  - CUDA (NVIDIA)
+  - OptiX (NVIDIA, includes denoising)
+  - HIP (AMD)
+```
+
+*Denoising:*
+```
+Denoiser: OptiX or Intel Open Image Denoise
+  - OptiX: NVIDIA GPUs, very fast, excellent quality
+  - Intel: CPU/GPU, good quality, widely compatible
+  
+Denoise Passes:
+  - Enable Denoising Data in View Layer
+  - Use Denoise node in Compositor
+  - Preserve Detail: 0.5-0.7 (balance smoothness and detail)
+```
+
+*Output:*
+```
+Resolution: 1920x1080 (Full HD) minimum
+  - 3840x2160 (4K) for high-quality final renders
+  
+Frame Rate: Not applicable (still image)
+
+File Format: 
+  - PNG (lossless, supports transparency)
+  - EXR (32-bit, for post-processing flexibility)
+  
+Color Management:
+  - View Transform: Filmic
+  - Look: Medium High Contrast (or adjust to taste)
+  - Exposure: 0.0 (adjust in compositor if needed)
+```
+
+---
+
+## 7. Variations and Imperfections
+
+### Natural Wood Variations
+
+**Grain Pattern Variations:**
+
+*Between Planks (Plank-to-Plank Differences):*
+```
+Grain Spacing Variation: ±20%
+  - Some planks: 12-15 growth rings per inch (tight grain)
+  - Other planks: 8-10 growth rings per inch (wider grain)
+  - Creates visual variety across tabletop
+  - Reflects natural lumber selection
+
+Grain Character:
+  - Plank 1: Straight, consistent grain
+  - Plank 2: Slight cathedral figure (curved grain)
+  - Plank 3: Tight, straight grain with prominent ray flecks
+  - Plank 4: Medium grain with mineral streaks
+  - Plank 5: Wider grain with occasional knot
+  - Each plank has unique personality
+
+Grain Angle Variation:
+  - Nominal: Parallel to plank length
+  - Actual: ±3-5° deviation from parallel
+  - Some planks show slight diagonal grain
+  - Creates natural, non-uniform appearance
+```
+
+*Within Planks (Intra-Plank Variations):*
+```
+Grain Spacing Changes:
+  - Gradual variation along plank length
+  - Tighter grain at one end, wider at other (±15%)
+  - Reflects natural tree growth (varying growth rates)
+
+Grain Direction Flow:
+  - Slight curves (±2-5° from parallel)
+  - Grain may angle slightly toward plank edges
+  - Interlocked grain in some areas (wavy appearance)
+  - Never perfectly straight (too uniform looks artificial)
+
+Cathedral Patterns:
+  - Occasional areas where grain curves
+  - More common in plain-sawn sections
+  - Creates "V" or "U" shaped grain patterns
+  - Adds visual interest
+
+Grain Runout:
+  - Grain angles toward plank edge at ends
+  - Natural characteristic of sawn lumber
+  - Typically 5-10° angle
+```
+
+---
+
+**Color Variations:**
+
+*Between Planks:*
+```
+Luminosity Variation: ±8%
+  - Some planks lighter (more sapwood influence)
+  - Others darker (pure heartwood)
+  - Creates natural patchwork appearance
+  - Avoids artificial uniformity
+
+Example Distribution:
+  - Plank 1: Base color (100% luminosity)
+  - Plank 2: Slightly darker (95% luminosity)
+  - Plank 3: Slightly lighter (105% luminosity)
+  - Plank 4: Darker (92% luminosity)
+  - Plank 5: Base color (100% luminosity)
+
+Hue Variation: ±5° on color wheel
+  - Some planks warmer (more red/orange)
+  - Others cooler (more yellow/tan)
+  - Subtle shift, not dramatic
+  - Reflects different parts of tree
+
+Saturation Variation: ±10%
+  - Some planks more vibrant
+  - Others more muted/gray
+  - Natural variation in wood color intensity
+```
+
+*Within Planks:*
+```
+Gradual Color Shift:
+  - ±5% luminosity from one end to other
+  - Creates subtle gradient along plank length
+  - Reflects natural color variation in tree
+  - Not abrupt or obvious
+
+Earlywood/Latewood Contrast Variation:
+  - Some areas: High contrast (±30% difference)
+  - Other areas: Low contrast (±15% difference)
+  - Varies along plank length
+  - Creates dynamic grain appearance
+
+Localized Color Patches:
+  - Slightly darker or lighter areas (2-6 inches wide)
+  - ±3-5% luminosity difference
+  - Irregular shapes following grain
+  - Natural characteristic of wood
+```
+
+---
+
+**Figure and Character:**
+
+*Ray Fleck Variation:*
+```
+Density Variation:
+  - High-density areas: 20-25 flecks per 12 inches
+  - Low-density areas: 10-15 flecks per 12 inches
+  - Random distribution (not uniform grid)
+  - More prominent in some planks than others
+
+Size Variation:
+  - Small flecks: 0.125-0.25 inches (3.18-6.35 mm)
+  - Medium flecks: 0.25-0.5 inches (6.35-12.7 mm)
+  - Large flecks: 0.5-0.75 inches (12.7-19.05 mm)
+  - Mix of sizes creates natural appearance
+
+Prominence Variation:
+  - Some flecks very visible (high contrast)
+  - Others subtle (low contrast)
+  - Varies with grain orientation and density
+  - Creates depth and complexity
+
+Orientation:
+  - Primarily perpendicular to grain
+  - Some at slight angles (±10-15°)
+  - Follows natural wood structure
+  - Not perfectly aligned
+```
+
+*Mineral Streaks (Optional, 30% probability):*
+```
+Occurrence: 1-3 streaks per table (if included)
+
+Characteristics:
+  - Color: Dark gray to black, RGB(40, 35, 30)
+  - Width: 0.03125-0.125 inches (0.79-3.18 mm)
+  - Length: 3-10 inches (7.62-25.4 cm)
+  - Direction: Follows grain with slight waviness (±5-10°)
+  - Edges: Soft, gradual transition (not sharp)
+  - Appearance: Like dark ink or mineral deposit
+
+Distribution:
+  - Random placement across table
+  - More common in certain planks
+  - Never symmetrical or patterned
+  - Can span across plank seams (rarely)
+
+Visual Effect:
+  - Adds character and authenticity
+  - Shows natural wood origin
+  - Prevents overly "clean" appearance
+```
+
+*Sapwood Inclusions (Occasional):*
+```
+Occurrence: 1-2 planks may show sapwood (20% probability)
+
+Characteristics:
+  - Color: Light cream/tan, RGB(220, 190, 150)
+  - Width: 1-3 inches (2.54-7.62 cm)
+  - Location: Typically along one plank edge
+  - Transition: Gradual blend to heartwood (0.5-1 inch gradient)
+  - Grain: Same structure, just lighter color
+  - Texture: Slightly softer (minimal visual difference)
+
+Visual Effect:
+  - Creates color variation across table
+  - Shows natural lumber characteristics
+  - Adds authenticity (real tables often include some sapwood)
+  - Provides contrast to darker heartwood
+```
+
+---
+
+### Surface Imperfections (For Realism)
+
+**Micro-Texture Variations:**
+
+*Sanding Variations:*
+```
+Cross-Grain Scratches:
+  - Density: 5-10 per square inch
+  - Depth: 0.001-0.002 inches (0.025-0.051 mm)
+  - Length: 0.125-0.5 inches (3.18-12.7 mm)
+  - Orientation: Within ±15° of perpendicular to grain
+  - Visibility: Barely visible, most apparent under raking light
+  - Cause: Sanding process (realistic detail)
+
+Sanding Pattern Remnants:
+  - Very subtle swirl marks (orbital sander)
+  - Circular arcs, 0.5-1 inch (1.27-2.54 cm) radius
+  - Depth: 0.0005-0.001 inches (0.013-0.025 mm)
+  - Visibility: Only under strong raking light
+  - Distribution: Random across surface
+
+Surface Undulation:
+  - Amplitude: ±0.03125 inches (0.79 mm)
+  - Wavelength: 6-12 inches (15.24-30.48 cm)
+  - Creates subtle play of light
+  - Mimics hand-planed or slightly uneven surface
+  - Not perfectly flat (too perfect looks CG)
+```
+
+*Finish Imperfections:*
+```
+Dust Nibs (Tiny Bumps):
+  - Frequency: 0.5-1 per square foot
+  - Size: 0.03125 inches (0.79 mm) diameter
+  - Height: 0.015625 inches (0.4 mm) above surface
+  - Distribution: Random
+  - Cause: Dust settling in wet finish (realistic)
+  - Appearance: Tiny bumps, slightly shinier than surrounding
+
+Orange Peel Texture:
+  - Amplitude: 0.002-0.003 inches (0.051-0.076 mm)
+  - Wavelength: 0.0625-0.125 inches (1.59-3.18 mm)
+  - Creates subtle texture in finish
+  - Mimics spray-applied finish
+  - More visible in specular highlights
+
+Finish Thickness Variation:
+  - Thicker on horizontal surfaces: 0.012 inches (0.305 mm)
+  - Thinner on vertical surfaces: 0.008 inches (0.203 mm)
+  - Thinnest on edges: 0.006 inches (0.152 mm)
+  - Natural result of gravity during application
+
+Brush Marks (if hand-applied):
+  - Very subtle linear marks
+  - Direction: Following grain
+  - Depth: 0.001 inches (0.025 mm)
+  - Visibility: Minimal (mostly smoothed out)
+  - Adds hand-crafted character
+```
+
+---
+
+**Minor Structural Variations:**
+
+*Slight Warping (Very Subtle):*
+```
+Tabletop Bow:
+  - Magnitude: ±0.0625 inches (1.59 mm) over 72-inch length
+  - Direction: Typically convex (crowned top)
+    • Wood naturally cups away from heart of tree
+    • Crowned top is more realistic than concave
+  - Shape: Gentle arc along length
+  - Visibility: Imperceptible to eye, adds realism in renders
+  - Cause: Natural wood movement and stress relief
+
+Tabletop Twist (Minimal):
+  - Magnitude: ±0.03125 inches (0.79 mm) corner-to-corner
+  - Creates slight spiral twist
+  - Very subtle (too much looks damaged)
+  - Realistic for large solid wood surface
+
+Individual Plank Cupping:
+  - Magnitude: ±0.03125 inches (0.79 mm) across 7.2-inch width
+  - Each plank may cup slightly independently
+  - Creates subtle ridges at plank seams
+  - Realistic for solid wood construction
+  - Most visible under raking light
+```
+
+*Leg Variations (Hand-Crafted Appearance):*
+```
+Dimensional Variations:
+  - Each leg: 99.5-100.5% identical
+  - Diameter variation: ±0.03125 inches (0.79 mm)
+  - Height variation: ±0.03125 inches (0.79 mm)
+  - Creates subtle asymmetry (hand-turned appearance)
+
+Decorative Ring Position:
+  - Nominal position: 4 inches from top
+  - Actual variation: ±0.0625 inches (1.59 mm) between legs
+  - Ring depth may vary: ±0.015625 inches (0.4 mm)
+  - Slight differences add authenticity
+
+Foot Flare Variation:
+  - Flare diameter: ±0.03125 inches (0.79 mm) between legs
+  - Flare curve slightly different on each leg
+  - Asymmetry barely perceptible
+  - Prevents "cloned" appearance
+
+Grain Orientation:
+  - Each leg shows different grain pattern
+  - Cathedral figure on different faces
+  - Grain direction may vary ±5° between legs
+  - Reflects individual pieces of wood
+```
+
+---
+
+**Age and Use Indicators (Optional - For "Lived-In" Look):**
+
+*Surface Wear:*
+```
+High-Contact Areas:
+  - Location: Where people sit (4-6 positions)
+  - Diameter: 4-6 inches (10.16-15.24 cm) per wear spot
+  - Effect: Slightly smoother, more polished
+  - Gloss increase: +10-15% (more reflective from hand oils)
+  - Color: Slightly darker (accumulated oils and dirt)
+  - Depth: No actual wear depth (finish protects)
+
+Typical Wear Positions:
+  - 8-12 inches (20.32-30.48 cm) from each end (head positions)
+  - 24-30 inches (60.96-76.2 cm) from each end (side positions)
+  - Centered on long edges
+
+Visual Effect:
+  - Subtle shine variation
+  - Shows table has been used
+  - Adds history and character
+  - Not damage, just patina
+```
+
+*Edge Wear:*
+```
+Corner Rounding:
+  - Affected corners: 2-4 (most exposed/used)
+  - Rounding radius: 0.125-0.1875 inches (3.18-4.76 mm)
+  - Exceeds original 0.0625-inch chamfer
+  - Finish slightly thinner (lighter color)
+  - Wood exposed in high-wear areas (optional)
+
+Edge Smoothing:
+  - Chamfered edges slightly more rounded
+  - Especially at center of long edges (where people sit)
+  - Radius increases from 0.25 to 0.3125 inches
+  - Subtle but adds realism
+
+Visual Effect:
+  - Softens hard edges
+  - Shows gentle use over time
+  - Catches light differently
+  - Adds character without looking damaged
+```
+
+*Minor Dings and Dents:*
+```
+Quantity: 3-8 small impact marks across surface
+
+Characteristics:
+  - Size: 0.125-0.375 inches (3.18-9.53 mm) diameter
+  - Depth: 0.015-0.03125 inches (0.381-0.79 mm)
+  - Shape: Circular or elliptical (impact marks)
+  - Color: Slightly darker (compressed grain)
+  - Finish: May be missing in dent (lighter appearance)
+
+Distribution:
+  - Random placement
+  - More common near edges (more vulnerable)
+  - Avoid center (less likely to be impacted)
+  - Never symmetrical
+
+Types:
+  - Small dents: Dropped objects
+  - Scratches: Dragged items
+  - Scuff marks: Chairs, etc.
+
+Visual Effect:
+  - Shows real-world use
+  - Adds authenticity
+  - Tells story of table's life
+  - Don't overdo (3-8 is enough, not 30-80)
+```
+
+---
+
+### Asymmetries for Realism
+
+**Intentional Asymmetries (Prevent "CG" Look):**
+
+*Plank Width Variation:*
+```
+Nominal Width: 7.2 inches per plank
+Actual Variation: ±0.1 inches (2.54 mm)
+
+Example Distribution:
+  - Plank 1: 7.15 inches
+  - Plank 2: 7.25 inches
+  - Plank 3: 7.30 inches (center, slightly wider)
+  - Plank 4: 7.20 inches
+  - Plank 5: 7.10 inches
+  
+Total: 36.00 inches (with seam gaps)
+
+Visual Effect:
+  - Prevents uniform, artificial appearance
+  - Shows hand-selection of lumber
+  - Reflects real woodworking (adjusting for final dimension)
+  - Barely noticeable but adds authenticity
+```
+
+*Leg Positioning Tolerance:*
+```
+Nominal Inset: 2 inches from edge to leg center
+Actual Variation: ±0.0625 inches (1.59 mm)
+
+Example:
+  - Front left leg: 2.0625 inches inset
+  - Front right leg: 1.9375 inches inset
+  - Back left leg: 2.0 inches inset (nominal)
+  - Back right leg: 2.03125 inches inset
+
+Visual Effect:
+  - Not perfectly symmetrical
+  - Mimics hand-measurement and installation
+  - Still visually balanced (variation too small to notice consciously)
+  - Prevents "cloned" appearance
+```
+
+*Apron Height Variation:*
+```
+Nominal Height: 26 inches from floor to apron bottom
+Actual Variation: ±0.03125 inches (0.79 mm) around table
+
+Cause:
+  - Natural wood movement
+  - Assembly tolerance
+  - Floor may not be perfectly level
+
+Visual Effect:
+  - Imperceptible to eye
+  - Adds realism in close-up renders
+  - Shows real-world construction
+```
+
+---
+
+**Random Element Distribution (Avoid Patterns):**
+
+*Knot Placement (If Included):*
+```
+Avoid:
+  - Symmetrical placement
+  - Even spacing
+  - Pattern or grid arrangement
+  - Same size knots
+
+Instead:
+  - Random position within each plank
+  - Varying sizes (0.25-1 inch)
+  - More common in certain planks (lumber selection)
+  - 0-3 total knots on tabletop (select grade)
+  - May have none (higher grade lumber)
+
+Example Distribution:
+  - Plank 1: No knots (clear)
+  - Plank 2: One small knot (0.375 inches) near edge
+  - Plank 3: No knots
+  - Plank 4: Two pin knots (0.25 inches each)
+  - Plank 5: One medium knot (0.75 inches) off-center
+```
+
+*Grain Pattern Randomization:*
+```
+Avoid:
+  - Repeating texture patterns
+  - Mirrored grain across seams
+  - Identical grain on multiple planks
+  - Perfectly aligned grain features
+
+Instead:
+  - Use different procedural noise seeds for each plank
+  - Rotate and offset textures randomly
+  - Vary grain scale by ±10-15% per plank
+  - Ensure each plank has unique character
+
+Implementation:
+  - Separate material for each plank, or
+  - Use Object coordinates with random offset per plank, or
+  - Use UV mapping with unique texture per plank
+```
+
+*Ray Fleck Distribution:*
+```
+Avoid:
+  - Grid pattern
+  - Even spacing
+  - Uniform size
+  - Symmetry
+
+Instead:
+  - Truly random placement
+  - Clustered in some areas, sparse in others
+  - Varying sizes (0.125-0.75 inches)
+  - Different orientations (±15° from perpendicular)
+
+Implementation:
+  - Use Voronoi or random scatter
+  - Multiple layers with different scales
+  - Mask some areas (density variation)
+```
+
+---
+
+### Seasonal Movement (Optional - Advanced Realism)
+
+**Wood Movement Characteristics:**
+
+*Physics of Wood Movement:*
+```
+Oak Movement Rate: 0.00369 inches per inch per 1% moisture change
+  - Across grain (width): Full movement
+  - Along grain (length): Minimal movement (~0.1% of cross-grain)
+  - Tangential (growth rings): Maximum movement
+  - Radial (rays): ~50% of tangential movement
+
+Typical Seasonal Moisture Change:
+  - Winter (dry, heated interior): 6-8% MC
+  - Summer (humid): 10-12% MC
+  - Change: 2-4% MC variation
+
+Width Change Calculation:
+  - 36-inch width × 0.00369 × 3% MC change = 0.398 inches
+  - Practical range: ±0.25-0.5 inches (6.35-12.7 mm) across 36-inch width
+```
+
+*Visual Effects of Seasonal Movement:*
+
+**Winter (Dry Conditions):**
+```
+Plank Seam Widening:
+  - Seam width increases: Up to 0.125 inches (3.18 mm)
+  - Total width decrease: 0.25-0.4 inches
+  - Planks shrink, gaps open
+  - More dramatic in center planks
+
+Plank Cupping:
+  - Planks cup slightly (edges rise)
+  - Magnitude: ±0.0625 inches (1.59 mm) across width
+  - Creates slight ridges at seams
+  - Visible under raking light
+
+Apron-to-Tabletop Gap:
+  - Gap may increase: Up to 0.09375 inches (2.38 mm)
+  - Tabletop shrinks away from apron
+  - More apparent on short sides (cross-grain)
+
+Finish Stress:
+  - Finish may show fine stress cracks (micro-crazing)
+  - Especially in thick finish build-up
+  - Not structural damage, cosmetic only
+```
+
+**Summer (Humid Conditions):**
+```
+Plank Seam Closing:
+  - Seam width decreases: Down to 0.03125 inches (0.79 mm)
+  - Total width increase: 0.25-0.4 inches
+  - Planks expand, gaps close
+  - Seams may nearly disappear
+
+Plank Flattening:
+  - Cupping reduces as wood swells
+  - Surface becomes flatter
+  - Seam ridges less apparent
+
+Apron-to-Tabletop Gap:
+  - Gap may decrease: Down to 0.03125 inches (0.79 mm)
+  - Tabletop expands toward/against apron
+  - Figure-8 fasteners accommodate movement
+
+Slight Overhang Increase:
+  - Tabletop extends slightly beyond apron
+  - Overhang increases by 0.125-0.25 inches per side
+```
+
+---
+
+**Modeling Seasonal Variants (Optional):**
+
+*If creating multiple versions:*
+
+**Standard/Average Conditions:**
+```
+- Plank seams: 0.0625 inches (1.59 mm)
+- Plank cupping: ±0.03125 inches (0.79 mm)
+- Apron gap: 0.0625 inches (1.59 mm)
+- Use this for default model
+```
+
+**Winter/Dry Variant:**
+```
+- Plank seams: 0.125 inches (3.18 mm)
+- Plank cupping: ±0.0625 inches (1.59 mm)
+- Apron gap: 0.09375 inches (2.38 mm)
+- Overall width: 35.75 inches (reduced)
+```
+
+**Summer/Humid Variant:**
+```
+- Plank seams: 0.03125 inches (0.79 mm)
+- Plank cupping: ±0.015625 inches (0.4 mm)
+- Apron gap: 0.03125 inches (0.79 mm)
+- Overall width: 36.25 inches (increased)
+```
+
+*Note: Seasonal movement is optional detail for advanced realism. Standard model with average dimensions is sufficient for most purposes.*
+
+---
+
+## Summary for 3D Artist
+
+### Design Philosophy
+
+This table represents a **classic American craftsman/farmhouse style** dining table, emphasizing:
+
+1. **Solid, Substantial Proportions**
+   - Sturdy, well-built piece designed for daily use
+   - Generous dimensions for family dining
+   - Balanced visual weight between top and base
+
+2. **Natural Wood Character**
+   - Embrace grain variation and subtle imperfections
+   - Showcase quarter-sawn oak's distinctive ray flecks
+   - Allow natural color variation between planks
+   - Avoid overly perfect, artificial uniformity
+
+3. **Quality Joinery**
+   - Tight-fitting mortise and tenon joints
+   - Minimal visible gaps (0.03125 inches)
+   - Traditional construction methods
+   - Corner reinforcement (hidden but implied)
+
+4. **Satin Finish**
+   - Not too glossy (not mirror-like)
+   - Not too matte (not flat/dead)
+   - Shows wood's natural beauty
+   - Subtle highlights that follow grain direction
+
+5. **Refined Decorative Details**
+   - Decorative elements are subtle, not ostentatious
+   - Leg turning adds interest without overwhelming
+   - Apron bead provides horizontal accent
+   - Details enhance rather than dominate
+
+---
+
+### Modeling Workflow Recommendations
+
+**Phase 1: Basic Forms**
+```
+1. Create tabletop (rectangular box, 72×36×1.5 inches)
+2. Create legs (cylinders, 3.5-inch diameter, 28.5-inch height)
+3. Create aprons (rectangular boxes, dimensions as specified)
+4. Position all components in correct spatial relationship
+5. Verify overall proportions and dimensions
+```
+
+**Phase 2: Detailed Modeling**
+```
+6. Add tabletop edge chamfer (15°, 0.25 inches)
+7. Add tabletop bottom roundover (0.125-inch radius)
+8. Model leg decorative ring (cove and bead)
+9. Add leg taper and foot flare
+10. Model apron decorative bead
+11. Add plank seams to tabletop (5 planks)
+12. Refine all transitions and curves
+```
+
+**Phase 3: Fine Details**
+```
+13. Add micro-chamfers to sharp edges (0.03125 inches)
+14. Model joint seam lines (very subtle)
+15. Add slight surface undulation (hand-planed appearance)
+16. Create subtle imperfections (optional: dings, wear)
+17. Ensure no perfectly straight edges (slight variation)
+```
+
+**Phase 4: Subdivision and Smoothing**
+```
+18. Apply Subdivision Surface modifiers where needed
+   - Legs: Level 2-3 for smooth curves
+   - Decorative elements: Level 2-3 for clean profiles
+   - Tabletop: Level 1-2 or none (mostly flat)
+19. Add Edge Creases to maintain sharp edges where desired
+20. Check for artifacts and adjust topology
+```
+
+---
+
+### Texturing Workflow Recommendations
+
+**Approach 1: Procedural Shader (Recommended)**
+```
+Advantages:
+- Infinite resolution
+- Full control over parameters
+- Easy to adjust
+- No UV unwrapping for simple shapes
+
+Process:
+1. Create base wood color (ColorRamp from RGB values)
+2. Add grain pattern (Wave Texture, distorted)
+3. Add ray flecks (Voronoi Texture, masked)
+4. Add color variation (Noise Texture, subtle)
+5. Combine layers with Mix nodes
+6. Connect to Principled BSDF Base Color
+7. Add normal map (procedural bump for grain relief)
+8. Set up SSS, specular, anisotropic, clearcoat
+9. Test render and adjust
+```
+
+**Approach 2: Image Textures**
+```
+Advantages:
+- Photorealistic grain patterns
+- Can use scanned real wood
+- Predictable results
+
+Process:
+1. UV unwrap all components
+   - Tabletop: Planar projection from top
+   - Legs: Cylindrical projection
+   - Aprons: Planar projection from outside
+2. Acquire or create seamless wood textures
+   - Diffuse/albedo map
+   - Normal map
+   - Roughness map
+   - Optional: Displacement map
+3. Apply textures to UV-mapped surfaces
+4. Align grain direction properly
+5. Set up Principled BSDF with texture maps
+6. Add SSS, specular, clearcoat settings
+7. Test render and adjust
+```
+
+**Key Texture Settings (Either Approach):**
+```
+- Base Color: RGB(194, 149, 103) as starting point
+- Subsurface: 0.15, radius RGB(2.0, 1.0, 0.5)mm
+- Specular: 0.5, Roughness: 0.25
+- Anisotropic: 0.15 (following grain)
+- Clearcoat: 0.3, Clearcoat Roughness: 0.15
+- Normal/Bump: Subtle (0.3 strength for normal, 0.1 for bump)
+```
+
+---
+
+### Lighting Setup Recommendations
+
+**Standard Product Lighting (Recommended Starting Point):**
+```
+1. Key Light:
+   - Type: Area Light (2×2 feet)
+   - Position: 45° front-right, 45° elevation
+   - Intensity: 100W equivalent
+   - Color: 5200K (neutral daylight)
+
+2. Fill Light:
+   - Type: Area Light (4×4 feet)
+   - Position: 90° left, 30° elevation
+   - Intensity: 35W equivalent
+   - Color: 4800K (slightly warm)
+
+3. Rim Light:
+   - Type: Area Light (1.5×1.5 feet)
+   - Position: 135° behind-left, 60° elevation
+   - Intensity: 120W equivalent
+   - Color: 6000K (slightly cool)
+
+4. Environment:
+   - Type: HDRI (studio or interior)
+   - Intensity: 25% of key light
+   - Rotation: Align with key light direction
+```
+
+**Quick Test Lighting (For Fast Previews):**
+```
+- Single large area light above and in front
+- HDRI environment at 50% strength
+- Adjust exposure in camera settings
+- Sufficient for material/model testing
+```
+
+---
+
+### Common Pitfalls to Avoid
+
+**Modeling:**
+- ❌ Perfectly uniform planks (too artificial)
+- ❌ Identical legs (cloned appearance)
+- ❌ Sharp edges everywhere (unrealistic, catches light wrong)
+- ❌ Perfectly flat tabletop (too CG, add subtle undulation)
+- ❌ No joint seam lines (looks like one piece, not assembled)
+
+**Texturing:**
+- ❌ Repeating texture patterns (use random offsets)
+- ❌ Too much contrast in grain (overpowering)
+- ❌ Too little variation (boring, flat)
+- ❌ Wrong grain direction (must follow length)
+- ❌ No subsurface scattering (wood looks dead/plastic)
+- ❌ Wrong roughness (too shiny = plastic, too matte = chalk)
+
+**Lighting:**
+- ❌ Single hard light (harsh shadows, no depth)
+- ❌ Too much ambient light (flat, no shadows)
+- ❌ Wrong color temperature (too cool = sterile, too warm = orange)
+- ❌ No rim/back light (blends into background)
+- ❌ Overlighting (washed out, no depth)
+
+**Rendering:**
+- ❌ Too few samples (noisy, grainy)
+- ❌ Too few light bounces (dark, inaccurate SSS)
+- ❌ Wrong color management (incorrect colors)
+- ❌ No depth of field (too sharp, unrealistic)
+- ❌ Overusing denoising (loses detail)
+
+---
+
+### Quality Checklist
+
+**Before Final Render:**
+
+✅ **Modeling:**
+- [ ] All dimensions verified against specifications
+- [ ] Proportions look balanced and natural
+- [ ] All chamfers, roundovers, and details present
+- [ ] Joint seam lines visible (subtle)
+- [ ] Slight imperfections added (not overdone)
+- [ ] No perfectly straight edges (micro-variations)
+- [ ] Smooth curves where needed (legs, decorative elements)
+- [ ] Clean topology (no artifacts, proper edge flow)
+
+✅ **Materials:**
+- [ ] Wood grain direction correct on all components
+- [ ] Color variation between planks present
+- [ ] Ray flecks visible on tabletop
+- [ ] Subsurface scattering enabled and visible
+- [ ] Specular highlights elongated along grain (anisotropy)
+- [ ] Clearcoat layer present (finish appearance)
+- [ ] Normal/bump maps applied (subtle relief)
+- [ ] No texture stretching or distortion
+
+✅ **Lighting:**
+- [ ] Three-point lighting set up (or equivalent)
+- [ ] Shadows present and appropriate (not too harsh)
+- [ ] Rim light separates table from background
+- [ ] Environment light provides ambient fill
+- [ ] Color temperature appropriate (warm, inviting)
+- [ ] Subsurface glow visible on edges (backlit)
+- [ ] Highlights show wood grain and finish
+
+✅ **Camera:**
+- [ ] Appropriate focal length (35-50mm)
+- [ ] Natural viewing angle (slightly above table height)
+- [ ] Depth of field applied (subtle, photographic)
+- [ ] Composition shows table's best features
+- [ ] Entire table visible (or intentional crop)
+
+✅ **Render Settings:**
+- [ ] Sufficient samples (1024-2048)
+- [ ] Adequate light bounces (8-12)
+- [ ] Denoising enabled (preserves detail)
+- [ ] Output resolution appropriate (1920×1080 minimum)
+- [ ] Color management correct (Filmic)
+
+✅ **Final Image:**
+- [ ] Looks photorealistic (not obviously CG)
+- [ ] Wood appears natural and organic
+- [ ] Lighting is balanced and attractive
+- [ ] Details visible but not overpowering
+- [ ] Overall impression: quality, craftsmanship, warmth
+
+---
+
+### Optimization Tips
+
+**For Faster Viewport Performance:**
+```
+- Use lower subdivision levels in viewport
+- Disable SSS in viewport (enable for renders only)
+- Use simplified shader for viewport (just base color)
+- Hide objects not in current view
+- Use bounding box display for complex objects
+```
+
+**For Faster Render Times:**
+```
+- Use adaptive sampling (stops when clean)
+- Enable denoising (allows fewer samples)
+- Use GPU rendering if available (much faster)
+- Reduce light bounces if possible (test 8 vs 12)
+- Use render region for test renders (small area)
+- Render lower resolution for tests (50% size)
+```
+
+**For Smaller File Sizes:**
+```
+- Use procedural textures instead of large images
+- If using images, compress appropriately (PNG or JPEG)
+- Remove unused materials and textures
+- Pack external files into .blend file
+- Use instances for repeated elements (legs, if identical)
+```
+
+---
+
+### Variations to Consider
+
+**Design Variations:**
+```
+- Different wood species (walnut, cherry, maple)
+  • Adjust colors, grain pattern, ray fleck prominence
+  
+- Different sizes (48×30, 60×36, 84×42 inches)
+  • Scale proportionally, maintain ratios
+  
+- Different leg styles (square tapered, turned ball feet)
+  • Maintain overall proportions and design language
+  
+- Different edge profiles (bullnose, ogee, straight)
+  • Adjust chamfer/roundover details
+  
+- Different finishes (oil, wax, lacquer)
+  • Adjust specular roughness and clearcoat
+```
+
+**Scene Variations:**
+```
+- Different lighting scenarios (window light, studio, dramatic)
+- Different camera angles (overhead, low angle, detail shots)
+- With place settings (plates, glasses, centerpiece)
+- In different environments (dining room, studio, outdoor)
+- Different times of day (morning light, evening glow)
+```
+
+---
+
+### Final Notes
+
+This description provides comprehensive information for creating a **photorealistic 3D model** of a traditional dining table. The level of detail allows for:
+
+- **Accurate modeling** of all components and features
+- **Realistic materials** with proper physical properties
+- **Convincing lighting** that showcases the wood's beauty
+- **Natural imperfections** that prevent "CG" appearance
+- **Flexibility** to adjust and customize as needed
+
+**Remember:**
+- **Less is often more** - subtle details are more convincing than exaggerated ones
+- **Observe real furniture** - reference photos help immensely
+- **Test frequently** - render small sections to verify materials and lighting
+- **Iterate and refine** - first attempt rarely perfect, adjust based on results
+- **Trust your eye** - if something looks wrong, it probably is
+
+**The goal is photorealism with character** - a table that looks like it could exist in the real world, with all the subtle variations and imperfections that make real objects interesting and believable.
+
+Good luck with your model! 🪵✨
+
+--------------------------------------------------------------------------------
+REASONING STEPS
+--------------------------------------------------------------------------------
+1. Analysis: ## Analysis of 3D Modeling Request
+
+**Primary Object:** Table
+
+**Specific Details Mentioned:**
+- Software: Blender (specified)
+- No other specific details provided (style, size, material, design type)
+
+**Overall Complexity:** Low to Medium
+
+This is a straightforward request for a basic furniture object. The user wants to create a table model in Blender but hasn't specified:
+- Table type (dining, coffee, desk, side table, etc.)
+- Style (modern, rustic, industrial, etc.)
+- Dimensions
+- Material/texture preferences
+- Level of detail needed
+
+**Recommendation:** This can range from a simple beginner-level model (basic rectangular top with 4 legs) to a more complex piece depending on the user's skill level and intended use. Without additional specifications, a standard basic table model would be appropriate.
+
+2. Assessment: NEEDS_EXPANSION - 0 criteria met
+
+The prompt "model a table using blender" contains:
+1. ❌ Specific dimensions/sizes - None mentioned
+2. ❌ Material descriptions - None mentioned
+3. ❌ Texture details - None mentioned
+4. ❌ Color specifications - None mentioned
+5. ❌ Structural components - None mentioned
+6. ❌ Surface features/details - None mentioned
+
+This is a basic object name with no detailed specifications. It requires significant expansion to include dimensions, materials, structural details, and other characteristics needed for precise 3D modeling.
+
+3. Generated comprehensive details
+
+4. Refined and polished description
+
+--------------------------------------------------------------------------------
+Was Original Detailed: False
+Output Length: 82605 characters
+================================================================================
