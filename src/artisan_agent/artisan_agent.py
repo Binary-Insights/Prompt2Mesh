@@ -8,6 +8,7 @@ import base64
 import json
 import logging
 import hashlib
+import time
 from typing import TypedDict, Annotated, Sequence, List, Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
@@ -34,9 +35,25 @@ load_dotenv()
 # Configure LangSmith
 os.environ["LANGCHAIN_CALLBACKS_BACKGROUND"] = "true"
 
+# Rate limit handling
+async def invoke_with_retry(model, messages, max_retries=3):
+    """Invoke LLM with exponential backoff for rate limits"""
+    for attempt in range(max_retries):
+        try:
+            return await model.ainvoke(messages)
+        except Exception as e:
+            if "rate_limit" in str(e).lower() and attempt < max_retries - 1:
+                wait_time = (2 ** attempt) * 5  # 5s, 10s, 20s
+                logging.warning(f"Rate limit hit, waiting {wait_time}s before retry {attempt + 1}/{max_retries}")
+                await asyncio.sleep(wait_time)
+            else:
+                raise
+
 # Blender Version Compatibility Helper
 BLENDER_COMPAT_CODE = '''
 # Blender 4.x/5.x compatibility helper
+import bpy
+
 def set_principled_bsdf_property(bsdf, property_name, value):
     """Set BSDF property with version compatibility"""
     # Blender 4.x renamed some properties
@@ -59,6 +76,25 @@ def set_principled_bsdf_property(bsdf, property_name, value):
             except KeyError:
                 pass
     return False
+
+def create_texture_node(node_tree, node_type, name, location):
+    """Create texture node with Blender 4.x/5.x compatibility"""
+    # Blender 4.0+ removed Musgrave, replaced with enhanced Noise Texture
+    if node_type == 'ShaderNodeTexMusgrave':
+        # Use Noise Texture instead (available in all versions)
+        node = node_tree.nodes.new(type='ShaderNodeTexNoise')
+        node.name = name
+        node.location = location
+        # Set noise type to approximate Musgrave behavior
+        if hasattr(node, 'noise_type'):
+            node.noise_type = 'FBM'  # Fractal Brownian Motion approximates Musgrave
+        return node
+    else:
+        # Standard node creation
+        node = node_tree.nodes.new(type=node_type)
+        node.name = name
+        node.location = location
+        return node
 '''
 
 
@@ -405,7 +441,7 @@ Provide at least 5-10 concrete steps to build the model."""
 
         print(f"📝"*60)
         # print(f"📝 Requirement preview: {state['requirement'][:1000]}")
-        print(scene_context)
+        print(planning_prompt)
         print(f"---"*60)
 
         # Parse steps from response
@@ -599,15 +635,21 @@ If objects exist but appear to be placeholders or incomplete, respond with "none
 {current_step}
 
 Previous context:
-{chr(10).join(state['feedback_history'][-3:]) if state['feedback_history'] else 'Starting fresh'}
+{chr(10).join(state['feedback_history'][-2:]) if state['feedback_history'] else 'Starting fresh'}
 
 IMPORTANT - Blender Version Compatibility:
-When setting Principled BSDF properties, use this compatibility pattern to handle Blender 4.x/5.x differences:
+This project must work with Blender 4.x and 5.x. Use these compatibility helpers:
 
 {BLENDER_COMPAT_CODE}
 
+**CRITICAL Node Compatibility:**
+- **Musgrave Texture (REMOVED in Blender 4.0+)**: Use `create_texture_node(nodes, 'ShaderNodeTexMusgrave', ...)` instead
+- **Noise Texture**: Use `nodes.new(type='ShaderNodeTexNoise')` directly (works in all versions)
+- The helper automatically converts Musgrave to Noise Texture with FBM type
+
 Example usage:
 ```python
+# For BSDF properties
 bsdf = mat.node_tree.nodes.get("Principled BSDF")
 if bsdf:
     bsdf.inputs['Base Color'].default_value = (1.0, 0.0, 0.0, 1.0)
@@ -615,6 +657,11 @@ if bsdf:
     # Use helper for renamed properties
     set_principled_bsdf_property(bsdf, 'Specular', 0.5)  # Handles Blender 4.x rename
     set_principled_bsdf_property(bsdf, 'Emission', (1.0, 1.0, 1.0, 1.0))  # Handles Blender 4.x rename
+
+# For texture nodes (handles Musgrave → Noise conversion)
+musgrave = create_texture_node(mat.node_tree, 'ShaderNodeTexMusgrave', 'Fine_Grain', (-1200, -200))
+musgrave.inputs['Scale'].default_value = 50.0
+# Note: In Blender 4.x, this becomes a Noise Texture with FBM type automatically
 ```
 
 Use the appropriate Blender MCP tools to accomplish this step.
@@ -705,6 +752,32 @@ After significant changes, get a viewport screenshot for verification."""
         logger = logging.getLogger(__name__)
         self.display_callback("📸 Capturing viewport screenshot...", "screenshot")
         
+        # Adjust camera to see all objects (prevent occlusion)
+        camera_code = '''
+import bpy
+
+# Frame all objects in viewport to prevent occlusion
+try:
+    # Switch to a better view angle (3D view with good perspective)
+    for area in bpy.context.screen.areas:
+        if area.type == 'VIEW_3D':
+            for space in area.spaces:
+                if space.type == 'VIEW_3D':
+                    # Set to front-right-top perspective for better visibility
+                    space.region_3d.view_rotation = (0.8205, 0.4247, 0.1920, 0.3272)
+                    # Frame all visible objects
+                    override = bpy.context.copy()
+                    override['area'] = area
+                    override['region'] = area.regions[-1]
+                    with bpy.context.temp_override(**override):
+                        bpy.ops.view3d.view_all(center=False)
+                    break
+            break
+except Exception as e:
+    print(f"Camera adjustment failed: {e}")
+'''
+        await self.mcp.call_tool("execute_blender_code", {"code": camera_code})
+        
         # Call screenshot tool
         screenshot_result = await self.mcp.call_tool("get_viewport_screenshot", {"max_size": 800})
         
@@ -723,7 +796,7 @@ After significant changes, get a viewport screenshot for verification."""
             
             # NEW: Vision-based analysis
             try:
-                vision_model = ChatAnthropic(model="claude-sonnet-4-20250514", max_tokens=1024)
+                vision_model = ChatAnthropic(model="claude-sonnet-4-20250514", max_tokens=512)
                 
                 current_step_desc = state["planning_steps"][state["current_step"]] if state["current_step"] < len(state["planning_steps"]) else "Final step"
                 
@@ -731,13 +804,21 @@ After significant changes, get a viewport screenshot for verification."""
 
 Current Step ({state['current_step'] + 1}): {current_step_desc}
 
-Evaluate:
-1. Does the geometry match the step description?
-2. Is there sufficient detail and complexity?
-3. Are there any visual errors or missing elements?
-4. Overall quality rating (1-10)?
+CRITICAL VISUAL ANALYSIS - Evaluate:
 
-Provide a brief analysis focusing on quality issues that need refinement."""
+1. **Geometry Quality**: Does the geometry match the step description?
+2. **Detail & Complexity**: Is there sufficient detail and complexity?
+3. **Visibility & Occlusion**: Are any objects hidden, overshadowed, or blocked by other objects?
+   - Check if newly created objects are visible or hidden behind existing geometry
+   - Identify if objects are too close together causing visual clutter
+   - Note if important features are obscured from view
+4. **Spatial Layout**: Are objects properly spaced and positioned?
+5. **Visual Errors**: Any missing elements, malformed geometry, or rendering artifacts?
+6. **Overall Quality**: Rate 1-10 with detailed reasoning
+
+**IMPORTANT**: If objects are occluding each other or new geometry is hidden, this is a CRITICAL issue that requires refinement.
+
+Provide analysis with specific focus on visibility and occlusion problems."""
                 
                 # Create vision message with image
                 vision_message = HumanMessage(
@@ -750,7 +831,7 @@ Provide a brief analysis focusing on quality issues that need refinement."""
                     ]
                 )
                 
-                vision_response = await vision_model.ainvoke([vision_message])
+                vision_response = await invoke_with_retry(vision_model, [vision_message])
                 vision_feedback = vision_response.content
                 
                 # Store vision feedback
@@ -787,7 +868,7 @@ Provide a brief analysis focusing on quality issues that need refinement."""
             # ENHANCED: Check quality before marking complete
             if state.get("vision_feedback"):
                 # Analyze recent vision feedback for quality issues
-                recent_feedback = state["vision_feedback"][-3:] if len(state["vision_feedback"]) >= 3 else state["vision_feedback"]
+                recent_feedback = state["vision_feedback"][-2:] if len(state["vision_feedback"]) >= 2 else state["vision_feedback"]
                 combined_feedback = "\n\n".join(recent_feedback)
                 
                 # Check for common quality issues
@@ -853,14 +934,31 @@ Provide a brief analysis focusing on quality issues that need refinement."""
         except Exception as e:
             logger.warning(f"Could not parse quality score: {e}")
         
+        # Check for occlusion/visibility issues in feedback (critical problem)
+        occlusion_detected = any([
+            "hidden" in vision_feedback.lower(),
+            "occluded" in vision_feedback.lower(),
+            "obscured" in vision_feedback.lower(),
+            "blocked" in vision_feedback.lower(),
+            "overshadow" in vision_feedback.lower(),
+            "behind" in vision_feedback.lower() and "object" in vision_feedback.lower(),
+            "not visible" in vision_feedback.lower(),
+            "can't see" in vision_feedback.lower() or "cannot see" in vision_feedback.lower()
+        ])
+        
         # Determine if refinement is needed based on step type
         # Critical steps (1-5) have higher threshold
         if state["current_step"] < 5:
             refinement_threshold = 7  # Critical steps need 7+
-            needs_refinement = quality_score < refinement_threshold
+            needs_refinement = quality_score < refinement_threshold or occlusion_detected
         else:
             refinement_threshold = 6  # Normal steps need 6+
-            needs_refinement = quality_score < refinement_threshold
+            needs_refinement = quality_score < refinement_threshold or occlusion_detected
+        
+        # Log occlusion detection
+        if occlusion_detected:
+            logger.warning(f"⚠️ Occlusion detected in step {state['current_step']}: Objects may be hidden or overshadowing each other")
+            self.display_callback(f"⚠️ Occlusion detected - objects may be hidden", "warning")
         
         # IMPORTANT: Don't refine if we've hit max attempts (this overrides everything)
         if state["refinement_attempts"] >= state["max_refinements_per_step"]:
@@ -875,7 +973,7 @@ Provide a brief analysis focusing on quality issues that need refinement."""
             "score": quality_score,
             "needs_refinement": needs_refinement,
             "attempt": state["refinement_attempts"],
-            "feedback": vision_feedback[:200]
+            "feedback": vision_feedback[:150]
         }
         state["quality_scores"].append(quality_data)
         state["needs_refinement"] = needs_refinement
@@ -911,10 +1009,18 @@ Vision analysis identified these quality issues:
 {state.get('refinement_feedback', 'Quality issues detected')}
 
 Generate improved Blender Python code to address these issues. Focus on:
-1. Adding more detail and complexity
-2. Fixing any geometry errors
-3. Improving visual realism
-4. Maintaining compatibility with existing scene objects
+1. **Occlusion & Visibility**: If objects are hidden/overshadowed, reposition or scale them for better visibility
+2. **Spatial Layout**: Ensure proper spacing between objects to prevent visual clutter
+3. **Detail & Complexity**: Add more detail and complexity to geometry
+4. **Geometry Errors**: Fix any malformed or missing geometry
+5. **Visual Realism**: Improve overall visual quality
+6. **Scene Compatibility**: Maintain compatibility with existing scene objects
+
+**CRITICAL**: If vision feedback mentions occlusion, hidden objects, or visibility issues:
+- Move occluded objects to visible positions
+- Adjust object scales to prevent overshadowing
+- Reposition camera-facing geometry for better view
+- Ensure new objects don't block existing important elements
 
 Use the execute_blender_code tool to apply improvements.
 
@@ -932,7 +1038,7 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
         tools = self.mcp.get_tools_schema()
         
         try:
-            response = await self.llm.bind_tools(tools).ainvoke(messages)
+            response = await invoke_with_retry(self.llm.bind_tools(tools), messages)
             
             # Execute tool calls
             if hasattr(response, 'tool_calls') and response.tool_calls:
