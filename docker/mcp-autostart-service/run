@@ -1,0 +1,37 @@
+#!/usr/bin/with-contenv bash
+
+# Blender MCP Auto-Start Service
+# This runs continuously and enables the MCP server after Blender starts
+
+echo "[MCP-AutoStart] Waiting for Blender to start..."
+
+# Wait for Blender process
+for i in {1..60}; do
+    if pgrep -x "blender" > /dev/null; then
+        echo "[MCP-AutoStart] ✅ Blender detected, waiting for initialization..."
+        sleep 15
+        
+        echo "[MCP-AutoStart] 🔧 Enabling MCP addon..."
+        if [ -f "/tmp/enable_addon_auto.py" ]; then
+            blender --background --python /tmp/enable_addon_auto.py > /tmp/mcp_service.log 2>&1
+            
+            if [ $? -eq 0 ]; then
+                echo "[MCP-AutoStart] ✅ MCP Server started successfully"
+                cat /tmp/mcp_service.log
+                exit 0
+            else
+                echo "[MCP-AutoStart] ⚠️  MCP start failed"
+                cat /tmp/mcp_service.log
+                exit 1
+            fi
+        else
+            echo "[MCP-AutoStart] ❌ Script not found: /tmp/enable_addon_auto.py"
+            exit 1
+        fi
+    fi
+    
+    sleep 2
+done
+
+echo "[MCP-AutoStart] ❌ Timeout waiting for Blender"
+exit 1

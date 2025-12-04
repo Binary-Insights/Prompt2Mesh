@@ -474,9 +474,9 @@ class PromptRefinementAgent:
         return self.refine_prompt(user_prompt, thread_id, detail_level)
 
 
-def main():
-    """Example usage of the Prompt Refinement Agent"""
-    agent = PromptRefinementAgent()
+# def main():
+#     """Example usage of the Prompt Refinement Agent"""
+#     agent = PromptRefinementAgent()
     
     # Example 1: Simple prompt
     # print("\n" + "="*80)
@@ -517,5 +517,5 @@ def main():
     # print(f"\nOriginal was detailed: {result2['is_detailed']}")
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

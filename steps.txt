@@ -52,3 +52,82 @@ wsl bash -c "sudo -u postgres psql -d prompt2mesh_auth -c 'SELECT id, username, 
 docker exec prompt2mesh-blender ps aux | Select-String -Pattern "blender|python" | Select-Object -First 5
 docker exec prompt2mesh-backend nc -zv blender 9876 2>&1
 docker exec prompt2mesh-backend python -c "import socket; s=socket.socket(); s.settimeout(2); result=s.connect_ex(('blender',9876)); print('Port OPEN' if result==0 else f'Port CLOSED (error {result})'); s.close()"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------
+
+Problem: The prompt doesn't specifically ask about occlusion, visibility, or camera angle issues!
+
+Critical Gaps
+No viewport/camera adjustment - The agent captures screenshots from whatever the current viewport angle is
+No occlusion detection - Vision feedback doesn't explicitly check if objects are hidden behind others
+No multi-angle verification - Only captures one viewpoint per step
+Generic quality assessment - Focuses on geometry matching, not visibility
+Proposed Enhancement
+Let me enhance the vision feedback to specifically detect and address occlusion issues:
+
+artisan_agent.py+72-13
+Perfect! I've significantly enhanced the vision-aware feedback system to tackle occlusion and shadowing issues:
+
+✅ Enhancements Made
+1. Automatic Camera Adjustment (NEW)
+Before each screenshot, the agent now automatically adjusts the viewport camera
+Uses a 3/4 perspective view (front-right-top) for better visibility
+Frames all objects to prevent cropping
+Prevents occlusion by choosing optimal viewing angle
+2. Enhanced Vision Analysis Prompt (IMPROVED)
+Now specifically checks for:
+
+✅ Visibility & Occlusion: Are objects hidden or overshadowed?
+✅ Spatial Layout: Are objects properly spaced?
+✅ Visual Clutter: Are objects too close together?
+✅ Obscured Features: Are important elements blocked?
+3. Occlusion Detection Logic (NEW)
+Automatically detects occlusion keywords in vision feedback:
+
+"hidden", "occluded", "obscured", "blocked"
+"overshadow", "behind object", "not visible"
+"can't see", "cannot see"
+Critical: If occlusion is detected, refinement is automatically triggered regardless of quality score!
+
+4. Refinement with Occlusion Focus (IMPROVED)
+When refining, the agent now:
+
+Repositions occluded objects to visible locations
+Adjusts object scales to prevent overshadowing
+Ensures new geometry doesn't block existing elements
+Improves spatial layout for better visibility
+How It Works Now
+
+Step Execution → Camera Adjustment → Screenshot Capture → Vision Analysis
+                                              ↓
+                        Occlusion Detected? → Yes → Trigger Refinement
+                                              ↓
+                        Refinement Code: Reposition/Scale Objects
+                                              ↓
+                        Re-capture Screenshot → Verify Visibility
+
+Example Scenario
+Before: Creating a door on a house might place it behind a wall, making it invisible.
+
+Now:
+
+Vision feedback detects: "door is hidden behind the front wall"
+Occlusion detection triggers refinement
+Refinement code moves door to visible front-facing position
+Re-captures screenshot to verify visibility
+This addresses your concern about objects overshadowing or covering other objects during the modeling process!

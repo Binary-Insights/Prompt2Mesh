@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-12-03T14:53:24.328678",
+  "original_prompt": "design a table using blender ",
+  "refined_prompt": "Design a detailed 3D model of a coffee table using Blender.",
+  "is_detailed": false,
+  "detail_level": "comprehensive",
+  "reasoning_steps": [
+    "Generated comprehensive details",
+    "Refined and polished description"
+  ],
+  "enable_refinement_steps": true
+}

@@ -208,12 +208,13 @@ def main():
         if use_refinement:
             detail_level = st.selectbox(
                 "Detail Level",
-                options=["concise", "moderate", "comprehensive"],
-                index=2,  # Default to comprehensive
+                options=["as-is", "concise", "moderate", "comprehensive"],
+                index=3,  # Default to comprehensive
                 help="Control how detailed the AI expansion should be"
             )
             
             level_info = {
+                "as-is": "📝 Use your prompt exactly as written - no AI refinement or expansion",
                 "concise": "💡 Basic structure, key features, and materials (300-500 words)",
                 "moderate": "💡 Balanced detail with structure, components, materials, and key specs (500-1000 words)",
                 "comprehensive": "💡 Exhaustive detail with all specifications, measurements, and rendering info (1000+ words)"
@@ -221,6 +222,118 @@ def main():
             st.info(level_info[detail_level])
         else:
             detail_level = "comprehensive"  # Default when refinement is off
+        
+        st.divider()
+        
+        # Refinement steps control
+        st.subheader("🔄 Quality Refinement")
+        enable_refinement_steps = st.checkbox(
+            "Enable Refinement Steps",
+            value=False,
+            help="When enabled, the agent will refine steps that don't meet quality thresholds. When disabled, it will proceed to the next step regardless of quality."
+        )
+        
+        if enable_refinement_steps:
+            st.info("✅ Agent will refine low-quality steps automatically")
+        else:
+            st.warning("⚠️ Agent will skip refinement and proceed with all steps")
+        
+        st.divider()
+        
+        # Save chat as Artisan prompt
+        st.subheader("💾 Save for Artisan Agent")
+        
+        # Check if there are any messages with refinement
+        has_refined_prompts = any(
+            msg.get("refinement_info") and msg.get("role") == "user" 
+            for msg in st.session_state.messages
+        )
+        
+        if has_refined_prompts:
+            st.info("💡 Save your refined prompts for batch execution in the Artisan Agent")
+            
+            # Select which prompt to save
+            refined_messages = [
+                (i, msg) for i, msg in enumerate(st.session_state.messages)
+                if msg.get("refinement_info") and msg.get("role") == "user"
+            ]
+            
+            if len(refined_messages) > 0:
+                # Show dropdown of available prompts
+                prompt_options = {}
+                for idx, (i, msg) in enumerate(refined_messages, 1):
+                    original = msg["content"][:50] + ("..." if len(msg["content"]) > 50 else "")
+                    prompt_options[f"Prompt {idx}: {original}"] = i
+                
+                selected_prompt_label = st.selectbox(
+                    "Select Prompt to Save",
+                    options=list(prompt_options.keys()),
+                    help="Choose which refined prompt to save for Artisan Agent"
+                )
+                
+                selected_idx = prompt_options[selected_prompt_label]
+                selected_msg = st.session_state.messages[selected_idx]
+                
+                # Show preview
+                with st.expander("Preview Selected Prompt", expanded=False):
+                    st.markdown(f"**Original:** {selected_msg['content']}")
+                    if selected_msg.get("refinement_info"):
+                        refined_text = selected_msg["refinement_info"].get("refined_prompt", "")
+                        if refined_text:
+                            preview_len = min(300, len(refined_text))
+                            st.markdown(f"**Refined:** {refined_text[:preview_len]}{'...' if len(refined_text) > preview_len else ''}")
+                        
+                        st.markdown(f"**Detail Level:** {selected_msg['refinement_info'].get('detail_level', 'N/A')}")
+                        st.markdown(f"**Was Already Detailed:** {'Yes' if selected_msg['refinement_info'].get('was_detailed') else 'No'}")
+                
+                # Save button
+                if st.button("💾 Save as JSON for Artisan", use_container_width=True):
+                    try:
+                        # Get the refinement info
+                        refinement_info = selected_msg.get("refinement_info", {})
+                        
+                        # Get the refined prompt text (stored in refinement_info)
+                        refined_prompt_text = refinement_info.get("refined_prompt", selected_msg["content"])
+                        
+                        # Create JSON structure
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        original_short = selected_msg["content"][:50].replace(" ", "_").replace("/", "_").replace("\\", "_")
+                        filename = f"{timestamp}_{original_short}.json"
+                        
+                        prompt_data = {
+                            "timestamp": datetime.now().isoformat(),
+                            "original_prompt": selected_msg["content"],
+                            "refined_prompt": refined_prompt_text,
+                            "is_detailed": refinement_info.get("was_detailed", True),
+                            "detail_level": refinement_info.get("detail_level", detail_level),
+                            "reasoning_steps": refinement_info.get("reasoning_steps", [])
+                        }
+                        
+                        # Save JSON file
+                        json_dir = Path("data/prompts/json")
+                        json_dir.mkdir(parents=True, exist_ok=True)
+                        json_path = json_dir / filename
+                        
+                        with open(json_path, 'w', encoding='utf-8') as f:
+                            json.dump(prompt_data, f, indent=2, ensure_ascii=False)
+                        
+                        # Save text file (just the refined prompt text)
+                        text_dir = Path("data/prompts/text")
+                        text_dir.mkdir(parents=True, exist_ok=True)
+                        text_filename = filename.replace('.json', '.txt')
+                        text_path = text_dir / text_filename
+                        
+                        with open(text_path, 'w', encoding='utf-8') as f:
+                            f.write(refined_prompt_text)
+                        
+                        st.success(f"✅ Saved JSON: {json_path}")
+                        st.success(f"✅ Saved Text: {text_path}")
+                        st.info("🎯 Go to **Batch Artisan Agent** page to execute this prompt!")
+                        
+                    except Exception as e:
+                        st.error(f"❌ Failed to save: {e}")
+        else:
+            st.info("💡 Chat with refinement enabled to create prompts for the Artisan Agent")
         
         st.divider()
         
@@ -285,13 +398,14 @@ def main():
         with st.chat_message("user"):
             st.markdown(prompt)
         
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        
         # Refine prompt if enabled
         refined_prompt = prompt
         refinement_info = None
         
-        if use_refinement:
+        # Check if refinement should be applied
+        should_refine = use_refinement and detail_level != "as-is"
+        
+        if should_refine:
             with st.spinner("🧠 AI is analyzing and expanding your prompt..."):
                 try:
                     # Call backend API for prompt refinement
@@ -304,8 +418,10 @@ def main():
                     refined_prompt = refinement_result["refined_prompt"]
                     refinement_info = {
                         "original": prompt,
+                        "refined_prompt": refined_prompt,  # Store the actual refined prompt
                         "was_detailed": refinement_result["is_detailed"],
-                        "reasoning_steps": refinement_result["reasoning_steps"]
+                        "reasoning_steps": refinement_result["reasoning_steps"],
+                        "detail_level": detail_level
                     }
                     
                     # Show refinement notification
@@ -315,6 +431,68 @@ def main():
                 except Exception as e:
                     st.warning(f"Prompt refinement failed, using original: {e}")
                     refined_prompt = prompt
+        
+        # Always create refinement_info (even if no refinement applied)
+        if refinement_info is None:
+            # Use prompt as-is (either "as-is" selected or refinement disabled)
+            reason = "as-is" if detail_level == "as-is" else "refinement disabled"
+            st.info(f"📝 Using your prompt as-is ({reason})")
+            refinement_info = {
+                "original": prompt,
+                "refined_prompt": prompt,
+                "was_detailed": True,
+                "reasoning_steps": [f"Used prompt as-is ({reason})"],
+                "detail_level": detail_level
+            }
+        
+        # Add user message with refinement info
+        st.session_state.messages.append({
+            "role": "user",
+            "content": prompt,
+            "refinement_info": refinement_info
+        })
+        
+        # Auto-save prompt to JSON and TXT files if refinement_info exists
+        if refinement_info:
+            try:
+                refined_prompt_text = refinement_info.get("refined_prompt", prompt)
+                
+                # Create JSON structure
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                original_short = prompt[:50].replace(" ", "_").replace("/", "_").replace("\\", "_")
+                filename = f"{timestamp}_{original_short}.json"
+                
+                prompt_data = {
+                    "timestamp": datetime.now().isoformat(),
+                    "original_prompt": prompt,
+                    "refined_prompt": refined_prompt_text,
+                    "is_detailed": refinement_info.get("was_detailed", True),
+                    "detail_level": refinement_info.get("detail_level", detail_level),
+                    "reasoning_steps": refinement_info.get("reasoning_steps", []),
+                    "enable_refinement_steps": enable_refinement_steps
+                }
+                
+                # Save JSON file
+                json_dir = Path("data/prompts/json")
+                json_dir.mkdir(parents=True, exist_ok=True)
+                json_path = json_dir / filename
+                
+                with open(json_path, 'w', encoding='utf-8') as f:
+                    json.dump(prompt_data, f, indent=2, ensure_ascii=False)
+                
+                # Save text file (just the refined prompt text)
+                text_dir = Path("data/prompts/text")
+                text_dir.mkdir(parents=True, exist_ok=True)
+                text_filename = filename.replace('.json', '.txt')
+                text_path = text_dir / text_filename
+                
+                with open(text_path, 'w', encoding='utf-8') as f:
+                    f.write(refined_prompt_text)
+                
+                st.success(f"✅ Auto-saved: {json_path.name}")
+                
+            except Exception as e:
+                st.warning(f"⚠️ Auto-save failed: {e}")
         
         # Send to Blender agent
         with st.chat_message("assistant"):

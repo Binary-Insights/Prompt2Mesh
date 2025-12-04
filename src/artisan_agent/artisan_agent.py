@@ -8,6 +8,7 @@ import base64
 import json
 import logging
 import hashlib
+import time
 from typing import TypedDict, Annotated, Sequence, List, Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
@@ -23,6 +24,7 @@ from langsmith import traceable
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import ToolNode
+from langgraph.errors import GraphRecursionError
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
@@ -33,9 +35,25 @@ load_dotenv()
 # Configure LangSmith
 os.environ["LANGCHAIN_CALLBACKS_BACKGROUND"] = "true"
 
+# Rate limit handling
+async def invoke_with_retry(model, messages, max_retries=3):
+    """Invoke LLM with exponential backoff for rate limits"""
+    for attempt in range(max_retries):
+        try:
+            return await model.ainvoke(messages)
+        except Exception as e:
+            if "rate_limit" in str(e).lower() and attempt < max_retries - 1:
+                wait_time = (2 ** attempt) * 5  # 5s, 10s, 20s
+                logging.warning(f"Rate limit hit, waiting {wait_time}s before retry {attempt + 1}/{max_retries}")
+                await asyncio.sleep(wait_time)
+            else:
+                raise
+
 # Blender Version Compatibility Helper
 BLENDER_COMPAT_CODE = '''
 # Blender 4.x/5.x compatibility helper
+import bpy
+
 def set_principled_bsdf_property(bsdf, property_name, value):
     """Set BSDF property with version compatibility"""
     # Blender 4.x renamed some properties
@@ -58,6 +76,25 @@ def set_principled_bsdf_property(bsdf, property_name, value):
             except KeyError:
                 pass
     return False
+
+def create_texture_node(node_tree, node_type, name, location):
+    """Create texture node with Blender 4.x/5.x compatibility"""
+    # Blender 4.0+ removed Musgrave, replaced with enhanced Noise Texture
+    if node_type == 'ShaderNodeTexMusgrave':
+        # Use Noise Texture instead (available in all versions)
+        node = node_tree.nodes.new(type='ShaderNodeTexNoise')
+        node.name = name
+        node.location = location
+        # Set noise type to approximate Musgrave behavior
+        if hasattr(node, 'noise_type'):
+            node.noise_type = 'FBM'  # Fractal Brownian Motion approximates Musgrave
+        return node
+    else:
+        # Standard node creation
+        node = node_tree.nodes.new(type=node_type)
+        node.name = name
+        node.location = location
+        return node
 '''
 
 
@@ -85,6 +122,7 @@ class AgentState(TypedDict):
     max_refinements_per_step: int  # Maximum refinements allowed per step
     needs_refinement: bool  # Whether current step needs refinement
     refinement_feedback: Optional[str]  # Specific feedback for refinement
+    enable_refinement: bool  # Whether refinement loop is enabled (from JSON config)
 
 
 class BlenderMCPConnection:
@@ -206,16 +244,18 @@ class ArtisanAgent:
     5. Iterates until completion
     """
     
-    def __init__(self, session_id: Optional[str] = None, display_callback: Optional[callable] = None):
+    def __init__(self, session_id: Optional[str] = None, display_callback: Optional[callable] = None, cancellation_check: Optional[callable] = None):
         """
         Initialize the Artisan Agent
         
         Args:
             session_id: Optional session ID (generated if not provided)
             display_callback: Optional callback for displaying progress (for Streamlit)
+            cancellation_check: Optional callback that returns True if task should be cancelled
         """
         self.session_id = session_id or str(uuid4())
         self.display_callback = display_callback or self._console_display
+        self.cancellation_check = cancellation_check or (lambda: False)
         
         # Initialize LLM
         self.llm = ChatAnthropic(
@@ -364,6 +404,7 @@ CURRENT SCENE STATE:
 
 IMPORTANT: The scene already contains objects. Analyze what's been done and continue building from there.
 Do NOT start from scratch - build upon existing work."""
+            
             self.display_callback("Detected existing work - planning to resume", "thinking")
             state["is_resuming"] = True
         else:
@@ -376,7 +417,7 @@ Given this modeling requirement, break it down into sequential, actionable steps
 Each step should be a specific Blender operation that can be executed.
 
 Requirement:
-{state['requirement'][:1000]}...{scene_context}
+{state['requirement']}...{scene_context}
 
 Create a detailed step-by-step plan. Each step should:
 1. Be specific and actionable
@@ -397,7 +438,12 @@ Provide at least 5-10 concrete steps to build the model."""
         messages = [HumanMessage(content=planning_prompt)]
         logger.info("Sending planning request to LLM...")
         response = self.llm.invoke(messages)
-        
+
+        print(f"📝"*60)
+        # print(f"📝 Requirement preview: {state['requirement'][:1000]}")
+        print(planning_prompt)
+        print(f"---"*60)
+
         # Parse steps from response
         steps_text = response.content
         logger.info(f"LLM response length: {len(steps_text)} characters")
@@ -562,6 +608,14 @@ If objects exist but appear to be placeholders or incomplete, respond with "none
     async def _execute_step_node(self, state: AgentState) -> AgentState:
         """Execute the current modeling step"""
         logger = logging.getLogger(__name__)
+        
+        # Check for cancellation
+        if self.cancellation_check():
+            logger.info("Task cancelled - stopping execution")
+            state["is_complete"] = True
+            state["critical_error"] = "Task cancelled by user"
+            return state
+        
         current_idx = state["current_step"]
         
         logger.info(f"Execute step node - current_step: {current_idx}, total_steps: {len(state['planning_steps'])}")
@@ -581,15 +635,21 @@ If objects exist but appear to be placeholders or incomplete, respond with "none
 {current_step}
 
 Previous context:
-{chr(10).join(state['feedback_history'][-3:]) if state['feedback_history'] else 'Starting fresh'}
+{chr(10).join(state['feedback_history'][-2:]) if state['feedback_history'] else 'Starting fresh'}
 
 IMPORTANT - Blender Version Compatibility:
-When setting Principled BSDF properties, use this compatibility pattern to handle Blender 4.x/5.x differences:
+This project must work with Blender 4.x and 5.x. Use these compatibility helpers:
 
 {BLENDER_COMPAT_CODE}
 
+**CRITICAL Node Compatibility:**
+- **Musgrave Texture (REMOVED in Blender 4.0+)**: Use `create_texture_node(nodes, 'ShaderNodeTexMusgrave', ...)` instead
+- **Noise Texture**: Use `nodes.new(type='ShaderNodeTexNoise')` directly (works in all versions)
+- The helper automatically converts Musgrave to Noise Texture with FBM type
+
 Example usage:
 ```python
+# For BSDF properties
 bsdf = mat.node_tree.nodes.get("Principled BSDF")
 if bsdf:
     bsdf.inputs['Base Color'].default_value = (1.0, 0.0, 0.0, 1.0)
@@ -597,6 +657,11 @@ if bsdf:
     # Use helper for renamed properties
     set_principled_bsdf_property(bsdf, 'Specular', 0.5)  # Handles Blender 4.x rename
     set_principled_bsdf_property(bsdf, 'Emission', (1.0, 1.0, 1.0, 1.0))  # Handles Blender 4.x rename
+
+# For texture nodes (handles Musgrave → Noise conversion)
+musgrave = create_texture_node(mat.node_tree, 'ShaderNodeTexMusgrave', 'Fine_Grain', (-1200, -200))
+musgrave.inputs['Scale'].default_value = 50.0
+# Note: In Blender 4.x, this becomes a Noise Texture with FBM type automatically
 ```
 
 Use the appropriate Blender MCP tools to accomplish this step.
@@ -687,6 +752,32 @@ After significant changes, get a viewport screenshot for verification."""
         logger = logging.getLogger(__name__)
         self.display_callback("📸 Capturing viewport screenshot...", "screenshot")
         
+        # Adjust camera to see all objects (prevent occlusion)
+        camera_code = '''
+import bpy
+
+# Frame all objects in viewport to prevent occlusion
+try:
+    # Switch to a better view angle (3D view with good perspective)
+    for area in bpy.context.screen.areas:
+        if area.type == 'VIEW_3D':
+            for space in area.spaces:
+                if space.type == 'VIEW_3D':
+                    # Set to front-right-top perspective for better visibility
+                    space.region_3d.view_rotation = (0.8205, 0.4247, 0.1920, 0.3272)
+                    # Frame all visible objects
+                    override = bpy.context.copy()
+                    override['area'] = area
+                    override['region'] = area.regions[-1]
+                    with bpy.context.temp_override(**override):
+                        bpy.ops.view3d.view_all(center=False)
+                    break
+            break
+except Exception as e:
+    print(f"Camera adjustment failed: {e}")
+'''
+        await self.mcp.call_tool("execute_blender_code", {"code": camera_code})
+        
         # Call screenshot tool
         screenshot_result = await self.mcp.call_tool("get_viewport_screenshot", {"max_size": 800})
         
@@ -705,7 +796,7 @@ After significant changes, get a viewport screenshot for verification."""
             
             # NEW: Vision-based analysis
             try:
-                vision_model = ChatAnthropic(model="claude-sonnet-4-20250514", max_tokens=1024)
+                vision_model = ChatAnthropic(model="claude-sonnet-4-20250514", max_tokens=512)
                 
                 current_step_desc = state["planning_steps"][state["current_step"]] if state["current_step"] < len(state["planning_steps"]) else "Final step"
                 
@@ -713,13 +804,21 @@ After significant changes, get a viewport screenshot for verification."""
 
 Current Step ({state['current_step'] + 1}): {current_step_desc}
 
-Evaluate:
-1. Does the geometry match the step description?
-2. Is there sufficient detail and complexity?
-3. Are there any visual errors or missing elements?
-4. Overall quality rating (1-10)?
+CRITICAL VISUAL ANALYSIS - Evaluate:
 
-Provide a brief analysis focusing on quality issues that need refinement."""
+1. **Geometry Quality**: Does the geometry match the step description?
+2. **Detail & Complexity**: Is there sufficient detail and complexity?
+3. **Visibility & Occlusion**: Are any objects hidden, overshadowed, or blocked by other objects?
+   - Check if newly created objects are visible or hidden behind existing geometry
+   - Identify if objects are too close together causing visual clutter
+   - Note if important features are obscured from view
+4. **Spatial Layout**: Are objects properly spaced and positioned?
+5. **Visual Errors**: Any missing elements, malformed geometry, or rendering artifacts?
+6. **Overall Quality**: Rate 1-10 with detailed reasoning
+
+**IMPORTANT**: If objects are occluding each other or new geometry is hidden, this is a CRITICAL issue that requires refinement.
+
+Provide analysis with specific focus on visibility and occlusion problems."""
                 
                 # Create vision message with image
                 vision_message = HumanMessage(
@@ -732,7 +831,7 @@ Provide a brief analysis focusing on quality issues that need refinement."""
                     ]
                 )
                 
-                vision_response = await vision_model.ainvoke([vision_message])
+                vision_response = await invoke_with_retry(vision_model, [vision_message])
                 vision_feedback = vision_response.content
                 
                 # Store vision feedback
@@ -769,7 +868,7 @@ Provide a brief analysis focusing on quality issues that need refinement."""
             # ENHANCED: Check quality before marking complete
             if state.get("vision_feedback"):
                 # Analyze recent vision feedback for quality issues
-                recent_feedback = state["vision_feedback"][-3:] if len(state["vision_feedback"]) >= 3 else state["vision_feedback"]
+                recent_feedback = state["vision_feedback"][-2:] if len(state["vision_feedback"]) >= 2 else state["vision_feedback"]
                 combined_feedback = "\n\n".join(recent_feedback)
                 
                 # Check for common quality issues
@@ -807,7 +906,14 @@ Provide a brief analysis focusing on quality issues that need refinement."""
         if "refinement_attempts" not in state:
             state["refinement_attempts"] = 0
         if "max_refinements_per_step" not in state:
-            state["max_refinements_per_step"] = 2  # Max 2 refinements per step
+            # Load from environment (.env already processed by load_dotenv)
+            raw_refinements = os.getenv("REFINEMENT_STEPS", "2")
+            try:
+                max_refinements = int(raw_refinements)
+            except ValueError:
+                max_refinements = 2  # fallback
+            # Ensure non-negative
+            state["max_refinements_per_step"] = max(0, max_refinements)
         
         # Get most recent vision feedback
         vision_feedback = state.get("vision_feedback", [])[-1] if state.get("vision_feedback") else ""
@@ -828,20 +934,38 @@ Provide a brief analysis focusing on quality issues that need refinement."""
         except Exception as e:
             logger.warning(f"Could not parse quality score: {e}")
         
-        # Determine if refinement is needed
-        refinement_threshold = 6  # Require score >= 6 to pass
-        needs_refinement = quality_score < refinement_threshold
+        # Check for occlusion/visibility issues in feedback (critical problem)
+        occlusion_detected = any([
+            "hidden" in vision_feedback.lower(),
+            "occluded" in vision_feedback.lower(),
+            "obscured" in vision_feedback.lower(),
+            "blocked" in vision_feedback.lower(),
+            "overshadow" in vision_feedback.lower(),
+            "behind" in vision_feedback.lower() and "object" in vision_feedback.lower(),
+            "not visible" in vision_feedback.lower(),
+            "can't see" in vision_feedback.lower() or "cannot see" in vision_feedback.lower()
+        ])
         
-        # Don't refine if we've hit max attempts
-        if needs_refinement and state["refinement_attempts"] >= state["max_refinements_per_step"]:
-            logger.warning(f"Max refinement attempts ({state['max_refinements_per_step']}) reached for step {state['current_step']}")
-            needs_refinement = False
-            self.display_callback(f"⚠️ Max refinements reached, accepting current result", "info")
+        # Determine if refinement is needed based on step type
+        # Critical steps (1-5) have higher threshold
+        if state["current_step"] < 5:
+            refinement_threshold = 7  # Critical steps need 7+
+            needs_refinement = quality_score < refinement_threshold or occlusion_detected
+        else:
+            refinement_threshold = 6  # Normal steps need 6+
+            needs_refinement = quality_score < refinement_threshold or occlusion_detected
         
-        # Critical steps (1-5) should have higher standards
-        if state["current_step"] < 5 and quality_score < 7:
-            needs_refinement = True
-            logger.info(f"Critical step {state['current_step']} requires higher quality (score: {quality_score})")
+        # Log occlusion detection
+        if occlusion_detected:
+            logger.warning(f"⚠️ Occlusion detected in step {state['current_step']}: Objects may be hidden or overshadowing each other")
+            self.display_callback(f"⚠️ Occlusion detected - objects may be hidden", "warning")
+        
+        # IMPORTANT: Don't refine if we've hit max attempts (this overrides everything)
+        if state["refinement_attempts"] >= state["max_refinements_per_step"]:
+            if needs_refinement:
+                logger.warning(f"⚠️ Max refinement attempts ({state['max_refinements_per_step']}) reached for step {state['current_step']}")
+                self.display_callback(f"⚠️ Max refinements reached (score: {quality_score}/10), accepting current result", "warning")
+            needs_refinement = False  # Force accept even if score is low
         
         # Store quality assessment
         quality_data = {
@@ -849,20 +973,20 @@ Provide a brief analysis focusing on quality issues that need refinement."""
             "score": quality_score,
             "needs_refinement": needs_refinement,
             "attempt": state["refinement_attempts"],
-            "feedback": vision_feedback[:200]
+            "feedback": vision_feedback[:150]
         }
         state["quality_scores"].append(quality_data)
         state["needs_refinement"] = needs_refinement
         
         if needs_refinement:
             state["refinement_feedback"] = vision_feedback
-            self.display_callback(f"🔄 Quality score: {quality_score}/10 - Refinement needed", "info")
-            logger.info(f"Step {state['current_step']} needs refinement (score: {quality_score})")
+            self.display_callback(f"🔄 Quality score: {quality_score}/10 (threshold: {refinement_threshold}) - Refinement needed", "info")
+            logger.info(f"Step {state['current_step']} needs refinement (score: {quality_score}/{refinement_threshold}, attempt: {state['refinement_attempts']})")
         else:
             state["refinement_feedback"] = None
             state["refinement_attempts"] = 0  # Reset for next step
-            self.display_callback(f"✅ Quality score: {quality_score}/10 - Acceptable", "success")
-            logger.info(f"Step {state['current_step']} quality acceptable (score: {quality_score})")
+            self.display_callback(f"✅ Quality score: {quality_score}/10 (threshold: {refinement_threshold}) - Acceptable", "success")
+            logger.info(f"Step {state['current_step']} quality acceptable (score: {quality_score}/{refinement_threshold})")
         
         return state
     
@@ -885,10 +1009,18 @@ Vision analysis identified these quality issues:
 {state.get('refinement_feedback', 'Quality issues detected')}
 
 Generate improved Blender Python code to address these issues. Focus on:
-1. Adding more detail and complexity
-2. Fixing any geometry errors
-3. Improving visual realism
-4. Maintaining compatibility with existing scene objects
+1. **Occlusion & Visibility**: If objects are hidden/overshadowed, reposition or scale them for better visibility
+2. **Spatial Layout**: Ensure proper spacing between objects to prevent visual clutter
+3. **Detail & Complexity**: Add more detail and complexity to geometry
+4. **Geometry Errors**: Fix any malformed or missing geometry
+5. **Visual Realism**: Improve overall visual quality
+6. **Scene Compatibility**: Maintain compatibility with existing scene objects
+
+**CRITICAL**: If vision feedback mentions occlusion, hidden objects, or visibility issues:
+- Move occluded objects to visible positions
+- Adjust object scales to prevent overshadowing
+- Reposition camera-facing geometry for better view
+- Ensure new objects don't block existing important elements
 
 Use the execute_blender_code tool to apply improvements.
 
@@ -902,11 +1034,11 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
             HumanMessage(content=refinement_prompt)
         ]
         
-        # Bind tools to LLM
-        llm_with_tools = self.llm.bind_tools([tool.to_langchain_tool() for tool in self.mcp.tools.values()])
+        # Get tool schemas for Claude (same as execute_step_node)
+        tools = self.mcp.get_tools_schema()
         
         try:
-            response = await llm_with_tools.ainvoke(messages)
+            response = await invoke_with_retry(self.llm.bind_tools(tools), messages)
             
             # Execute tool calls
             if hasattr(response, 'tool_calls') and response.tool_calls:
@@ -937,6 +1069,10 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
     
     def _should_refine(self, state: AgentState) -> str:
         """Decide whether to refine current step or continue"""
+        # Check if refinement is enabled at all
+        if not state.get("enable_refinement", True):
+            return "continue"  # Skip refinement entirely if disabled
+        
         if state.get("needs_refinement", False):
             return "refine"
         return "continue"
@@ -989,7 +1125,11 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
         if not refined_prompt:
             raise ValueError("No 'refined_prompt' found in JSON file")
         
+        # Load refinement setting (default to True for backward compatibility)
+        enable_refinement = requirement_data.get("enable_refinement_steps", True)
+        
         self.display_callback(f"Requirement loaded: {len(refined_prompt)} characters", "success")
+        self.display_callback(f"Refinement steps: {'Enabled ✅' if enable_refinement else 'Disabled ⚠️'}", "info")
         
         # Override session ID with deterministic one if requested
         if use_deterministic_session:
@@ -1017,34 +1157,104 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
             "feedback_history": [],
             "initial_scene_state": {},
             "completed_steps": [],
-            "is_resuming": False
+            "is_resuming": False,
+            "enable_refinement": enable_refinement
         }
         
         # Run the graph
         # Set high recursion limit for multi-step workflows
-        # Each step goes through: plan → execute → capture → evaluate → (loop)
-        # For 12 steps, we need ~50+ iterations, so set to 100 to be safe
+        # Each step goes through: plan → execute → capture → assess → evaluate → (loop)
+        # For complex models with refinement loops, we need higher limits
+        recursion_limit = int(os.getenv("LANGGRAPH_RECURSION_LIMIT", "100"))
+        
         config = {
             "configurable": {"thread_id": self.session_id},
-            "recursion_limit": int(os.getenv("LANGGRAPH_RECURSION_LIMIT", "100"))
+            "recursion_limit": recursion_limit
         }
         
-        self.display_callback("Starting modeling workflow...", "info")
+        self.display_callback(f"Starting modeling workflow with recursion limit: {recursion_limit}...", "info")
+        logger = logging.getLogger(__name__)
+        logger.info(f"LangGraph recursion limit set to: {recursion_limit}")
         
-        final_state = await self.graph.ainvoke(initial_state, config)
+        final_state = None
+        recursion_limit_reached = False
+        
+        try:
+            final_state = await self.graph.ainvoke(initial_state, config)
+        except GraphRecursionError as e:
+            # Gracefully handle recursion limit
+            recursion_limit_reached = True
+            logger.warning(f"Recursion limit of {recursion_limit} reached. Saving partial progress...")
+            self.display_callback(f"⚠️ Recursion limit reached ({recursion_limit} iterations). Partial progress saved.", "info")
+            
+            # Get the last available state from the graph's checkpointer
+            # The state is automatically saved by LangGraph's checkpointer
+            try:
+                # Try to get the last checkpoint state
+                from langgraph.checkpoint.base import CheckpointTuple
+                checkpoints = list(self.memory.list(config))
+                if checkpoints:
+                    # Get the most recent checkpoint
+                    latest_checkpoint = checkpoints[0]
+                    final_state = latest_checkpoint.checkpoint.get("channel_values", {})
+                    logger.info(f"Retrieved checkpoint state with {final_state.get('current_step', 0)} steps completed")
+                else:
+                    # Fallback to initial state if no checkpoints
+                    logger.warning("No checkpoints found, using initial state")
+                    final_state = initial_state
+            except Exception as checkpoint_error:
+                logger.error(f"Error retrieving checkpoint: {checkpoint_error}")
+                # Use initial state as fallback
+                final_state = initial_state
         
         # Prepare results
-        results = {
-            "session_id": self.session_id,
-            "requirement": refined_prompt,
-            "steps_executed": final_state["current_step"],
-            "screenshots_captured": final_state["screenshot_count"],
-            "screenshot_directory": str(screenshot_dir),
-            "success": final_state["is_complete"],
-            "tool_results": final_state["tool_results"]
-        }
-        
-        self.display_callback("Workflow complete!", "success")
+        if final_state:
+            is_complete = final_state.get("is_complete", False) and not recursion_limit_reached
+            
+            results = {
+                "session_id": self.session_id,
+                "requirement": refined_prompt,
+                "steps_executed": final_state.get("current_step", 0),
+                "total_steps": len(final_state.get("planning_steps", [])),
+                "screenshots_captured": final_state.get("screenshot_count", 0),
+                "screenshot_directory": str(screenshot_dir),
+                "success": is_complete,
+                "partial_completion": recursion_limit_reached,
+                "can_resume": recursion_limit_reached or not is_complete,
+                "tool_results": final_state.get("tool_results", []),
+                "recursion_limit_reached": recursion_limit_reached
+            }
+            
+            if recursion_limit_reached:
+                steps_completed = final_state.get("current_step", 0)
+                total_steps = len(final_state.get("planning_steps", []))
+                remaining = total_steps - steps_completed
+                
+                self.display_callback(
+                    f"⚠️ Workflow paused at step {steps_completed}/{total_steps}. "
+                    f"{remaining} steps remaining. Use resume mode to continue.",
+                    "info"
+                )
+                logger.info(f"Partial results: {steps_completed}/{total_steps} steps completed")
+            else:
+                self.display_callback("✅ Workflow complete!", "success")
+        else:
+            # Fallback if state retrieval completely failed
+            results = {
+                "session_id": self.session_id,
+                "requirement": refined_prompt,
+                "steps_executed": 0,
+                "total_steps": 0,
+                "screenshots_captured": 0,
+                "screenshot_directory": str(screenshot_dir),
+                "success": False,
+                "partial_completion": True,
+                "can_resume": True,
+                "tool_results": [],
+                "recursion_limit_reached": recursion_limit_reached,
+                "error": "Failed to retrieve workflow state after recursion limit"
+            }
+            self.display_callback("⚠️ Workflow interrupted. State could not be recovered.", "error")
         
         return results
     

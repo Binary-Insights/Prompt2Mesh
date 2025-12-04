@@ -1,0 +1,1283 @@
+# Comprehensive 3D Modeling Description: Modern Dining Table
+
+## 1. Overall Structure and Shape
+
+**Primary Dimensions:**
+- Total Length: 72 inches (1,829 mm)
+- Total Width: 36 inches (914 mm)
+- Total Height: 30 inches (762 mm) from floor to tabletop surface
+- Tabletop Thickness: 1.5 inches (38 mm)
+- Seating Capacity: 6-8 people comfortably
+
+**Basic Geometric Form:**
+- Rectangular tabletop with clean, straight edges and minimalist profile
+- Four cylindrical legs positioned at corners for optimal stability
+- Simple, modern silhouette emphasizing horizontal lines and open space
+- Minimalist design with no apron or skirt, maximizing legroom
+- Contemporary aesthetic balancing form and function
+
+**Proportions:**
+- Leg diameter: 3 inches (76 mm)
+- Leg height: 28.5 inches (724 mm) - accounting for tabletop thickness
+- Legs inset 2 inches (51 mm) from each corner edge for visual balance
+- Tabletop overhangs legs by 2 inches (51 mm) on all sides
+- Length-to-width ratio: 2:1 (classic dining table proportion)
+- Leg-to-top proportion: Approximately 1:10 diameter ratio for elegant appearance
+
+**Base/Foundation:**
+- Each leg features a circular foot pad for enhanced stability
+- Foot pad diameter: 4 inches (102 mm)
+- Foot pad thickness: 0.25 inches (6 mm)
+- Rubber bumpers on bottom: 0.125 inch (3 mm) thick, 2.5 inch (64 mm) diameter
+- Total footprint: 68 inches × 32 inches (1,727 mm × 813 mm) at floor level
+- Weight distribution: Evenly balanced across four contact points
+
+## 2. Components and Parts
+
+### **Major Component A: Tabletop**
+- Single solid rectangular surface construction
+- Slightly rounded corners with radius: 0.5 inches (13 mm) for safety and aesthetics
+- Chamfered edge treatment on top perimeter: 45-degree angle, 0.125 inch (3 mm) chamfer
+- Underside features four shallow recessed mounting plates for leg attachment
+- Estimated weight: 85-95 lbs (39-43 kg) depending on wood density
+
+**Sub-components:**
+- **Four Circular Metal Mounting Plates** (one per leg):
+  - Diameter: 5 inches (127 mm)
+  - Thickness: 0.25 inches (6 mm)
+  - Recessed 0.125 inches (3 mm) into underside
+  - Four screw holes per plate: 8mm (0.315 inch) diameter
+  - Hole circle diameter: 3.5 inches (89 mm)
+  - Positioned to align precisely with leg centers
+  - Material: Brushed stainless steel for durability
+  - Countersunk screw holes for flush mounting
+
+### **Major Component B: Legs (Set of 4)**
+- Perfect cylinders with consistent 3-inch (76 mm) diameter
+- Each leg identical in dimensions for uniformity
+- Vertical orientation with no taper in main shaft
+- Estimated weight per leg: 8-10 lbs (3.6-4.5 kg)
+
+**Sub-components per leg:**
+
+- **Upper Mounting Section:**
+  - Top 2 inches (51 mm) feature threaded insert hole
+  - Center bore: 0.75 inches (19 mm) diameter, 1.5 inches (38 mm) deep
+  - Four side-drilled pilot holes for mounting screws at 90-degree intervals
+  - Positioned 0.25 inches (6 mm) from top edge
+  
+- **Main Shaft:**
+  - Smooth cylindrical surface with uniform diameter
+  - Length: 24.5 inches (622 mm)
+  - Decorative groove detail at exact midpoint (14.25 inches/362 mm from top)
+  - Groove dimensions: 0.25 inch (6 mm) wide, 0.0625 inch (1.6 mm) deep
+  - Creates visual interest and subtle shadow line
+  
+- **Lower Foot Section:**
+  - Bottom 2 inches (51 mm) transition to foot pad
+  - Gradual taper from 3 inches (76 mm) to 4 inches (102 mm) diameter
+  - Smooth curved transition with fillet radius: 0.5 inches (13 mm)
+  - Taper angle: Approximately 2 degrees
+  - Provides stable base and elegant visual termination
+
+### **Major Component C: Foot Pads (Set of 4)**
+- Circular discs attached to leg bottoms for floor protection
+- Material: Brushed stainless steel matching mounting plates
+- Outer diameter: 4 inches (102 mm)
+- Thickness: 0.25 inches (6 mm)
+- Recessed center to accept leg bottom:
+  - Recess diameter: 3.1 inches (79 mm) - slight clearance fit
+  - Recess depth: 0.125 inches (3 mm)
+- Outer edge chamfer: 0.03125 inches (0.8 mm) at 45 degrees
+- Four countersunk mounting holes on underside (hidden when assembled)
+
+### **Major Component D: Hardware Components**
+
+**Mounting Bolts:** 16 total (4 per leg)
+- Specification: M6 × 20mm flat head machine screws
+- Head diameter: 10mm with 82-degree countersink
+- Drive type: Phillips #2
+- Material: Brushed steel finish matching mounting plates
+- Countersunk flush into mounting plates
+- Torque specification: 8-10 Nm for proper assembly
+  
+**Rubber Bumpers:** 4 total (1 per foot pad)
+- Type: Self-adhesive circular floor protectors
+- Material: Black EPDM rubber
+- Diameter: 2.5 inches (64 mm)
+- Thickness: 0.125 inches (3 mm) compressed
+- Function: Prevents floor scratching and provides grip
+- Properties: Non-slip, non-marking, sound dampening
+
+## 3. Materials and Textures
+
+### **Tabletop Material:**
+
+**Primary Material:** Solid white oak wood (Quercus alba)
+- **Grain Pattern:** Cathedral grain running lengthwise for visual continuity
+- **Texture:** Smooth satin finish with visible, tactile wood grain
+- **Treatment:** Clear matte polyurethane coating (3 coats, sanded between coats)
+- **Surface Feel:** Slightly tactile wood texture with natural warmth, not glass-smooth
+- **Finish Sheen:** Satin (20-30% gloss level)
+
+**Color Profile:**
+- **Base Color:** Natural light honey oak tone
+  - RGB values: R: 210, G: 180, B: 140
+  - Hex: #D2B48C
+  - Slight variation in tone across surface (+/- 10 RGB points)
+- **Heartwood areas:** Slightly darker (RGB: R: 190, G: 160, B: 120)
+- **Sapwood areas:** Slightly lighter (RGB: R: 220, G: 195, B: 155)
+
+**Physical Properties:**
+- **Reflectivity:** Low sheen, approximately 20-25% specular reflection
+- **Grain Depth:** Visible pore structure with 0.5-1mm depth variation
+- **Hardness:** Janka hardness rating: 1,360 lbf (6,000 N)
+- **Density:** Approximately 0.75 g/cm³
+- **Subsurface Scattering:** Moderate translucency in thin areas (1-2mm penetration)
+
+### **Leg Material:**
+
+**Primary Material:** Powder-coated steel tubing or solid steel rod
+- **Surface Texture:** Uniform matte finish with slight orange-peel texture
+- **Color:** Charcoal black with warm undertone
+  - RGB values: R: 45, G: 45, B: 48
+  - Hex: #2D2D30
+- **Finish Type:** Textured powder coat (polyester-based)
+- **Texture Scale:** Fine orange-peel pattern (60-80 micron profile)
+- **Coating Thickness:** 2-3 mil (50-75 microns) uniform coverage
+- **Reflectivity:** Very low, approximately 5-8% specular reflection
+- **Durability:** Scratch-resistant, corrosion-resistant, UV-stable
+
+**Physical Properties:**
+- **Hardness:** Shore D hardness: 60-70
+- **Flexibility:** Rigid, no flex under normal use
+- **Temperature resistance:** -40°F to 200°F (-40°C to 93°C)
+
+### **Mounting Plate Material:**
+
+**Material:** Brushed stainless steel (304 grade)
+- **Texture:** Linear brushed pattern with consistent directionality
+- **Brush Direction:** Radial from center outward in circular pattern
+- **Brush Line Density:** 120-150 lines per inch
+- **Color:** Metallic silver-grey with cool tone
+  - RGB values: R: 192, G: 192, B: 192
+  - Hex: #C0C0C0
+- **Reflectivity:** Medium, approximately 40-50% specular reflection
+- **Surface Roughness:** Ra 0.4-0.8 microns (fine linear scratches from brushing)
+- **Anisotropy:** Strong directional reflection following brush lines
+
+**Physical Properties:**
+- **Corrosion Resistance:** Excellent (stainless steel)
+- **Hardness:** Rockwell B 70-90
+- **Finish Durability:** Scratch-resistant, maintains appearance over time
+
+### **Foot Pad Material:**
+
+**Material:** Brushed stainless steel (304 grade, matching mounting plates)
+- **Texture:** Circular brushed pattern emanating from center
+- **Color:** Metallic silver-grey (identical to mounting plates)
+- **Reflectivity:** Medium, approximately 40-50% specular reflection
+- **Finish:** Consistent with mounting plates for visual cohesion
+
+### **Rubber Bumper Material:**
+
+**Material:** Synthetic EPDM rubber (ethylene propylene diene monomer)
+- **Texture:** Slightly textured matte surface with fine grain
+- **Color:** Pure black
+  - RGB values: R: 20, G: 20, B: 20
+  - Hex: #141414
+- **Reflectivity:** None, completely matte (0% specular)
+- **Durometer:** Shore A 60-70 (medium-firm)
+- **Properties:** 
+  - Soft and compressible under weight
+  - Non-marking on all floor types
+  - Excellent grip coefficient (0.7-0.9)
+  - Weather-resistant and long-lasting
+
+## 4. Fine Details
+
+### **Tabletop Details:**
+
+**Edge Treatment:**
+- **Top Edge:** 0.125-inch (3 mm) chamfer at precise 45-degree angle
+- **Visual Effect:** Chamfer creates subtle shadow line around entire perimeter
+- **Bottom Edge:** Remains sharp with slight easing (0.03125 inch/0.8 mm radius) for safety
+- **Corner Treatment:** Chamfers meet at precise mitered angles (45-degree miter joints)
+- **Consistency:** Uniform chamfer width maintained around entire perimeter
+
+**Surface Features:**
+- **Natural Wood Knots:** 2-3 small tight knots distributed naturally
+  - Size range: 0.5-1 inch (13-25 mm) diameter
+  - Color: Darker brown (RGB: R: 120, G: 90, B: 60)
+  - Depth: Slightly recessed (0.03125 inch/0.8 mm)
+  - Appearance: Tight, sound knots with darker ring around perimeter
+  
+- **Grain Figure Variations:** 
+  - Cathedral patterns creating natural visual interest
+  - Occasional flame or quilted figure in 10-15% of surface area
+  - Grain direction shifts subtly (5-10 degrees) across boards
+  
+- **Mineral Streaks:** 
+  - 1-3 thin dark lines per table
+  - Width: 0.5mm, length: 2-6 inches (51-152 mm)
+  - Color: Dark brown to black
+  - Natural mineral deposits in wood structure
+
+**Underside Details:**
+- **Finish:** Smooth sanded finish (220-grit), less refined than top surface
+- **Mounting Plate Recesses:** Clean, sharp-edged circular recesses
+  - Machined with precision router or CNC
+  - Flat bottom surface for secure plate seating
+  
+- **Marking Details:**
+  - Small pencil marks indicating grain direction (optional realistic detail)
+  - Manufacturer stamp or brand marking: 0.5 × 2 inches (13 × 51 mm)
+  - Possible QC inspection mark or date code
+  
+- **Surface Character:** 
+  - Slight tool marks from manufacturing (very subtle)
+  - No finish applied to underside (raw wood appearance)
+
+### **Leg Details:**
+
+**Decorative Groove:**
+- **Location:** Exact midpoint of each leg (14.25 inches/362 mm from top)
+- **Width:** 0.25 inches (6 mm)
+- **Depth:** 0.0625 inches (1.6 mm)
+- **Profile:** Clean, machined V-groove or rectangular profile
+- **Visual Effect:** Creates subtle shadow line around leg circumference
+- **Purpose:** Breaks up visual height and adds design interest
+- **Edges:** Sharp and precise (machined before powder coating)
+
+**Surface Features:**
+- **Powder Coat Uniformity:** Extremely consistent finish overall
+- **Micro-imperfections:** 1-2 tiny surface defects per leg (realistic)
+  - Dust nibs: 0.5mm diameter raised bumps
+  - Micro-bubbles: 0.25mm diameter surface bubbles
+  - Frequency: Rare, adding realism without detracting from quality
+  
+- **Edge Treatment:**
+  - Top edge: Slightly rounded (0.0625 inch/1.6 mm radius)
+  - Bottom edge: Slightly rounded (0.0625 inch/1.6 mm radius)
+  - Prevents sharp edges and coating chipping
+
+**Mounting Section Details:**
+- **Screw Holes:** Four countersunk holes visible on leg sides
+  - Positioned 90 degrees apart around circumference
+  - Distance from top: 0.25 inches (6 mm)
+  - Diameter: 0.25 inches (6 mm)
+  - Clean, deburred edges around each hole
+  
+- **Top Surface:** 
+  - Flat with central threaded insert hole
+  - Surface slightly recessed to accept mounting plate
+  - Clean powder coat coverage including internal surfaces
+
+### **Hardware Details:**
+
+**Mounting Screws:**
+- **Head Profile:** Flat head sitting perfectly flush with mounting plates
+- **Drive Type:** Phillips #2 recess
+- **Wear Marks:** Slight realistic wear in drive recess from installation
+- **Alignment:** Perfect alignment with mounting plate holes
+- **Finish:** Brushed steel matching mounting plates
+- **Installation:** Countersunk precisely to avoid protruding above plate surface
+
+**Foot Pad Details:**
+- **Brush Pattern:** Concentric circular brushing emanating from center
+- **Center Point:** Visible center point from rotary brushing process
+- **Outer Edge:** Sharp perimeter with 0.03125 inch (0.8 mm) chamfer
+- **Mounting Holes:** Four tiny countersunk holes on underside (hidden when assembled)
+  - Diameter: 3mm
+  - Positioned 90 degrees apart on 3-inch circle
+  
+- **Surface Quality:** 
+  - Consistent brush line depth and spacing
+  - No scratches or damage (new condition)
+  - Slight variation in brush pattern adds realism
+
+**Rubber Bumper Details:**
+- **Adhesive Backing:** Strong permanent adhesive pre-applied
+- **Surface Texture:** Fine matte grain for grip
+- **Edge Profile:** Slight bevel around perimeter
+- **Compression:** Will compress 1-2mm under table weight
+- **Appearance:** Uniform black color, no discoloration
+
+## 5. Measurements and Specifications
+
+### **Critical Dimensions:**
+
+**Tabletop:**
+- Length: 72.000 inches (1,828.8 mm) ±0.0625 inch (±1.6 mm) tolerance
+- Width: 36.000 inches (914.4 mm) ±0.0625 inch (±1.6 mm) tolerance
+- Thickness: 1.500 inches (38.1 mm) ±0.03125 inch (±0.8 mm) tolerance
+- Corner radius: 0.500 inches (12.7 mm) ±0.03125 inch (±0.8 mm)
+- Edge chamfer: 0.125 inches (3.2 mm) at 45.000 degrees ±1 degree
+- Mounting plate recess depth: 0.125 inches (3.2 mm) ±0.015 inch (±0.4 mm)
+- Mounting plate recess diameter: 5.000 inches (127.0 mm) ±0.03125 inch (±0.8 mm)
+- Flatness tolerance: ±0.0625 inch (±1.6 mm) over entire surface
+
+**Legs:**
+- Overall height: 28.500 inches (723.9 mm) ±0.03125 inch (±0.8 mm)
+- Shaft diameter: 3.000 inches (76.2 mm) ±0.015 inch (±0.4 mm) tolerance
+- Groove width: 0.250 inches (6.4 mm) ±0.015 inch (±0.4 mm)
+- Groove depth: 0.0625 inches (1.6 mm) ±0.015 inch (±0.4 mm)
+- Groove position from top: 14.250 inches (362.0 mm) ±0.0625 inch (±1.6 mm)
+- Top mounting bore diameter: 0.750 inches (19.1 mm) ±0.015 inch (±0.4 mm)
+- Top mounting bore depth: 1.500 inches (38.1 mm) ±0.03125 inch (±0.8 mm)
+- Taper start point: 26.500 inches (673.1 mm) from top
+- Bottom diameter at taper end: 4.000 inches (101.6 mm)
+- Taper angle: Approximately 2.0 degrees ±0.5 degree
+- Straightness tolerance: ±0.03125 inch (±0.8 mm) over length
+
+**Leg Positioning (Critical for Stability):**
+- Distance from leg center to table edge (length): 4.000 inches (101.6 mm) ±0.03125 inch (±0.8 mm)
+- Distance from leg center to table edge (width): 4.000 inches (101.6 mm) ±0.03125 inch (±0.8 mm)
+- Leg spacing (length direction, center-to-center): 64.000 inches (1,625.6 mm) ±0.0625 inch (±1.6 mm)
+- Leg spacing (width direction, center-to-center): 28.000 inches (711.2 mm) ±0.0625 inch (±1.6 mm)
+- Diagonal measurement (opposite leg centers): 69.877 inches (1,774.9 mm) for verification
+- Perpendicularity to tabletop: 90.000 degrees ±0.5 degree
+
+**Foot Pads:**
+- Diameter: 4.000 inches (101.6 mm) ±0.03125 inch (±0.8 mm)
+- Thickness: 0.250 inches (6.4 mm) ±0.015 inch (±0.4 mm)
+- Center recess diameter: 3.100 inches (78.7 mm) ±0.015 inch (±0.4 mm)
+- Center recess depth: 0.125 inches (3.2 mm) ±0.015 inch (±0.4 mm)
+- Outer edge chamfer: 0.03125 inches (0.8 mm) at 45 degrees
+- Mounting hole diameter: 3.0mm (0.118 inch)
+- Mounting hole circle diameter: 3.000 inches (76.2 mm)
+
+**Mounting Plates:**
+- Diameter: 5.000 inches (127.0 mm) ±0.03125 inch (±0.8 mm)
+- Thickness: 0.250 inches (6.4 mm) ±0.015 inch (±0.4 mm)
+- Screw hole diameter: 0.315 inches (8.0 mm) ±0.015 inch (±0.4 mm)
+- Screw hole spacing: 90.000 degrees ±0.5 degree
+- Screw hole circle diameter: 3.500 inches (88.9 mm) ±0.03125 inch (±0.8 mm)
+- Countersink angle: 82 degrees (standard flat head)
+- Countersink depth: 0.125 inches (3.2 mm)
+
+**Hardware:**
+- Mounting screw length: 20mm (0.787 inch) ±0.5mm
+- Mounting screw diameter: 6mm (M6 thread) ±0.1mm
+- Screw head diameter: 10mm (0.394 inch) ±0.2mm
+- Screw head countersink angle: 82.000 degrees ±1 degree
+- Thread pitch: 1.0mm (standard M6)
+- Rubber bumper diameter: 2.500 inches (63.5 mm) ±0.0625 inch (±1.6 mm)
+- Rubber bumper thickness: 0.125 inches (3.2 mm) uncompressed ±0.015 inch (±0.4 mm)
+
+**Spacing and Clearances:**
+- Clearance between leg and mounting plate edge: 0.500 inches (12.7 mm) minimum
+- Clearance between tabletop edge and leg outer surface: 2.000 inches (50.8 mm)
+- Ground clearance (with rubber bumpers): 0.125 inches (3.2 mm) uncompressed
+- Ground clearance (under load): Approximately 0.0625 inches (1.6 mm)
+- Legroom clearance (floor to underside of top): 28.500 inches (723.9 mm)
+- Knee clearance (between legs, width): 28.000 inches (711.2 mm)
+
+### **Angular Specifications:**
+- All table corners: 90.000 degrees ±0.1 degree
+- Edge chamfer angle: 45.000 degrees ±1 degree
+- Screw countersink angle: 82.000 degrees ±1 degree (ISO standard)
+- Leg taper angle: Approximately 2.0 degrees ±0.5 degree
+- All legs vertical alignment: 90.000 degrees to floor ±0.5 degree
+- Mounting plate screw hole spacing: 90.000 degrees ±0.5 degree
+
+### **Weight Specifications:**
+- Tabletop weight: 85-95 lbs (39-43 kg) depending on wood density
+- Per leg weight: 8-10 lbs (3.6-4.5 kg)
+- Total hardware weight: 0.5-1 lb (0.2-0.5 kg)
+- Total table weight: 120-135 lbs (54-61 kg)
+- Weight capacity: 300-400 lbs (136-181 kg) distributed load
+- Point load capacity: 150 lbs (68 kg) at center
+
+### **Material Thickness:**
+- Tabletop: 1.500 inches (38.1 mm) solid wood
+- Leg wall (if hollow construction): 0.125 inches (3.2 mm) minimum
+  - *Note: Solid construction recommended for superior strength and realism*
+- Mounting plate: 0.250 inches (6.4 mm)
+- Foot pad: 0.250 inches (6.4 mm)
+- Powder coat thickness: 0.003 inches (0.076 mm / 3 mil)
+- Polyurethane coating total: 0.006 inches (0.152 mm / 6 mil)
+  - Per coat: 0.002 inches (0.051 mm / 2 mil)
+  - Number of coats: 3 coats
+
+### **Functional Specifications:**
+- Seating capacity: 6-8 people (3-4 per long side, 1 per short side)
+- Per-person width allocation: 24 inches (610 mm) minimum
+- Tabletop overhang for seating: 10-12 inches (254-305 mm) from leg to edge
+- Comfortable dining height: 30 inches (762 mm) standard
+- ADA compliant knee clearance: Yes (28.5 inches/724 mm exceeds 27-inch minimum)
+
+## 6. Lighting and Rendering Considerations
+
+### **Tabletop Lighting Behavior:**
+
+**Direct Lighting Response:**
+- **Specular Highlights:** Soft, elongated highlights due to satin polyurethane finish
+  - Highlight shape: Stretched and diffused, not pinpoint sharp
+  - Highlight intensity: 20-30% of light source brightness
+  - Falloff: Gradual with soft edges (Gaussian distribution)
+  
+- **Diffuse Reflection:** 
+  - Primary lighting response is diffuse scattering
+  - Wood grain becomes more visible and pronounced under direct light
+  - Natural color variation enhanced by directional lighting
+  - Darker areas (knots, heartwood) absorb more light
+  
+- **Subsurface Scattering:** 
+  - Visible in thin areas and edges when backlit
+  - Scattering radius: 1.5mm (0.059 inch)
+  - Scattering color: Warm orange-yellow (RGB: R: 220, G: 190, B: 140)
+  - Creates warm glow effect around perimeter when edge-lit
+  - Most prominent on chamfered edges
+
+**Indirect Lighting Response:**
+- **Ambient Occlusion:** 
+  - Strong AO in mounting plate recesses (darkening 40-60%)
+  - Subtle AO where tabletop meets legs
+  - Contact shadows in grain pores and knots
+  
+- **Light Bouncing:**
+  - Warm color bounce from wood surface (orange-yellow cast)
+  - Contributes warm ambient light to scene
+  - Underside reflects less light (1-2 stops darker than top)
+  
+- **Shadow Reception:**
+  - Soft shadow edges due to matte surface
+  - Shadows slightly colored by wood tone (warm brown tint)
+  - Edge chamfer creates subtle highlight line along perimeter
+
+**Material Shader Properties (PBR Values):**
+- **Base Color:** Wood texture map (see color specifications in Section 3)
+- **Roughness:** 0.75-0.80 (matte to satin finish)
+- **Specular:** 0.3-0.4 (moderate specular reflection)
+- **Metallic:** 0.0 (non-metallic)
+- **IOR (Index of Refraction):** 1.45 (polyurethane coating)
+- **Sheen:** 0.2-0.3 (subtle fabric-like sheen on wood)
+- **Sheen Tint:** 0.3 (warm sheen color)
+- **Anisotropic:** 0.3 (following wood grain direction)
+- **Anisotropic Rotation:** Aligned with grain direction map
+- **Subsurface:** 0.1-0.2 (subtle SSS effect)
+- **Subsurface Radius:** RGB: (1.5, 1.0, 0.5) mm for realistic color scattering
+- **Subsurface Color:** Warm orange-yellow (RGB: R: 220, G: 190, B: 140)
+
+### **Leg Lighting Behavior:**
+
+**Direct Lighting Response:**
+- **Specular Highlights:** 
+  - Very subtle, broad highlights due to matte powder coat
+  - Highlight width: 30-45 degrees around cylinder
+  - Highlight intensity: 5-10% of light source brightness
+  - Soft falloff with no sharp edges
+  
+- **Diffuse Reflection:**
+  - Primary lighting response (90-95% of visible appearance)
+  - Uniform dark appearance from most viewing angles
+  - Slight color shift in highlights (warmer by 5-10 RGB points)
+  - Textured surface creates micro-shadows adding visual interest
+  
+- **Form Definition:**
+  - Cylindrical form revealed through gradual light-to-dark gradient
+  - Decorative groove creates distinct shadow line
+  - Taper at bottom creates subtle highlight on curved transition
+
+**Indirect Lighting Response:**
+- **Ambient Occlusion:**
+  - Strong AO in decorative groove (60-80% darkening)
+  - Contact shadows where leg meets floor (80-90% darkening)
+  - Subtle AO where leg meets tabletop underside
+  
+- **Light Bouncing:**
+  - Minimal light bounce contribution due to dark, matte surface
+  - Absorbs most incident light rather than reflecting
+  - Does not significantly illuminate surrounding surfaces
+  
+- **Shadow Casting:**
+  - Clean, defined shadow edges due to cylindrical form
+  - Shadow sharpness depends on light source size
+  - Groove creates thin secondary shadow line within leg shadow
+
+**Material Shader Properties (PBR Values):**
+- **Base Color:** Charcoal black (RGB: R: 45, G: 45, B: 48)
+- **Roughness:** 0.90-0.95 (very matte)
+- **Specular:** 0.1-0.15 (minimal specular reflection)
+- **Metallic:** 0.0 (non-metallic powder coat)
+- **Normal Map:** Subtle noise for orange-peel texture (0.05-0.1mm bump height)
+- **Bump/Displacement:** Very subtle for micro-surface variation
+
+### **Metal Component Lighting (Mounting Plates & Foot Pads):**
+
+**Direct Lighting Response:**
+- **Anisotropic Reflections:**
+  - Sharp specular highlights along brush direction (radial pattern)
+  - Diffuse reflections perpendicular to brush direction
+  - Creates characteristic "starburst" appearance on circular brushed surfaces
+  - Highlight intensity: 60-80% of light source brightness
+  
+- **Fresnel Effect:**
+  - Strong Fresnel at grazing angles (near-perfect reflection)
+  - IOR: 2.5 (stainless steel)
+  - Creates bright rim lighting on edges
+  - Center of surface appears darker when viewed straight-on
+  
+- **Color Response:**
+  - Neutral silver-grey base color
+  - Slight warm shift in highlights (5-10 RGB points warmer)
+  - Reflects environment colors accurately
+
+**Indirect Lighting Response:**
+- **Environment Reflections:**
+  - Clearly reflects surrounding environment (tabletop, room)
+  - Reflections stretched along brush direction
+  - Creates visual connection between table and environment
+  
+- **Ambient Occlusion:**
+  - Subtle AO in mounting plate recesses
+  - Contact shadows where foot pads meet floor
+  - Screw holes create small dark spots
+
+**Material Shader Properties (PBR Values):**
+- **Base Color:** Silver-grey (RGB: R: 192, G: 192, B: 192)
+- **Roughness:** 0.35-0.45 (brushed metal)
+- **Specular:** 0.7-0.8 (high specular reflection)
+- **Metallic:** 1.0 (full metallic)
+- **Anisotropic:** 0.75-0.85 (strong directional reflection)
+- **Anisotropic Rotation:** Radial pattern from center (requires UV mapping)
+- **Normal Map:** Brushed metal texture (linear scratches, 0.01-0.02mm depth)
+- **IOR:** 2.5 (stainless steel - used for Fresnel calculation)
+
+### **Rubber Bumper Lighting:**
+
+**Material Properties:**
+- **Base Color:** Pure black (RGB: R: 20, G: 20, B: 20)
+- **Roughness:** 1.0 (completely matte)
+- **Specular:** 0.0 (no specular reflection)
+- **Metallic:** 0.0 (non-metallic)
+- **Normal Map:** Subtle fine grain texture (0.1-0.2mm bump height)
+- **Light Absorption:** Absorbs virtually all incident light
+- **Shadow Behavior:** Creates soft contact shadows at floor interface
+
+### **Recommended Lighting Setup for Realistic Rendering:**
+
+**Three-Point Lighting Configuration:**
+
+1. **Key Light (Main Light):**
+   - Type: Area light or softbox
+   - Position: 45 degrees above table, 30 degrees to side
+   - Color Temperature: 4500K (warm white, simulating interior lighting)
+   - Intensity: 100% (base reference)
+   - Size: Large (3-4 feet / 0.9-1.2m) for soft shadows
+   - Purpose: Primary illumination and form definition
+
+2. **Fill Light (Secondary Light):**
+   - Type: Large area light or bounce card
+   - Position: Opposite side from key light, slightly lower angle
+   - Color Temperature: 5000K (neutral white)
+   - Intensity: 20-30% of key light
+   - Size: Very large (5-6 feet / 1.5-1.8m) for very soft, wrap-around fill
+   - Purpose: Lift shadows and reduce contrast
+
+3. **Rim/Back Light (Optional Accent):**
+   - Type: Spotlight or small area light
+   - Position: Behind and above table
+   - Color Temperature: 5500K (cool white for contrast)
+   - Intensity: 40-60% of key light
+   - Purpose: Edge definition and separation from background
+
+**HDRI Environment Lighting:**
+- **Recommended HDRI:** Interior environment with window light
+- **Resolution:** 4K minimum for quality reflections
+- **Rotation:** Adjust to align windows with desired reflection positions
+- **Intensity:** 0.3-0.5 (supplement to three-point lighting)
+- **Purpose:** Realistic reflections in metal components and subtle ambient fill
+
+**Additional Lighting Considerations:**
+- **Bounce Lighting:** Enable global illumination for realistic light bouncing
+- **Caustics:** Generally not necessary for this material set
+- **Volumetrics:** Optional subtle volumetric lighting for atmospheric depth
+- **Color Temperature Variation:** Slightly warm key light creates inviting atmosphere
+
+### **Shadow Behavior Details:**
+
+**Tabletop Shadows:**
+- **Cast Shadows:** Soft-edged due to matte surface and large light sources
+- **Self-Shadowing:** Hard-edged shadows in mounting plate recesses (small cavity)
+- **Leg Shadows on Underside:** Soft transitional shadows where legs meet tabletop
+- **Shadow Color:** Slightly warm brown tint from wood color influence
+- **Transparency:** Opaque shadows (no light transmission through 1.5-inch thick top)
+
+**Leg Shadows:**
+- **Cast Shadows on Floor:** 
+  - Clean, defined edges due to cylindrical form
+  - Sharpness depends on light source size (softer with larger lights)
+  - Length varies with light angle
+  
+- **Groove Shadow:** 
+  - Thin, sharp shadow line around circumference
+  - Depth creates strong local contrast
+  - Always visible regardless of primary lighting direction
+  
+- **Contact Shadows:** 
+  - Darkest at floor contact point
+  - Gradual softening moving away from contact
+  - Ambient occlusion enhances contact shadow depth
+
+**Hardware Shadows:**
+- **Screw Head Shadows:** 
+  - Sharp, small circular shadows in mounting plates
+  - Minimal contribution to overall appearance
+  
+- **Foot Pad Shadows:** 
+  - Blend with leg shadows
+  - Subtle edge shadow from foot pad perimeter
+  - Contact shadow at floor interface
+
+### **Advanced Rendering Techniques:**
+
+**Subsurface Scattering Setup (for Wood):**
+- **Method:** Christensen-Burley or Random Walk SSS
+- **Scale:** 1.5mm (0.059 inch)
+- **Radius RGB:** (1.5, 1.0, 0.5) mm for realistic color-dependent scattering
+  - Red scatters furthest (warm glow)
+  - Blue scatters least (cooler appearance)
+- **IOR:** 1.45 (matches polyurethane coating)
+- **Texture Influence:** Use wood density map to vary SSS intensity
+
+**Normal Mapping Strategy:**
+- **Wood Grain Normal Map:** 
+  - Resolution: 4K minimum
+  - Strength: 0.3-0.5 (subtle but visible)
+  - Captures pore structure and grain relief
+  
+- **Powder Coat Normal Map:**
+  - Resolution: 2K sufficient
+  - Strength: 0.1-0.2 (very subtle orange-peel)
+  - Procedural noise works well
+  
+- **Brushed Metal Normal Map:**
+  - Resolution: 2K-4K
+  - Strength: 0.4-0.6 (more pronounced)
+  - Directional (anisotropic) scratches
+
+**Displacement Mapping (Optional for Extreme Close-ups):**
+- **Wood Surface:** 
+  - Displacement: 0.5-1.0mm maximum
+  - Captures deep grain pores and knot depth
+  - Requires high geometry subdivision
+  
+- **Not Recommended for:** Metal or powder coat surfaces (normal maps sufficient)
+
+**Camera and Depth of Field:**
+- **Recommended Focal Length:** 50-85mm (realistic perspective, minimal distortion)
+- **Aperture (f-stop):** f/4-f/8 for moderate depth of field
+- **Focus Point:** Center of table or key design feature
+- **Bokeh:** Subtle background blur enhances subject focus
+
+## 7. Variations and Imperfections
+
+### **Natural Wood Variations:**
+
+**Grain Pattern Irregularities:**
+- **Grain Direction Shifts:** 
+  - Gradual direction changes: 5-10 degrees across surface
+  - More pronounced near knots: up to 30-degree swirls
+  - Creates natural, organic appearance
+  
+- **Grain Density Variation:**
+  - Tighter grain near edges: 8-12 lines per inch
+  - More open grain in center: 4-8 lines per inch
+  - Reflects natural tree growth patterns
+  
+- **Figure Patterns (10-15% of surface):**
+  - Cathedral (crown) figure: Arched grain patterns
+  - Flame figure: Wavy, undulating grain
+  - Quilted figure: Three-dimensional bubbly appearance (rare)
+  - Ray fleck: Perpendicular grain rays (characteristic of oak)
+
+**Color Variations:**
+- **Heartwood vs. Sapwood:**
+  - Heartwood (inner tree): Darker, RGB: R: 190, G: 160, B: 120
+  - Sapwood (outer tree): Lighter, RGB: R: 220, G: 195, B: 155
+  - Transition: Gradual blending, not sharp boundaries
+  - Distribution: Random but typically heartwood in center areas
+  
+- **Natural Color Gradients:**
+  - Subtle shifts across boards: ±10-15 RGB points
+  - Warmer tones near knots: +10 RGB points in red channel
+  - Cooler tones in sapwood areas: +5 RGB points in blue channel
+  
+- **Finishing Effects:**
+  - Slight edge darkening: 5-10 RGB points darker
+  - Polyurethane pooling in low areas: slightly darker appearance
+  - End grain absorption: darker color at table ends (if visible)
+
+**Natural Defects (Realistic Character):**
+- **Knots (2-3 per table):**
+  - Size range: 0.5-1 inch (13-25 mm) diameter
+  - Type: Tight, sound knots (not loose or missing)
+  - Color: Dark brown (RGB: R: 120, G: 90, B: 60)
+  - Depth: Slightly recessed (0.03125 inch / 0.8 mm)
+  - Surrounding area: Darker halo (0.5-1 inch radius)
+  - Grain distortion: Swirling pattern around knot
+  
+- **Pin Knots (1-2 per table):**
+  - Size: 0.125 inch (3 mm) diameter
+  - Appearance: Small dark dots
+  - Distribution: Random, typically in sapwood areas
+  
+- **Mineral Streaks (1-3 per table):**
+  - Width: 0.5mm
+  - Length: 2-6 inches (51-152 mm)
+  - Color: Dark brown to black
+  - Appearance: Thin, irregular lines
+  - Origin: Natural mineral deposits in wood
+  
+- **Small Filled Checks (0-2 per table):**
+  - Width: 1-2mm
+  - Length: 1-2 inches (25-51 mm)
+  - Appearance: Thin hairline cracks filled with finish
+  - Color: Slightly darker than surrounding wood
+  - Location: Typically at board ends or near knots
+
+**Surface Micro-Texture:**
+- **Wood Grain Relief:**
+  - Depth variation: 0.5-1mm from pore structure
+  - Tactile when touched, visible under raking light
+  - More pronounced in open-grain areas
+  
+- **Minor Surface Imperfections:**
+  - Tiny dents from handling: 0.5-1mm diameter, 0.25mm deep
+  - Frequency: 2-4 per table (sparse, realistic)
+  - Location: Random, typically on edges or corners
+  
+- **Sanding Marks (Very Subtle):**
+  - Visible only under strong raking light
+  - Pattern: Circular or linear depending on sanding method
+  - Grit pattern: 220-grit (very fine)
+  - Direction: Following grain direction
+  
+- **Finish Irregularities:**
+  - Slight unevenness: ±0.001 inches (±0.025 mm)
+  - Occasional tiny dust particle trapped: 0.1-0.3mm diameter
+  - Frequency: 1-2 per table
+  - Appearance: Tiny raised bumps in finish
+
+### **Manufacturing Variations:**
+
+**Dimensional Variations (Within Tolerance):**
+- **Tabletop Flatness:**
+  - Slight bow: 0.03125-0.0625 inch (0.8-1.6 mm) over 72-inch length
+  - Direction: Typically convex (center higher) or concave (center lower)
+  - Cause: Natural wood movement and stress relief
+  
+- **Leg Length Variations:**
+  - Tolerance: ±0.03125 inch (±0.8 mm) between legs
+  - Effect: Potential minor wobble (realistic)
+  - Solution: Adjustable feet (not included in this design)
+  
+- **Mounting Hole Positions:**
+  - Tolerance: ±0.015 inch (±0.4 mm) from nominal position
+  - Effect: Slight misalignment when assembling (realistic)
+  - Appearance: Screw heads may not be perfectly aligned
+  
+- **Corner Radii Variation:**
+  - Tolerance: ±0.03125 inch (±0.8 mm)
+  - Effect: Corners not perfectly uniform
+  - Barely noticeable in normal viewing
+
+**Assembly Imperfections:**
+- **Leg Perpendicularity:**
+  - Variation: ±0.5 degree from perfect vertical
+  - Effect: Slight lean (barely perceptible)
+  - Cause: Assembly tolerance and wood compression
+  
+- **Mounting Plate Gaps:**
+  - Gap size: 0.005-0.01 inch (0.13-0.25 mm)
+  - Location: Between plate and tabletop underside
+  - Cause: Surface irregularities and assembly tolerance
+  - Visibility: Only visible on close inspection of underside
+  
+- **Screw Tightness Variations:**
+  - Some screws slightly tighter than others
+  - Effect: Minor unevenness in mounting plate seating
+  - Appearance: Slight variation in plate-to-wood gap
+  
+- **Table Levelness:**
+  - One corner may sit 0.03125 inch (0.8 mm) higher
+  - Cause: Leg length variation or floor irregularity
+  - Effect: Minor wobble (realistic for furniture)
+
+**Finish Application Variations:**
+- **Polyurethane Thickness Variation:**
+  - Edges: Slightly thicker (0.007-0.008 inch) due to natural accumulation
+  - Center: Standard thickness (0.006 inch)
+  - Effect: Edges appear slightly glossier
+  
+- **Dust Particles in Finish:**
+  - Frequency: 1-2 per table
+  - Size: 0.1-0.3mm diameter
+  - Appearance: Tiny raised bumps
+  - Location: Random
+  
+- **Orange Peel Texture:**
+  - Slight texture in finish surface
+  - More visible in reflected light
+  - Scale: 0.1-0.3mm undulations
+  - Adds realism without appearing defective
+  
+- **Application Streaks (Very Subtle):**
+  - Faint directional marks from application
+  - Visible only under strong raking light
+  - Direction: Following application stroke direction
+
+### **Powder Coat Variations:**
+
+**Surface Micro-Imperfections:**
+- **Dust Nibs (1-2 per leg):**
+  - Size: 0.5mm diameter raised bumps
+  - Cause: Dust particles in coating environment
+  - Appearance: Tiny bumps in otherwise smooth surface
+  
+- **Micro-Bubbles (1-2 per leg):**
+  - Size: 0.25mm diameter
+  - Appearance: Tiny pin-holes or surface bubbles
+  - Cause: Air trapped during application or curing
+  
+- **Texture Density Variation:**
+  - Slight variation in orange-peel texture across surface
+  - Some areas slightly smoother or more textured
+  - Variation: ±10% in texture scale
+  
+- **Flow Marks (Very Subtle):**
+  - Barely visible lines from powder flow during application
+  - Visible only under specific lighting angles
+  - Direction: Vertical (gravity-driven during curing)
+
+**Color Micro-Variations:**
+- **Leg-to-Leg Variation:**
+  - Slight color shift: ±2 RGB points
+  - Cause: Batch variation or curing differences
+  - Barely noticeable unless legs placed side-by-side
+  
+- **Thickness-Related Darkening:**
+  - Bottom 2 inches slightly darker: 3-5 RGB points
+  - Cause: Thicker powder coat accumulation
+  - Gradual transition, not sharp line
+  
+- **Edge Color Variation:**
+  - Edges may show slight color variation
+  - Cause: Thinner coating on sharp edges
+  - Effect: Slightly lighter color (2-3 RGB points)
+
+### **Metal Component Variations:**
+
+**Brushed Finish Non-Uniformity:**
+- **Brush Pattern Irregularities:**
+  - Brush lines not perfectly uniform in depth
+  - Some lines more visible than others
+  - Variation: ±20% in line visibility
+  
+- **Center Point Offset:**
+  - Radial brush pattern center slightly off-center
+  - Offset: ±0.125 inch (±3 mm)
+  - Creates asymmetric but realistic appearance
+  
+- **Brush Line Density Variation:**
+  - Some areas with denser brush lines
+  - Variation: ±10% in line spacing
+  - Adds character without appearing defective
+
+**New Condition Wear (Very Subtle):**
+- **Handling Marks:**
+  - Slight fingerprint oils creating subtle discoloration
+  - Visibility: Very subtle, only in certain lighting
+  - Location: Random on mounting plates
+  
+- **Assembly Scratches:**
+  - Tiny scratches from assembly: 0.1mm wide
+  - Frequency: 3-5 per mounting plate
+  - Length: 0.5-2 inches (13-51 mm)
+  - Appearance: Fine hairline scratches
+  
+- **Screw Installation Marks:**
+  - Minor marks in Phillips drive recess from screwdriver
+  - Slight burring on screw head edges
+  - Realistic wear from installation process
+
+### **Intentional Asymmetries for Realism:**
+
+**Wood Grain Asymmetry:**
+- **Completely Unique Pattern:**
+  - No mirroring or repeating patterns
+  - Each area of table has distinct grain
+  - Use high-resolution, non-tileable wood textures
+  
+- **Knot Placement:**
+  - Random, asymmetric distribution
+  - No pattern or regular spacing
+  - Avoid placing knots in geometric patterns
+  
+- **Color Variation Distribution:**
+  - Natural, organic distribution
+  - Follows wood growth patterns, not geometric patterns
+  - Heartwood and sapwood placement realistic to tree structure
+
+**Component Variations:**
+- **Each Leg Unique:**
+  - Slightly different powder coat texture (same color)
+  - Random placement of dust nibs and micro-bubbles
+  - No two legs identical (within manufacturing tolerance)
+  
+- **Mounting Plate Variations:**
+  - Each has unique brushed pattern (same style)
+  - Random scratch and handling mark placement
+  - Screw installation wear varies per screw
+
+**Unintentional Asymmetries:**
+- **Assembly-Induced:**
+  - Table may sit slightly unevenly (one corner higher)
+  - Legs may have slight perpendicularity variations
+  - Mounting plates may have minor gap variations
+  
+- **Material-Induced:**
+  - Tabletop may have slight twist or bow
+  - Wood grain may cause slight dimensional instability
+  - Natural wood movement creates subtle asymmetries
+
+### **Randomization Parameters (for Procedural Generation):**
+
+**Wood Characteristics (Use Random Seed):**
+- **Knot Count:** Random integer, 1-4 per table
+- **Knot Positions:** Random within central 60% of table area (avoid edges)
+- **Knot Size:** Random float, 0.5-1.0 inch (13-25 mm) diameter per knot
+- **Grain Pattern Seed:** Random seed for procedural wood texture
+- **Color Variation Strength:** Random float, 5-10% noise strength
+- **Mineral Streak Count:** Random integer, 0-3 per table
+- **Mineral Streak Position:** Random position and rotation
+- **Sapwood/Heartwood Distribution:** Random noise pattern, 40-60% threshold
+
+**Manufacturing Variation (Use Random Seed):**
+- **Leg Length Variation:** Random per leg, ±0.03125 inch (±0.8 mm)
+- **Leg Perpendicularity:** Random per leg, ±0.5 degree
+- **Tabletop Bow:** Random direction and magnitude, 0.03125-0.0625 inch
+- **Corner Wobble:** Random corner, 0-0.03125 inch height difference
+- **Mounting Hole Position Offset:** Random per hole, ±0.015 inch (±0.4 mm)
+
+**Surface Imperfection (Use Random Seed):**
+- **Dust Particle Count:** Random integer, 1-3 per table
+- **Dust Particle Position:** Random position on tabletop
+- **Dent Count:** Random integer, 2-4 per table
+- **Dent Position:** Random, weighted toward edges and corners
+- **Powder Coat Nib Count:** Random integer, 1-2 per leg
+- **Powder Coat Nib Position:** Random position on each leg
+
+### **Aging Variations (Optional - For Used Table Appearance):**
+
+If creating a used/aged table variation, add:
+
+**Wear Patterns:**
+- **Edge Wear:**
+  - Location: High-contact areas (table edges where hands rest)
+  - Appearance: Lighter color, smoother texture
+  - Size: 1-3 inches (25-76 mm) wide, 12-24 inches (305-610 mm) long
+  - Depth: 0.01-0.03 inch (0.25-0.76 mm) finish wear
+  
+- **Scuff Marks on Legs:**
+  - Location: Lower portions of legs (foot/vacuum contact)
+  - Appearance: Lighter areas where powder coat is worn
+  - Size: 0.5-2 inches (13-51 mm) patches
+  - Frequency: 2-4 per leg
+  
+- **Tabletop Scratches:**
+  - Depth: 0.1-0.5mm (light to moderate)
+  - Length: 1-6 inches (25-152 mm)
+  - Frequency: 5-15 per table (used condition)
+  - Pattern: Random, some crossing
+  
+- **Water Ring Marks:**
+  - Appearance: Faint white rings
+  - Size: 2-4 inch (51-102 mm) diameter
+  - Location: Random on tabletop surface
+  - Frequency: 0-3 per table
+
+**Metal Oxidation/Tarnishing:**
+- **Mounting Plates:**
+  - Slight darkening: 5-10% reduction in brightness
+  - Pattern: Uneven, organic
+  - More pronounced in recessed areas
+  
+- **Foot Pads:**
+  - Similar tarnishing to mounting plates
+  - Possible minor surface scratches from floor contact
+
+**Hardware Wear:**
+- **Screw Heads:**
+  - Drive recess wear: Rounded edges, stripped appearance
+  - Surface scratches from repeated tool contact
+  - Possible slight corrosion (rust spots on steel)
+  
+- **Rubber Bumpers:**
+  - Compression: Flattened to 0.0625 inch (1.6 mm) or less
+  - Surface wear: Smoothed texture
+  - Possible dirt accumulation in texture
+  - Edge cracking: Small cracks radiating from center
+
+**Structural Wear:**
+- **Loose Screws:**
+  - Slight gaps between mounting plates and tabletop
+  - Possible minor wobble or movement
+  
+- **Leg-to-Top Joint Wear:**
+  - Slight compression of wood around mounting points
+  - Possible minor creaking (not visible but implied)
+
+---
+
+## 8. Blender Implementation Guide
+
+### **Modeling Workflow:**
+
+**Tabletop Construction:**
+1. Start with plane, scale to 72 × 36 inches (1.829 × 0.914 m)
+2. Extrude to 1.5 inch (0.038 m) thickness
+3. Add edge loops for corner radii (0.5 inch / 0.013 m radius)
+4. Bevel top edges: 0.125 inch (0.003 m) chamfer, 1 segment
+5. Add Subdivision Surface modifier (level 2) for smooth corners
+6. Boolean subtract cylinders for mounting plate recesses (5 inch diameter, 0.125 inch deep)
+7. Add edge loops around recesses for clean topology
+8. Apply modifiers and clean up geometry
+
+**Leg Construction:**
+1. Add cylinder: 3 inch (0.076 m) diameter, 28.5 inch (0.724 m) height, 64 segments
+2. Add edge loops at groove position (14.25 inches / 0.362 m from top)
+3. Inset and extrude for groove detail (0.25 inch wide, 0.0625 inch deep)
+4. Add edge loops at taper start (26.5 inches / 0.673 m from top)
+5. Scale bottom edge loops to 4 inch (0.102 m) diameter for taper
+6. Add Subdivision Surface modifier (level 1-2) for smooth taper
+7. Boolean subtract mounting holes at top
+8. Use Array modifier to duplicate legs (3 copies, precise positioning)
+
+**Mounting Plate Construction:**
+1. Add circle: 5 inch (0.127 m) diameter, 32 segments
+2. Extrude to 0.25 inch (0.006 m) thickness
+3. Add four circles for screw holes (8mm diameter)
+4. Boolean subtract screw holes
+5. Add bevel modifier to outer edge (0.03125 inch chamfer)
+6. Array modifier to create all four plates
+
+**Foot Pad Construction:**
+1. Add circle: 4 inch (0.102 m) diameter, 32 segments
+2. Extrude to 0.25 inch (0.006 m) thickness
+3. Boolean subtract center recess (3.1 inch diameter, 0.125 inch deep)
+4. Add outer edge chamfer (0.03125 inch)
+5. Array modifier to create all four pads
+
+**Hardware Construction:**
+1. Model M6 screw: Cylinder for shaft, cone for countersunk head
+2. Add Phillips drive recess detail (cross pattern)
+3. Array modifier to duplicate screws (16 total)
+4. Model rubber bumpers: Cylinder, 2.5 inch diameter, 0.125 inch thick
+5. Add subtle edge bevel for realism
+
+### **UV Unwrapping Strategy:**
+
+**Tabletop:**
+- Unwrap top face as single island (preserve grain continuity)
+- Unwrap sides and bottom separately
+- Align seams at corners (least visible)
+- Scale UV islands proportionally to maintain texture resolution
+
+**Legs:**
+- Cylindrical unwrap for main shaft
+- Place seam at back (least visible angle)
+- Separate UV islands for top and bottom caps
+- Ensure groove detail has adequate UV space
+
+**Metal Components:**
+- Radial unwrap for mounting plates and foot pads (matches brushed pattern)
+- Center UV island for proper radial texture alignment
+- Separate UV islands for screw heads
+
+### **Material and Shader Setup:**
+
+**Tabletop Wood Shader (Principled BSDF):**
+```
+Image Texture (Wood Color, 4K) → Color Ramp (adjust variation) → Base Color
+Image Texture (Wood Roughness, 2K) → Roughness (0.75-0.80)
+Image Texture (Wood Normal, 2K) → Normal Map → Normal (strength 0.3-0.5)
+Noise Texture → ColorRamp → Mix with base color (5-10% strength for variation)
+Value (0.3-0.4) → Specular
+Value (1.45) → IOR
+Value (0.3) → Anisotropic
+Image Texture (Wood Grain Direction) → Anisotropic Rotation
+Value (0.1-0.2) → Subsurface
+Color (RGB: 220, 190, 140) → Subsurface Color
+Vector (1.5, 1.0, 0.5 mm) → Subsurface Radius
+```
+
+**Leg Powder Coat Shader (Principled BSDF):**
+```
+Color (RGB: 45, 45, 48) → Base Color
+Noise Texture (small scale) → Normal Map → Normal (strength 0.1-0.2) [orange-peel texture]
+Value (0.90-0.95) → Roughness
+Value (0.1-0.15) → Specular
+```
+
+**Metal Brushed Shader (Principled BSDF):**
+```
+Color (RGB: 192, 192, 192) → Base Color
+Value (1.0) → Metallic
+Value (0.35-0.45) → Roughness
+Value (0.75-0.85) → Anisotropic
+Texture Coordinate (UV) → Radial gradient → Anisotropic Rotation
+Image Texture (Brushed Metal Normal, 2K) → Normal Map → Normal (strength 0.4-0.6)
+```
+
+**Rubber Bumper Shader (Principled BSDF):**
+```
+Color (RGB: 20, 20, 20) → Base Color
+Value (1.0) → Roughness
+Noise Texture (fine scale) → Normal Map → Normal (strength 0.1-0.2)
+```
+
+### **Lighting Setup:**
+
+**World Settings:**
+- HDRI: Interior environment (4K resolution)
+- Strength: 0.3-0.5
+- Rotation: Adjust for desired reflections
+
+**Key Light:**
+- Type: Area light
+- Size: 3m × 3m
+- Position: 45° above, 30° to side
+- Power: 200-300W
+- Color: Slightly warm (hex: #FFE5B4)
+
+**Fill Light:**
+- Type: Area light
+- Size: 5m × 5m
+- Position: Opposite key light, lower angle
+- Power: 50-80W
+- Color: Neutral white
+
+**Rim Light (Optional):**
+- Type: Area light or spot
+- Size: 1m × 1m
+- Position: Behind and above
+- Power: 100-150W
+- Color: Slightly cool (hex: #F0F8FF)
+
+### **Render Settings (Cycles):**
+
+**Sampling:**
+- Render Samples: 512-1024 (higher for final)
+- Viewport Samples: 128-256
+- Denoising: Intel Open Image Denoise (enabled)
+
+**Light Paths:**
+- Max Bounces: 12
+- Diffuse: 4
+- Glossy: 8 (important for metal reflections)
+- Transmission: 4
+- Volume: 0
+- Transparent: 8
+
+**Film:**
+- Transparent Background: As needed
+- Filter: Blackman-Harris (reduces aliasing)
+
+**Color Management:**
+- View Transform: Filmic
+- Look: Medium High Contrast (or adjust to preference)
+- Exposure: 0 to +0.5 (adjust based on lighting)
+
+### **Camera Setup:**
+
+**Camera Settings:**
+- Focal Length: 50-85mm (realistic perspective)
+- Sensor Size: 36mm (full frame)
+- Aperture (f-stop): f/4-f/8
+- Focus Distance: Center of table or key feature
+- Depth of Field: Enabled for realism
+
+**Composition Guidelines:**
+- Rule of Thirds: Position table along grid lines
+- Eye Level: Slightly above table height (32-36 inches / 0.8-0.9m)
+- Angle: 30-45 degrees for dynamic view, or straight-on for technical presentation
+- Framing: Include full table with minimal cropping
+
+### **Texture Resolution Recommendations:**
+
+- **Wood Color Map:** 4K (4096 × 4096) - High detail needed
+- **Wood Normal Map:** 2K-4K (2048-4096) - Important for grain relief
+- **Wood Roughness Map:** 2K (2048 × 2048) - Sufficient detail
+- **Metal Brushed Normal:** 2K (2048 × 2048) - Captures brush lines
+- **Powder Coat Normal:** 1K-2K (1024-2048) - Subtle texture
+- **Procedural Noise:** Generated at render time (no texture file)
+
+### **Performance Optimization:**
+
+- Use lower subdivision levels during modeling and viewport preview
+- Enable Simplify in render settings during test renders
+- Use lower sampling for viewport renders
+- Disable depth of field during modeling
+- Use holdout objects to mask unnecessary background geometry
+- Instance legs using Array modifier (reduces memory)
+- Use texture compression for large texture files
+
+### **Export Considerations:**
+
+If exporting for other applications:
+- Apply all modifiers before export
+- Ensure proper scale (1 Blender unit = 1 meter recommended)
+- Bake complex procedural textures to image textures
+- Include material names and proper UV maps
+- Export as FBX or OBJ with materials
+- Include separate texture files in export folder
+
+---
+
+## Summary and Final Notes
+
+This comprehensive description provides all necessary information to create a highly detailed, photorealistic modern dining table in Blender. The design emphasizes:
+
+- **Clean, minimalist aesthetics** with functional proportions
+- **Realistic materials** including natural wood grain, matte powder coat, and brushed metal
+- **Authentic imperfections** that add character without appearing defective
+- **Proper lighting behavior** for physically accurate rendering
+- **Detailed measurements** ensuring structural integrity and realistic proportions
+- **Manufacturing variations** that reflect real-world production tolerances
+
+**Key Design Features:**
+- Solid white oak tabletop with natural grain and color variation
+- Powder-coated steel legs with subtle decorative groove
+- Brushed stainless steel mounting hardware
+- Comfortable seating for 6-8 people
+- Durable construction suitable for daily use
+- Timeless modern design that complements various interior styles
+
+**Modeling Complexity:**
+- **Beginner-Friendly:** Basic geometry (cubes, cylinders) with modifiers
+- **Intermediate Details:** Boolean operations, UV unwrapping, shader setup
+- **Advanced Realism:** Procedural textures, subsurface scattering, anisotropic reflections
+
+**Recommended Workflow:**
+1. Model basic geometry with correct proportions
+2. Add fine details (chamfers, grooves, recesses)
+3. Apply modifiers and clean topology
+4. UV unwrap all components
+5. Create and apply materials with proper PBR values
+6. Set up realistic lighting (three-point + HDRI)
+7. Configure camera with appropriate settings
+8. Test render and adjust materials/lighting
+9. Final high-quality render with denoising
+
+**Customization Options:**
+- Adjust dimensions for different table sizes
+- Change wood species (different textures and colors)
+- Modify leg style (tapered, straight, or alternative designs)
+- Add optional features (drawer, shelf, cable management)
+- Create aged/distressed version using wear patterns described
+- Experiment with different color combinations (painted legs, stained top)
+
+This table design balances aesthetic appeal with practical functionality, making it suitable for architectural visualization, product rendering, interior design presentations, or as a portfolio piece demonstrating advanced 3D modeling and rendering skills.

@@ -138,9 +138,20 @@ def display_json_preview(json_path: Path):
         st.error(f"Error loading preview: {e}")
 
 
-def start_modeling_task(requirement_file: str, use_resume: bool, token: str):
+def start_modeling_task(requirement_file: str, use_resume: bool, enable_refinement: bool, token: str):
     """Start a modeling task via backend API"""
     try:
+        # Load the JSON file to modify it with enable_refinement setting
+        with open(requirement_file, 'r', encoding='utf-8') as f:
+            requirement_data = json.load(f)
+        
+        # Update the enable_refinement_steps field
+        requirement_data['enable_refinement_steps'] = enable_refinement
+        
+        # Save the modified data back to the file
+        with open(requirement_file, 'w', encoding='utf-8') as f:
+            json.dump(requirement_data, f, indent=2, ensure_ascii=False)
+        
         headers = {"Authorization": f"Bearer {token}"}
         response = requests.post(
             f"{BACKEND_URL}/artisan/model",
@@ -168,8 +179,35 @@ def get_task_status(task_id: str, token: str):
         )
         response.raise_for_status()
         return response.json()
+    except requests.exceptions.HTTPError as e:
+        # Task not found (404) or other HTTP errors
+        if e.response.status_code == 404:
+            return {
+                "status": "not_found",
+                "message": f"Task {task_id} not found (backend may have restarted)"
+            }
+        return {"status": "http_error", "message": str(e)}
+    except requests.exceptions.Timeout:
+        return {"status": "timeout", "message": "Request timed out"}
+    except requests.exceptions.ConnectionError:
+        return {"status": "connection_error", "message": "Cannot connect to backend"}
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {"status": "unknown_error", "message": str(e)}
+
+
+def stop_modeling_task(task_id: str, token: str):
+    """Stop/cancel a running modeling task"""
+    try:
+        headers = {"Authorization": f"Bearer {token}"}
+        response = requests.post(
+            f"{BACKEND_URL}/artisan/cancel/{task_id}",
+            headers=headers,
+            timeout=5
+        )
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        raise Exception(f"Failed to stop task: {str(e)}")
 
 
 def main():
@@ -248,6 +286,11 @@ def main():
         
         st.subheader("📄 Select Requirement File")
         
+        # Show current recursion limit from environment
+        import os
+        recursion_limit = os.getenv("LANGGRAPH_RECURSION_LIMIT", "100")
+        st.info(f"🔄 LangGraph Recursion Limit: **{recursion_limit}**")
+        
         if not json_files:
             st.warning("No JSON files found in data/prompts/json/")
             st.info("💡 Create requirements using the **Prompt Refinement** page first!")
@@ -277,6 +320,17 @@ def main():
             help="If enabled, the agent will continue from previous work on the same file"
         )
         
+        enable_refinement_steps = st.checkbox(
+            "Enable Refinement Steps",
+            value=False,
+            help="When enabled, the agent will refine steps that don't meet quality thresholds. When disabled, it will proceed to the next step regardless of quality."
+        )
+        
+        if enable_refinement_steps:
+            st.info("✅ Agent will refine low-quality steps automatically")
+        else:
+            st.warning("⚠️ Agent will skip refinement and proceed with all steps")
+        
         st.divider()
         
         # Execution controls
@@ -297,7 +351,18 @@ def main():
             st.rerun()
         
         if st.session_state.batch_running:
-            if st.button("🛑 Stop", use_container_width=True):
+            if st.button("🛑 Stop", use_container_width=True, type="primary"):
+                # Cancel the backend task
+                if st.session_state.get("batch_task_id"):
+                    try:
+                        result = stop_modeling_task(
+                            st.session_state.batch_task_id,
+                            st.session_state.token
+                        )
+                        st.success(f"✅ {result.get('message', 'Task stopped')}")
+                    except Exception as e:
+                        st.warning(f"⚠️ {str(e)}")
+                
                 st.session_state.batch_running = False
                 st.rerun()
     
@@ -331,13 +396,10 @@ def main():
             - ✅ **Resume Mode**: Continue from where the agent left off
             - ✅ **Real-time Status**: Monitor agent progress
             - ✅ **Tool Execution**: See each Blender command executed
-            - ✅ **Screenshots**: Visual feedback from Blender
             """)
     
     elif st.session_state.batch_running:
-        # Run the modeling task
-        st.subheader("🎬 Modeling in Progress")
-        
+        # Show execution status
         status_container = st.container()
         progress_container = st.container()
         log_container = st.container()
@@ -347,7 +409,7 @@ def main():
             with status_container:
                 with st.spinner("Starting modeling task..."):
                     try:
-                        result = start_modeling_task(selected_file, use_resume, st.session_state.token)
+                        result = start_modeling_task(str(selected_file), use_resume, enable_refinement_steps, st.session_state.token)
                         st.session_state.batch_task_id = result.get('task_id')
                         st.success(f"✅ Task started: {st.session_state.batch_task_id}")
                     except Exception as e:
@@ -379,9 +441,31 @@ def main():
                 
                 task_status = status_data.get('status', 'unknown')
                 
-                # Update status
-                if task_status == 'failed' or task_status == 'error':
+                # Handle special error cases
+                if task_status == 'not_found':
+                    status_placeholder.error("**Status:** Task not found")
+                    st.error(f"⚠️ {status_data.get('message', 'Task not found')}. The backend may have restarted. Please start a new task.")
+                    st.session_state.batch_running = False
+                    break
+                elif task_status in ['connection_error', 'timeout', 'http_error', 'unknown_error']:
+                    status_placeholder.warning(f"**Status:** {task_status}")
+                    error_msg = status_data.get('message', 'Communication error')
+                    st.warning(f"⚠️ {error_msg}. Retrying...")
+                    time.sleep(5)  # Wait longer before retry
+                    iteration += 1
+                    continue
+                
+                # Update status for normal cases
+                if task_status == 'failed':
                     status_placeholder.error(f"**Status:** {task_status}")
+                elif task_status in ['initializing', 'running']:
+                    status_placeholder.info(f"**Status:** {task_status}")
+                elif task_status == 'partial_completion':
+                    status_placeholder.warning(f"**Status:** Recursion limit reached (partial completion)")
+                elif task_status == 'completed':
+                    status_placeholder.success(f"**Status:** {task_status}")
+                elif task_status == 'cancelled':
+                    status_placeholder.warning(f"**Status:** {task_status}")
                 else:
                     status_placeholder.info(f"**Status:** {task_status}")
                 
@@ -394,6 +478,11 @@ def main():
                 error_msg = status_data.get('error')
                 if error_msg:
                     st.error(f"**Error Details:** {error_msg}")
+                
+                # Show resume info if present (for partial completion)
+                resume_info = status_data.get('resume_info')
+                if resume_info:
+                    st.info(f"ℹ️ **Resume Information:** {resume_info}")
                 
                 # Update log with messages from backend
                 messages = status_data.get('messages', [])
@@ -416,13 +505,26 @@ def main():
                     log_placeholder.code(log_text, language="text")
                 
                 # Check if done
-                if task_status in ['completed', 'failed', 'error']:
+                if task_status in ['completed', 'failed', 'cancelled', 'partial_completion']:
                     st.session_state.batch_running = False
                     if task_status == 'completed':
                         st.success("✅ Modeling task completed!")
                         st.balloons()
+                    elif task_status == 'partial_completion':
+                        st.warning("⚠️ Task paused - Recursion limit reached")
+                        st.info("💡 **How to continue:** Enable 'Resume Mode' in the sidebar and click 'Start Modeling' again to continue from where it left off.")
+                        # Show detailed progress
+                        steps_done = status_data.get('steps_executed', 0)
+                        if steps_done > 0:
+                            st.info(f"📊 Progress: {steps_done} steps completed")
+                    elif task_status == 'cancelled':
+                        st.warning("⚠️ Task was cancelled")
                     else:
                         st.error(f"❌ Task {task_status}")
+                    
+                    # Wait a moment for user to see the completion message
+                    # time.sleep(2)
+                    # st.rerun()  # Refresh UI to update button states
                     break
                 
                 time.sleep(2)
