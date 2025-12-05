@@ -35,17 +35,92 @@ load_dotenv()
 # Configure LangSmith
 os.environ["LANGCHAIN_CALLBACKS_BACKGROUND"] = "true"
 
+# Rate limit configuration from environment
+RATE_LIMIT_MAX_RETRIES = int(os.getenv("RATE_LIMIT_MAX_RETRIES", "5"))
+RATE_LIMIT_BASE_WAIT = int(os.getenv("RATE_LIMIT_BASE_WAIT", "15"))  # seconds
+RATE_LIMIT_STEP_DELAY = float(os.getenv("RATE_LIMIT_STEP_DELAY", "2.0"))  # delay between steps
+
 # Rate limit handling
-async def invoke_with_retry(model, messages, max_retries=3):
-    """Invoke LLM with exponential backoff for rate limits"""
+async def invoke_with_retry(model, messages, max_retries=None, base_wait=None):
+    """
+    Invoke LLM with exponential backoff for rate limits
+    
+    Args:
+        model: LLM model to invoke
+        messages: Messages to send
+        max_retries: Maximum number of retry attempts (uses env var if None)
+        base_wait: Base wait time in seconds (uses env var if None)
+        
+    Returns:
+        Model response
+        
+    Note:
+        For 10,000 tokens/min limit, waiting 60s guarantees rate limit window reset.
+        Uses exponential backoff: 15s, 30s, 60s, 120s, 240s
+    """
+    if max_retries is None:
+        max_retries = RATE_LIMIT_MAX_RETRIES
+    if base_wait is None:
+        base_wait = RATE_LIMIT_BASE_WAIT
+        
     for attempt in range(max_retries):
         try:
             return await model.ainvoke(messages)
         except Exception as e:
-            if "rate_limit" in str(e).lower() and attempt < max_retries - 1:
-                wait_time = (2 ** attempt) * 5  # 5s, 10s, 20s
-                logging.warning(f"Rate limit hit, waiting {wait_time}s before retry {attempt + 1}/{max_retries}")
+            error_str = str(e).lower()
+            is_rate_limit = "rate_limit" in error_str or "429" in error_str
+            
+            if is_rate_limit and attempt < max_retries - 1:
+                # Exponential backoff: 15s, 30s, 60s, 120s, 240s
+                wait_time = base_wait * (2 ** attempt)
+                
+                # Log with helpful context
+                logging.warning(
+                    f"⏳ Rate limit hit (attempt {attempt + 1}/{max_retries}). "
+                    f"Waiting {wait_time}s before retry... "
+                    f"(Tip: Rate limit window resets after 60s)"
+                )
+                
                 await asyncio.sleep(wait_time)
+            else:
+                # Not a rate limit error or out of retries
+                raise
+
+def invoke_with_retry_sync(model, messages, max_retries=None, base_wait=None):
+    """
+    Synchronous version of invoke_with_retry for non-async LLM calls
+    
+    Args:
+        model: LLM model to invoke
+        messages: Messages to send
+        max_retries: Maximum number of retry attempts (uses env var if None)
+        base_wait: Base wait time in seconds (uses env var if None)
+        
+    Returns:
+        Model response
+    """
+    if max_retries is None:
+        max_retries = RATE_LIMIT_MAX_RETRIES
+    if base_wait is None:
+        base_wait = RATE_LIMIT_BASE_WAIT
+        
+    for attempt in range(max_retries):
+        try:
+            return model.invoke(messages)
+        except Exception as e:
+            error_str = str(e).lower()
+            is_rate_limit = "rate_limit" in error_str or "429" in error_str
+            
+            if is_rate_limit and attempt < max_retries - 1:
+                wait_time = base_wait * (2 ** attempt)
+                
+                logging.warning(
+                    f"⏳ Rate limit hit (attempt {attempt + 1}/{max_retries}). "
+                    f"Waiting {wait_time}s before retry... "
+                    f"(Tip: Rate limit window resets after 60s)"
+                )
+                
+                time.sleep(wait_time)
             else:
                 raise
 
@@ -437,7 +512,7 @@ Provide at least 5-10 concrete steps to build the model."""
 
         messages = [HumanMessage(content=planning_prompt)]
         logger.info("Sending planning request to LLM...")
-        response = self.llm.invoke(messages)
+        response = invoke_with_retry_sync(self.llm, messages)
 
         print(f"📝"*60)
         # print(f"📝 Requirement preview: {state['requirement'][:1000]}")
@@ -548,7 +623,7 @@ IMPORTANT CRITERIA:
 Respond with ONLY the step numbers that are FULLY completed (e.g., "1,2,3" or "none" if starting fresh).
 If objects exist but appear to be placeholders or incomplete, respond with "none"."""
             
-            detection_response = self.llm.invoke([HumanMessage(content=detection_prompt)])
+            detection_response = invoke_with_retry_sync(self.llm, [HumanMessage(content=detection_prompt)])
             completed_text = detection_response.content.strip().lower()
             
             logger.info(f"LLM completed steps detection: {completed_text}")
@@ -743,6 +818,11 @@ After significant changes, get a viewport screenshot for verification."""
         state["messages"].append(response)
         state["messages"].extend(tool_messages)
         state["current_step"] += 1
+        
+        # Add small delay between steps to prevent rate limit bursts
+        if RATE_LIMIT_STEP_DELAY > 0:
+            logger.debug(f"Waiting {RATE_LIMIT_STEP_DELAY}s between steps to prevent rate limit bursts")
+            await asyncio.sleep(RATE_LIMIT_STEP_DELAY)
         
         return state
     
