@@ -1,5 +1,4 @@
-"""
-Artisan Agent page - Protected by authentication
+"""Artisan Agent page - Interactive 3D modeling chat
 Enhanced chat interface with AI refinement
 """
 import streamlit as st
@@ -45,13 +44,13 @@ def verify_authentication():
     if "authenticated" not in st.session_state or not st.session_state.authenticated:
         st.error("⚠️ Please login first")
         time.sleep(1)
-        st.switch_page("login_page.py")
+        st.switch_page("pages/_auth.py")
         return False
     
     if "token" not in st.session_state or not st.session_state.token:
         st.error("⚠️ Session expired. Please login again.")
         time.sleep(1)
-        st.switch_page("login_page.py")
+        st.switch_page("pages/_auth.py")
         return False
     
     # Verify token is still valid
@@ -69,38 +68,46 @@ def verify_authentication():
                 st.session_state.token = None
                 st.error("⚠️ Session expired. Please login again.")
                 time.sleep(1)
-                st.switch_page("login_page.py")
+                st.switch_page("pages/_auth.py")
                 return False
         else:
             st.session_state.authenticated = False
             st.session_state.token = None
-            st.switch_page("login_page.py")
+            st.switch_page("pages/_auth.py")
             return False
     
     except Exception:
         st.error("⚠️ Unable to verify session. Please login again.")
         time.sleep(1)
-        st.switch_page("login_page.py")
+        st.switch_page("pages/_auth.py")
         return False
     
     return True
 
 
 def logout_user():
-    """Logout user"""
+    """Logout user and clean up session"""
     try:
         if st.session_state.get("token"):
-            requests.post(
+            response = requests.post(
                 f"{BACKEND_URL}/auth/logout",
                 json={"token": st.session_state.token},
-                timeout=5
+                timeout=10  # Increased timeout for container cleanup
             )
-    except Exception:
-        pass
+            if response.status_code == 200:
+                st.success("🗑️ Logged out and container removed")
+    except Exception as e:
+        st.warning(f"Logout warning: {e}")
     
+    # Clear all session state
     st.session_state.authenticated = False
     st.session_state.token = None
     st.session_state.username = None
+    st.session_state.user_id = None
+    st.session_state.blender_ui_url = None
+    st.session_state.mcp_port = None
+    st.session_state.blender_ui_port = None
+    st.session_state.connected = False
 
 
 def check_backend_status():
@@ -131,7 +138,8 @@ def main():
     st.set_page_config(
         page_title="Artisan Agent - Prompt2Mesh",
         page_icon="🎨",
-        layout="wide"
+        layout="wide",
+        initial_sidebar_state="expanded"
     )
     
     # Check authentication first
@@ -150,7 +158,7 @@ def main():
     with col3:
         if st.button("🚪 Logout", use_container_width=True):
             logout_user()
-            st.switch_page("login_page.py")
+            st.switch_page("pages/_auth.py")
     
     st.markdown("*AI-powered prompt expansion for detailed 3D modeling*")
     st.markdown("---")
@@ -167,7 +175,28 @@ def main():
     
     # Sidebar
     with st.sidebar:
+        # Page Navigation at the top
+        st.subheader("📄 Navigate")
+        col_nav1, col_nav2 = st.columns(2)
+        with col_nav1:
+            if st.button("🏠 Home", use_container_width=True, key="nav_home"):
+                st.switch_page("pages/artisan_app.py")
+        with col_nav2:
+            if st.button("📦 Batch", use_container_width=True, key="nav_batch"):
+                st.switch_page("pages/_batch_artisan.py")
+        st.markdown("---")
+        
         st.header("⚙️ Settings")
+        
+        # Show user session info
+        username = st.session_state.get("username")
+        user_id = st.session_state.get("user_id")
+        blender_ui_url = st.session_state.get("blender_ui_url")
+        
+        if username and user_id:
+            st.info(f"👤 **User:** {username} (ID: {user_id})")
+            if blender_ui_url:
+                st.info(f"🖥️ **Your Blender UI:** [{blender_ui_url}]({blender_ui_url})")
         
         # Connection status
         backend_status = st.session_state.client.health_check()
@@ -177,16 +206,40 @@ def main():
             
             if not st.session_state.connected:
                 if st.button("🔌 Connect to Blender", use_container_width=True):
-                    with st.spinner("Connecting to Blender..."):
-                        result = st.session_state.client.connect()
-                        if result.get("connected"):
-                            st.session_state.connected = True
-                            st.success(f"Connected! {result.get('num_tools', 0)} tools available")
-                            st.rerun()
+                    with st.spinner("Connecting to your Blender instance..."):
+                        # Get user_id from session state
+                        user_id = st.session_state.get("user_id")
+                        if not user_id:
+                            st.error("Please login first to connect to your Blender instance")
                         else:
-                            st.error(f"Connection failed: {result.get('error', 'Unknown error')}")
+                            result = st.session_state.client.connect(user_id=user_id)
+                            if result.get("connected"):
+                                st.session_state.connected = True
+                                st.success(f"✅ Connected to your Blender instance! {result.get('num_tools', 0)} tools available")
+                                st.rerun()
+                            else:
+                                st.error(f"Connection failed: {result.get('error', 'Unknown error')}")
             else:
-                st.success("✅ Blender Connected")
+                st.success(f"✅ Blender Connected (User: {username})")
+                
+                # Show detailed connection info
+                if user_id:
+                    try:
+                        import requests
+                        session_info = requests.get(
+                            f"http://backend:8000/user/session?user_id={user_id}",
+                            timeout=5
+                        ).json()
+                        
+                        if session_info.get("active"):
+                            with st.expander("🔍 Connection Details", expanded=False):
+                                st.write(f"**Container:** `{session_info.get('container_name')}`")
+                                st.write(f"**MCP Port:** `{session_info.get('mcp_port')}`")
+                                st.write(f"**UI Port:** `{session_info.get('blender_ui_port')}`")
+                                st.write(f"**Connected Since:** {session_info.get('created_at', 'Unknown')}")
+                    except Exception as e:
+                        pass  # Silently fail if can't get details
+                
                 if st.button("🔌 Disconnect", use_container_width=True):
                     st.session_state.client.disconnect()
                     st.session_state.connected = False

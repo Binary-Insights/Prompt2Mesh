@@ -39,7 +39,7 @@ def login_user(username: str, password: str) -> Optional[dict]:
         response = requests.post(
             f"{BACKEND_URL}/auth/login",
             json={"username": username, "password": password},
-            timeout=5
+            timeout=30  # Increased timeout for container creation
         )
         
         if response.status_code == 200:
@@ -74,12 +74,12 @@ def verify_token(token: str) -> bool:
 
 
 def logout_user(token: str) -> bool:
-    """Logout user by invalidating token"""
+    """Logout user by invalidating token and removing container"""
     try:
         response = requests.post(
             f"{BACKEND_URL}/auth/logout",
             json={"token": token},
-            timeout=5
+            timeout=10  # Increased timeout for container cleanup
         )
         
         return response.status_code == 200
@@ -93,7 +93,8 @@ def main():
     st.set_page_config(
         page_title="Prompt2Mesh - Login",
         page_icon="🔐",
-        layout="centered"
+        layout="centered",
+        initial_sidebar_state="collapsed"
     )
     
     # Initialize session state
@@ -103,6 +104,14 @@ def main():
         st.session_state.token = None
     if "username" not in st.session_state:
         st.session_state.username = None
+    if "user_id" not in st.session_state:
+        st.session_state.user_id = None
+    if "blender_ui_url" not in st.session_state:
+        st.session_state.blender_ui_url = None
+    if "mcp_port" not in st.session_state:
+        st.session_state.mcp_port = None
+    if "blender_ui_port" not in st.session_state:
+        st.session_state.blender_ui_port = None
     
     # Check if already authenticated
     if st.session_state.authenticated and st.session_state.token:
@@ -114,14 +123,26 @@ def main():
             
             with col1:
                 if st.button("🎨 Go to Artisan Agent", use_container_width=True):
-                    st.switch_page("pages/artisan_page.py")
+                    st.switch_page("pages/1_🔒_Artisan_Agent.py")
             
             with col2:
                 if st.button("🚪 Logout", use_container_width=True):
                     logout_user(st.session_state.token)
+                    # Clear all session state
                     st.session_state.authenticated = False
                     st.session_state.token = None
                     st.session_state.username = None
+                    if 'user_id' in st.session_state:
+                        del st.session_state.user_id
+                    if 'blender_ui_url' in st.session_state:
+                        del st.session_state.blender_ui_url
+                    if 'mcp_port' in st.session_state:
+                        del st.session_state.mcp_port
+                    if 'blender_ui_port' in st.session_state:
+                        del st.session_state.blender_ui_port
+                    if 'connected' in st.session_state:
+                        del st.session_state.connected
+                    st.success("🗑️ Logged out and container removed")
                     st.rerun()
             
             return
@@ -158,7 +179,7 @@ def main():
             if not username or not password:
                 st.error("Please enter both username and password")
             else:
-                with st.spinner("Authenticating..."):
+                with st.spinner("🔐 Authenticating and setting up your Blender instance..."):
                     result = login_user(username, password)
                     
                     if result:
@@ -166,17 +187,38 @@ def main():
                         st.session_state.authenticated = True
                         st.session_state.token = result["token"]
                         st.session_state.username = result["username"]
+                        st.session_state.user_id = result.get("user_id")
+                        st.session_state.blender_ui_url = result.get("blender_ui_url")
+                        st.session_state.mcp_port = result.get("mcp_port")
+                        st.session_state.blender_ui_port = result.get("blender_ui_port")
                         
                         st.success(f"✅ Welcome, {result['username']}!")
-                        time.sleep(1)
+                        
+                        # Show Blender UI info if available
+                        if result.get("blender_ui_url"):
+                            st.info(f"🎨 Your Blender instance: {result['blender_ui_url']}")
+                            st.markdown(f"**[🚀 Open Blender UI]({result['blender_ui_url']})**", unsafe_allow_html=True)
+                            st.caption("Click the link above to open your Blender interface in a new tab")
+                        else:
+                            st.warning("⏳ Your Blender container is being created. It will be ready in ~10-15 seconds.")
+                            st.caption("You can proceed to the app. Your Blender instance will be available shortly.")
+                        
+                        time.sleep(2)
                         
                         # Redirect to artisan page
-                        st.switch_page("pages/artisan_page.py")
+                        st.switch_page("pages/1_🔒_Artisan_Agent.py")
                     else:
                         st.error("❌ Invalid username or password")
     
     # Info section
     st.markdown("---")
+    
+    st.markdown("Don't have an account?")
+    if st.button("📝 Create New Account", use_container_width=True):
+        st.switch_page("pages/0_signup_page.py")
+    
+    st.markdown("---")
+    
     st.info("""
     **Default Credentials:**
     - Username: `root`

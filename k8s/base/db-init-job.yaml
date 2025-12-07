@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-init
+  namespace: prompt2mesh
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    metadata:
+      labels:
+        app: db-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: db-init
+        image: 785186658816.dkr.ecr.us-east-1.amazonaws.com/prompt2mesh/db-init:latest
+        envFrom:
+        - configMapRef:
+            name: prompt2mesh-config
+        - secretRef:
+            name: prompt2mesh-secrets
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blender
+  namespace: prompt2mesh
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: blender
+  template:
+    metadata:
+      labels:
+        app: blender
+    spec:
+      containers:
+      - name: blender
+        image: 785186658816.dkr.ecr.us-east-1.amazonaws.com/prompt2mesh/blender:latest
+        ports:
+        - containerPort: 3000
+          name: web-ui
+        - containerPort: 9876
+          name: mcp-server
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: prompt2mesh-config
+              key: TZ
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blender-service
+  namespace: prompt2mesh
+spec:
+  type: LoadBalancer
+  selector:
+    app: blender
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: web-ui
+  - port: 9876
+    targetPort: 9876
+    protocol: TCP
+    name: mcp-server

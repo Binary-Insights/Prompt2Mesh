@@ -1,82 +1,86 @@
 # Prompt2Mesh
 Final Project - Control Blender with Natural Language
 
-## Quick Start
+## 🚀 Quick Start (Multi-User System)
 
-### 1. Start Blender with the Addon
+### 1. Start the Backend
 
-1. Open **Blender**
-2. Install the addon:
-   - Edit → Preferences → Add-ons → Install
-   - Select `addon.py` from this directory
-   - Enable "Blender MCP"
-3. Start the server:
-   - Press `N` in 3D View to show sidebar
-   - Click "BlenderMCP" tab
-   - Click "Start Server"
-
-### 2. Test the Connection
-
-Use the interactive client to create a sphere with physics:
-
-```bash
-python interactive_client.py
+```powershell
+cd docker
+docker-compose up -d
 ```
 
-Choose option 1 to create a sphere with gravity, then press **SPACEBAR** in Blender to run the physics simulation!
+### 2. Access the Web Interface
 
-## What This Does
+Open your browser: **http://localhost:8501**
 
-This project bridges AI assistants to Blender using the Model Context Protocol (MCP):
+### 3. Create Your Account
 
-- **Blender Addon** (`addon.py`): Runs inside Blender, listens on port 9876
-- **MCP Server** (`main.py`): Translates MCP requests to Blender commands
-- **Interactive Client** (`interactive_client.py`): Test tool for direct commands
+1. Click **"Sign Up"**
+2. Enter username and password
+3. Click **"Create Account"**
 
-## Files
+### 4. Login
 
-- `SETUP_GUIDE.md` - Detailed setup instructions
-- `test_blender_connection.py` - Connection test suite
-- `interactive_client.py` - Interactive CLI for testing
-- `main.py` - MCP server entry point
-- `addon.py` - Blender addon
-- `src/blender_mcp/server.py` - MCP server implementation
+1. Enter your credentials
+2. Click **"Login"**
+3. Wait 5-10 seconds while your personal Blender instance is created
+4. You'll see your **Blender UI URL** (e.g., `http://localhost:13000`)
 
-## Usage
+### 5. Enable MCP Addon (One-Time Setup)
 
-### With Interactive Client
+**The addon is pre-installed!** You just need to enable it:
 
-```bash
-python interactive_client.py
-```
+1. Click on your Blender UI URL to open Blender
+2. In Blender: **Edit → Preferences → Add-ons**
+3. Search for **"MCP"** or **"Blender MCP Server"**
+4. Check the box to enable it
+5. Close preferences
 
-Options:
-- `1` - Create sphere with gravity physics
-- `2` - Create bouncing cubes
-- `custom` - Enter custom Python code
-- `info` - Get Blender version info
+✅ The addon will start automatically on port 9876
 
-### With MCP Clients (Claude Desktop, Cline, etc.)
+### 6. Connect and Chat
 
-See `SETUP_GUIDE.md` for configuration instructions.
+1. Return to the chat interface
+2. Click **"Connect to Blender"**
+3. Start creating! Try: *"Create a Christmas tree"*
 
-## Troubleshooting
+## ✨ Features
 
-**"Connection refused" error:**
-- Make sure Blender is running
-- The addon must be installed and enabled
-- The server must be started in Blender (BlenderMCP panel)
+- **Multi-User Support**: Each user gets their own isolated Blender instance
+- **Persistent Workspace**: Your Blender scenes are saved between sessions
+- **AI-Powered**: Uses Claude Sonnet 3.5 with specialized Blender agents
+- **No Interference**: Multiple users can work simultaneously without conflicts
 
-**"Invalid JSON" error:**
-- Don't run `main.py` directly and type commands
-- Use `interactive_client.py` for testing
-- Use an MCP client for production use
+## 🏗️ Architecture
 
-See `SETUP_GUIDE.md` for more details.
+### Multi-User Container System
 
-## 🤖 AI Agents
+- **Backend (FastAPI)**: JWT authentication, session management, Docker orchestration
+- **Database (PostgreSQL)**: User accounts and session tracking
+- **Per-User Containers**: Each user gets an isolated Blender instance
+- **Port Allocation**: Dynamic port assignment (MCP: 10000+, UI: 13000+)
+- **Frontend (Streamlit)**: Web-based chat interface
 
-This project includes advanced AI agents for autonomous 3D modeling:
+### Components
+
+- `src/backend/` - FastAPI server with authentication
+- `src/frontend/` - Streamlit web interface
+- `src/addon/` - Blender MCP addon
+- `src/blender/` - Blender agent (Anthropic integration)
+- `src/artisan_agent/` - Autonomous 3D modeling agent
+- `src/refinement_agent/` - Prompt refinement system
+- `docker/` - Docker configuration
+
+## 📚 Documentation
+
+- `QUICKSTART.md` - Step-by-step setup guide
+- `ARCHITECTURE.md` - System design overview
+- `AUTH_SETUP.md` - Authentication system details
+- `MCP_ADDON_STATUS.md` - Current status and workarounds
+- `src/artisan_agent/README.md` - Artisan agent documentation
+
+## 🔧 Advanced Usage
 
 ### Artisan Agent - Autonomous 3D Modeling
 
@@ -84,25 +88,13 @@ An intelligent agent that reads requirements and autonomously builds 3D models i
 
 **Features:**
 - 📖 Reads detailed requirements from JSON files
-- 🧠 Plans sequential modeling steps using Claude Sonnet 4.5
+- 🧠 Plans sequential modeling steps using Claude Sonnet 3.5
 - 🔧 Executes Blender MCP tools automatically
 - 📸 Captures viewport screenshots for visual feedback
 - 🔄 Iterates until modeling is complete
 - 📊 Full LangSmith tracing for debugging
 
-**Quick Start:**
-
-```bash
-# Command line
-python src/artisan_agent/run_artisan.py --input-file data/prompts/json/your_requirement.json
-
-# Web interface
-streamlit run src/artisan_agent/streamlit_artisan.py
-```
-
 See [Artisan Agent README](src/artisan_agent/README.md) for detailed documentation.
-
-### Prompt Refinement Agent
 
 Expands simple user prompts into detailed 3D modeling specifications.
 

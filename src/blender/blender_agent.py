@@ -18,11 +18,13 @@ load_dotenv()
 class BlenderChatAgent:
     """Agent for managing Blender MCP connection and Claude AI interactions"""
     
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: str = None, mcp_host: str = "localhost", mcp_port: int = 9876):
         self.conversation_history: List[Dict[str, Any]] = []
         self.mcp_session = None
         self.tools: Dict[str, Any] = {}
         self.anthropic = Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
+        self.mcp_host = mcp_host
+        self.mcp_port = mcp_port
         self.stdio_context = None
         self.session_context = None
         self._cleanup_done = False
@@ -32,8 +34,10 @@ class BlenderChatAgent:
         # Get the absolute path to main.py
         main_py_path = os.path.join(os.getcwd(), "main.py")
         
-        # Pass environment variables to subprocess
+        # Pass environment variables to subprocess, including user-specific Blender port
         env = os.environ.copy()
+        env["BLENDER_HOST"] = self.mcp_host
+        env["BLENDER_PORT"] = str(self.mcp_port)
         
         server_params = StdioServerParameters(
             command="python",

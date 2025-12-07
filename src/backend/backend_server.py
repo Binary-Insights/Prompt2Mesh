@@ -23,6 +23,7 @@ from src.blender.blender_agent import BlenderChatAgent
 from src.refinement_agent import PromptRefinementAgent
 from src.artisan_agent import ArtisanAgent
 from src.login import AuthService, init_db
+from src.backend.user_session_manager import UserSessionManager
 
 # Load environment variables
 load_dotenv()
@@ -33,6 +34,7 @@ refinement_agent: PromptRefinementAgent = None
 artisan_agent: ArtisanAgent = None
 artisan_tasks: Dict[str, Dict[str, Any]] = {}  # Track running tasks
 auth_service: AuthService = None
+session_manager: UserSessionManager = None  # Per-user session manager
 
 
 class ChatRequest(BaseModel):
@@ -96,6 +98,20 @@ class ArtisanTaskStatus(BaseModel):
     progress: int = 0  # Add progress percentage
 
 
+class SignupRequest(BaseModel):
+    """Request model for signup endpoint"""
+    username: str
+    password: str
+
+
+class SignupResponse(BaseModel):
+    """Response model for signup endpoint"""
+    success: bool
+    user_id: Optional[int] = None
+    username: Optional[str] = None
+    message: str
+
+
 class LoginRequest(BaseModel):
     """Request model for login endpoint"""
     username: str
@@ -110,6 +126,10 @@ class LoginResponse(BaseModel):
     username: Optional[str] = None
     expires_at: Optional[str] = None
     message: str
+    # Blender session info
+    mcp_port: Optional[int] = None
+    blender_ui_port: Optional[int] = None
+    blender_ui_url: Optional[str] = None
 
 
 class VerifyTokenRequest(BaseModel):
@@ -129,7 +149,7 @@ class VerifyTokenResponse(BaseModel):
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup and shutdown"""
     # Startup
-    global refinement_agent, auth_service
+    global refinement_agent, auth_service, session_manager
     
     # Initialize authentication service
     try:
@@ -140,6 +160,15 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️ Failed to initialize Authentication Service: {e}")
         auth_service = None
+    
+    # Initialize user session manager
+    try:
+        print("🔧 Initializing user session manager...")
+        session_manager = UserSessionManager()
+        print("✅ User session manager initialized")
+    except Exception as e:
+        print(f"⚠️ Failed to initialize User Session Manager: {e}")
+        session_manager = None
     
     # Initialize refinement agent
     try:
@@ -158,6 +187,15 @@ async def lifespan(app: FastAPI):
             await agent.cleanup()
         except Exception:
             pass
+    
+    # Cleanup all user sessions
+    if session_manager:
+        print("🧹 Cleaning up user sessions...")
+        for session in session_manager.list_active_sessions():
+            try:
+                session_manager.stop_user_session(session.user_id)
+            except Exception as e:
+                print(f"Error cleaning up session for {session.username}: {e}")
 
 
 # Initialize FastAPI app
@@ -214,9 +252,43 @@ async def root():
 
 
 @app.post("/connect", response_model=ConnectionStatus)
-async def connect():
-    """Connect to Blender MCP server"""
+async def connect(user_id: int = None):
+    """Connect to Blender MCP server for a specific user"""
     global agent, agent_loop
+    
+    # If no user_id provided, try to use the shared Blender instance (backward compatibility)
+    if not user_id:
+        # Try connecting to default Blender instance on port 9876
+        if not agent:
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="ANTHROPIC_API_KEY not set in environment"
+                )
+            agent = BlenderChatAgent(api_key=api_key, mcp_host="localhost", mcp_port=9876)
+            try:
+                num_tools = await agent.initialize_mcp()
+                return ConnectionStatus(connected=True, num_tools=num_tools)
+            except Exception as e:
+                await agent.cleanup()
+                agent = None
+                return ConnectionStatus(connected=False, error=str(e))
+        return ConnectionStatus(connected=True, num_tools=len(agent.tools))
+    
+    # Get user's session to find their Blender port
+    if not session_manager:
+        return ConnectionStatus(
+            connected=False,
+            error="Session manager not available. Please restart backend."
+        )
+    
+    user_session = session_manager.get_user_session(user_id)
+    if not user_session:
+        return ConnectionStatus(
+            connected=False,
+            error="No active Blender session. Please login again."
+        )
     
     # Check if already connected
     if agent and not agent._cleanup_done:
@@ -260,8 +332,19 @@ async def connect():
                 detail="ANTHROPIC_API_KEY not set in environment"
             )
         
-        # Create new agent
-        agent = BlenderChatAgent(api_key=api_key)
+        # Create new agent with user-specific MCP port
+        print(f"🔌 Connecting to user's Blender instance: {user_session.container_name}:9876")
+        print(f"   User: {user_session.username} (ID: {user_session.user_id})")
+        print(f"   Container: {user_session.container_name}")
+        print(f"   MCP Port (internal): 9876")
+        print(f"   MCP Port (external): {user_session.mcp_port}")
+        print(f"   UI Port: {user_session.blender_ui_port}")
+        
+        agent = BlenderChatAgent(
+            api_key=api_key,
+            mcp_host=user_session.container_name,  # Use container name for Docker network
+            mcp_port=9876  # Internal port within container
+        )
         
         # Initialize MCP connection using await (we're in an async function)
         num_tools = await agent.initialize_mcp()
@@ -714,10 +797,61 @@ async def cancel_artisan_task(task_id: str):
 # Authentication Endpoints
 # ============================================================================
 
+@app.post("/auth/signup", response_model=SignupResponse)
+async def signup(request: SignupRequest):
+    """Create a new user account"""
+    global auth_service
+    
+    if not auth_service:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service not available"
+        )
+    
+    try:
+        # Validate input
+        if len(request.username) < 3:
+            return SignupResponse(
+                success=False,
+                message="Username must be at least 3 characters long"
+            )
+        
+        if len(request.password) < 6:
+            return SignupResponse(
+                success=False,
+                message="Password must be at least 6 characters long"
+            )
+        
+        # Create user
+        new_user = auth_service.create_user(request.username, request.password)
+        
+        if new_user:
+            return SignupResponse(
+                success=True,
+                user_id=new_user["id"],
+                username=new_user["username"],
+                message="User created successfully"
+            )
+        else:
+            return SignupResponse(
+                success=False,
+                message="Username already exists"
+            )
+    
+    except Exception as e:
+        import traceback
+        error_detail = f"Error during signup: {str(e)}\n{traceback.format_exc()}"
+        print(error_detail)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
 @app.post("/auth/login", response_model=LoginResponse)
 async def login(request: LoginRequest):
     """Authenticate user and return JWT token"""
-    global auth_service
+    global auth_service, session_manager
     
     if not auth_service:
         raise HTTPException(
@@ -729,13 +863,41 @@ async def login(request: LoginRequest):
         result = auth_service.authenticate_user(request.username, request.password)
         
         if result:
+            # Create or get user's Blender session (async, non-blocking)
+            user_session = None
+            if session_manager:
+                try:
+                    # Try to get existing session first (fast)
+                    existing_session = session_manager.get_user_session(result["user_id"])
+                    if existing_session:
+                        user_session = existing_session
+                        print(f"✅ Retrieved existing Blender session for {result['username']}")
+                    else:
+                        # Create new session (may take 10-15 seconds)
+                        print(f"🚀 Creating Blender container for {result['username']}...")
+                        user_session = session_manager.create_user_session(
+                            user_id=result["user_id"],
+                            username=result["username"]
+                        )
+                        print(f"✅ Created Blender session for {result['username']}")
+                    
+                    print(f"   MCP Port: {user_session.mcp_port}")
+                    print(f"   Blender UI Port: {user_session.blender_ui_port}")
+                except Exception as e:
+                    print(f"⚠️ Failed to create user session: {e}")
+                    import traceback
+                    traceback.print_exc()
+            
             return LoginResponse(
                 success=True,
                 token=result["token"],
                 user_id=result["user_id"],
                 username=result["username"],
                 expires_at=result["expires_at"],
-                message="Login successful"
+                message="Login successful",
+                mcp_port=user_session.mcp_port if user_session else None,
+                blender_ui_port=user_session.blender_ui_port if user_session else None,
+                blender_ui_url=f"http://localhost:{user_session.blender_ui_port}" if user_session else None
             )
         else:
             return LoginResponse(
@@ -793,7 +955,7 @@ async def verify_token(request: VerifyTokenRequest):
 @app.post("/auth/logout")
 async def logout(request: VerifyTokenRequest):
     """Logout user by invalidating token"""
-    global auth_service
+    global auth_service, session_manager
     
     if not auth_service:
         raise HTTPException(
@@ -802,7 +964,22 @@ async def logout(request: VerifyTokenRequest):
         )
     
     try:
+        # Get user info from token before invalidating
+        payload = auth_service.verify_token(request.token)
+        
+        # Invalidate token
         auth_service.logout(request.token)
+        
+        # Remove user's Blender session (stop and delete container)
+        if session_manager and payload:
+            user_id = payload.get("user_id")
+            if user_id:
+                try:
+                    session_manager.remove_user_session(user_id)
+                    print(f"🗑️ Removed Blender container for user {payload.get('username')} (ID: {user_id})")
+                except Exception as e:
+                    print(f"⚠️ Error stopping user session: {e}")
+        
         return {"success": True, "message": "Logged out successfully"}
     
     except Exception as e:
@@ -813,6 +990,38 @@ async def logout(request: VerifyTokenRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+
+
+@app.get("/user/session")
+async def get_user_session_info(user_id: int):
+    """Get user's Blender session information"""
+    global session_manager
+    
+    if not session_manager:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Session manager not available"
+        )
+    
+    session = session_manager.get_user_session(user_id)
+    
+    if not session:
+        return {
+            "active": False,
+            "message": "No active session"
+        }
+    
+    return {
+        "active": True,
+        "user_id": session.user_id,
+        "username": session.username,
+        "container_name": session.container_name,
+        "mcp_port": session.mcp_port,
+        "blender_ui_port": session.blender_ui_port,
+        "blender_ui_url": f"http://localhost:{session.blender_ui_port}",
+        "created_at": session.created_at.isoformat(),
+        "last_activity": session.last_activity.isoformat()
+    }
 
 
 if __name__ == "__main__":

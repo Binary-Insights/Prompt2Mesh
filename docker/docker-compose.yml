@@ -86,6 +86,8 @@ services:
       - ../screenshots:/app/screenshots
       - ../logs:/app/logs
       - ../data:/app/data
+      # Docker socket for creating per-user containers
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8000:8000"
     networks:
@@ -132,7 +134,7 @@ services:
       - "8501:8501"
     networks:
       - prompt2mesh-network
-    command: streamlit run src/frontend/login_page.py --server.port=8501 --server.address=0.0.0.0
+    command: streamlit run src/frontend/auth_app.py --server.port=8501 --server.address=0.0.0.0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501/"]
       interval: 30s

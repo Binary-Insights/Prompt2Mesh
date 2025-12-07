@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prompt2mesh-config
+  namespace: prompt2mesh
+data:
+  # Database configuration
+  POSTGRES_HOST: "postgres-service"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "prompt2mesh_auth"
+  POSTGRES_USER: "postgres"
+  
+  # Backend configuration
+  BACKEND_URL: "http://backend-service:8000"
+  BLENDER_PORT: "9876"
+  
+  # Application configuration
+  JWT_EXPIRY_HOURS: "24"
+  TZ: "America/New_York"
+  PYTHONUNBUFFERED: "1"
+  
+  # Langsmith/Langchain Tracing
+  LANGCHAIN_TRACING_V2: "true"
+  LANGCHAIN_PROJECT: "Prompt2Mesh"
+  LANGCHAIN_CALLBACKS_BACKGROUND: "true"
+  LANGGRAPH_RECURSION_LIMIT: "100"

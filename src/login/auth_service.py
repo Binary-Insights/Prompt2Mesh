@@ -31,8 +31,8 @@ class AuthService:
         """Verify a password against its hash"""
         return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
     
-    def create_user(self, username: str, password: str) -> Optional[User]:
-        """Create a new user"""
+    def create_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
+        """Create a new user and return user info"""
         with get_db_session() as session:
             # Check if user exists
             existing_user = session.query(User).filter(User.username == username).first()
@@ -46,7 +46,11 @@ class AuthService:
             session.commit()
             session.refresh(new_user)
             
-            return new_user
+            # Return user data before session closes
+            return {
+                "id": new_user.id,
+                "username": new_user.username
+            }
     
     def authenticate_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
         """

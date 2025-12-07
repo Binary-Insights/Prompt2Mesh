@@ -1,0 +1,46 @@
+#!/usr/bin/with-contenv bash
+# MCP Monitor Service
+# This service monitors and ensures the MCP addon is enabled
+
+echo "[MCP Monitor] Starting service..."
+
+# Wait for Blender to be ready
+sleep 30
+
+while true; do
+    # Check if MCP port is listening
+    if ! netstat -tuln | grep -q ":9876 "; then
+        echo "[MCP Monitor] MCP server not detected on port 9876, attempting to enable addon..."
+        
+        # Find Blender config directory
+        BLENDER_CONFIG_DIR=$(find /config/.config/blender -maxdepth 1 -type d -name "[0-9]*" | sort -V | tail -1)
+        
+        if [ -n "$BLENDER_CONFIG_DIR" ]; then
+            ADDON_DIR="$BLENDER_CONFIG_DIR/scripts/addons"
+            mkdir -p "$ADDON_DIR"
+            
+            # Copy addon if not present
+            if [ ! -f "$ADDON_DIR/blender_mcp_addon.py" ]; then
+                echo "[MCP Monitor] Copying MCP addon to $ADDON_DIR..."
+                cp /tmp/blender_mcp_addon.py "$ADDON_DIR/" 2>/dev/null || \
+                cp /defaults/.config/blender/4.2/scripts/addons/blender_mcp_addon.py "$ADDON_DIR/" 2>/dev/null
+                chown -R abc:abc "$ADDON_DIR"
+            fi
+            
+            # Try to enable the addon using Blender's background mode
+            echo "[MCP Monitor] Enabling addon via Blender CLI..."
+            su abc -c "blender --background --python /tmp/enable_addon_auto.py" >> /tmp/mcp_monitor.log 2>&1
+            
+            if [ $? -eq 0 ]; then
+                echo "[MCP Monitor] ✅ Addon enable command executed"
+            else
+                echo "[MCP Monitor] ⚠️ Addon enable command failed"
+            fi
+        fi
+    else
+        echo "[MCP Monitor] ✅ MCP server is running on port 9876"
+    fi
+    
+    # Check every 60 seconds
+    sleep 60
+done

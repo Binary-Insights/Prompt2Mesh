@@ -25,9 +25,10 @@ class BlenderChatAPIClient:
         self.base_url = base_url.rstrip('/')
         self._session_id = str(uuid.uuid4())  # Generate unique session ID
     
-    def connect(self) -> Dict[str, Any]:
+    def connect(self, user_id: int = None) -> Dict[str, Any]:
         """Connect to Blender MCP server via backend"""
-        response = requests.post(f"{self.base_url}/connect")
+        params = {"user_id": user_id} if user_id else {}
+        response = requests.post(f"{self.base_url}/connect", params=params)
         response.raise_for_status()
         return response.json()
     

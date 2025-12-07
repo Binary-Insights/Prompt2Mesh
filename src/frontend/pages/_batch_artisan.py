@@ -1,5 +1,4 @@
-"""
-Batch Artisan Agent Page
+"""Batch Artisan Agent Page
 Loads refined prompts from JSON files and runs the Artisan agent
 """
 import streamlit as st
@@ -40,13 +39,13 @@ def verify_authentication():
     if "authenticated" not in st.session_state or not st.session_state.authenticated:
         st.error("⚠️ Please login first")
         time.sleep(1)
-        st.switch_page("login_page.py")
+        st.switch_page("pages/_auth.py")
         return False
     
     if "token" not in st.session_state or not st.session_state.token:
         st.error("⚠️ Session expired. Please login again.")
         time.sleep(1)
-        st.switch_page("login_page.py")
+        st.switch_page("pages/_auth.py")
         return False
     
     # Verify token is still valid
@@ -64,38 +63,46 @@ def verify_authentication():
                 st.session_state.token = None
                 st.error("⚠️ Session expired. Please login again.")
                 time.sleep(1)
-                st.switch_page("login_page.py")
+                st.switch_page("pages/_auth.py")
                 return False
         else:
             st.session_state.authenticated = False
             st.session_state.token = None
-            st.switch_page("login_page.py")
+            st.switch_page("pages/_auth.py")
             return False
     
     except Exception:
         st.error("⚠️ Unable to verify session. Please login again.")
         time.sleep(1)
-        st.switch_page("login_page.py")
+        st.switch_page("pages/_auth.py")
         return False
     
     return True
 
 
 def logout_user():
-    """Logout user"""
+    """Logout user and clean up session"""
     try:
         if st.session_state.get("token"):
-            requests.post(
+            response = requests.post(
                 f"{BACKEND_URL}/auth/logout",
                 json={"token": st.session_state.token},
-                timeout=5
+                timeout=10  # Increased timeout for container cleanup
             )
-    except Exception:
-        pass
+            if response.status_code == 200:
+                st.success("🗑️ Logged out and container removed")
+    except Exception as e:
+        st.warning(f"Logout warning: {e}")
     
+    # Clear all session state
     st.session_state.authenticated = False
     st.session_state.token = None
     st.session_state.username = None
+    st.session_state.user_id = None
+    st.session_state.blender_ui_url = None
+    st.session_state.mcp_port = None
+    st.session_state.blender_ui_port = None
+    st.session_state.connected = False
 
 
 def load_json_files():
@@ -215,7 +222,8 @@ def main():
     st.set_page_config(
         page_title="Batch Artisan Agent",
         page_icon="📦",
-        layout="wide"
+        layout="wide",
+        initial_sidebar_state="expanded"
     )
     
     # Check authentication first
@@ -234,7 +242,7 @@ def main():
     with col3:
         if st.button("🚪 Logout", use_container_width=True):
             logout_user()
-            st.switch_page("login_page.py")
+            st.switch_page("pages/_auth.py")
     
     st.markdown("*Load refined prompts from JSON and run autonomous 3D modeling*")
     
@@ -250,6 +258,17 @@ def main():
     
     # Sidebar
     with st.sidebar:
+        # Page Navigation at the top
+        st.subheader("📄 Navigate")
+        col_nav1, col_nav2 = st.columns(2)
+        with col_nav1:
+            if st.button("🏠 Home", use_container_width=True, key="nav_home"):
+                st.switch_page("pages/artisan_app.py")
+        with col_nav2:
+            if st.button("🎨 Artisan", use_container_width=True, key="nav_artisan"):
+                st.switch_page("pages/_artisan_agent.py")
+        st.markdown("---")
+        
         st.header("⚙️ Configuration")
         
         # Blender connection status
