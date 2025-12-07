@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 from src.blender.blender_agent import BlenderChatAgent
 from src.refinement_agent import PromptRefinementAgent
 from src.artisan_agent import ArtisanAgent
+from src.sculptor_agent import SculptorAgent
 from src.login import AuthService, init_db
 
 # Load environment variables
@@ -32,6 +33,8 @@ agent: BlenderChatAgent = None
 refinement_agent: PromptRefinementAgent = None
 artisan_agent: ArtisanAgent = None
 artisan_tasks: Dict[str, Dict[str, Any]] = {}  # Track running tasks
+sculptor_agent: SculptorAgent = None
+sculptor_tasks: Dict[str, Dict[str, Any]] = {}  # Track sculptor tasks
 auth_service: AuthService = None
 
 
@@ -125,6 +128,36 @@ class VerifyTokenResponse(BaseModel):
     message: str
 
 
+class SculptorModelingRequest(BaseModel):
+    """Request model for sculptor modeling endpoint"""
+    image_path: str  # Path to input 2D image
+    use_resume: bool = True
+
+
+class SculptorModelingResponse(BaseModel):
+    """Response model for sculptor modeling endpoint"""
+    task_id: str
+    status: str  # "started", "running", "completed", "failed"
+    message: str
+
+
+class SculptorTaskStatus(BaseModel):
+    """Response model for sculptor task status"""
+    task_id: str
+    status: str
+    session_id: Optional[str] = None
+    steps_executed: int = 0
+    screenshots_captured: int = 0
+    screenshot_directory: Optional[str] = None
+    success: bool = False
+    error: Optional[str] = None
+    tool_results: List[Dict[str, Any]] = []
+    messages: List[str] = []
+    progress: int = 0
+    vision_analysis: Optional[str] = None
+    quality_scores: List[Dict[str, Any]] = []
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup and shutdown"""
@@ -204,12 +237,20 @@ async def root():
             "artisan": {
                 "model": "/artisan/model",
                 "status": "/artisan/status/{task_id}",
-                "tasks": "/artisan/tasks"
+                "tasks": "/artisan/tasks",
+                "cancel": "/artisan/cancel/{task_id}"
+            },
+            "sculptor": {
+                "model": "/sculptor/model",
+                "status": "/sculptor/status/{task_id}",
+                "tasks": "/sculptor/tasks",
+                "cancel": "/sculptor/cancel/{task_id}"
             }
         },
         "auth_available": auth_service is not None,
         "refinement_agent_available": refinement_agent is not None,
-        "artisan_agent_available": artisan_agent is not None
+        "artisan_agent_available": artisan_agent is not None,
+        "sculptor_agent_available": sculptor_agent is not None
     }
 
 
@@ -689,6 +730,248 @@ async def cancel_artisan_task(task_id: str):
         )
     
     task_info = artisan_tasks[task_id]
+    
+    # Only cancel if task is running or initializing
+    if task_info["status"] in ["initializing", "running"]:
+        task_info["cancelled"] = True
+        task_info["status"] = "cancelled"
+        task_info["progress"] = 0
+        task_info["messages"].append(f"[{datetime.now().strftime('%H:%M:%S')}] Task cancelled by user")
+        
+        return {
+            "task_id": task_id,
+            "status": "cancelled",
+            "message": "Task cancellation requested"
+        }
+    else:
+        return {
+            "task_id": task_id,
+            "status": task_info["status"],
+            "message": f"Task cannot be cancelled (current status: {task_info['status']})"
+        }
+
+
+# ============================================================================
+# Sculptor Agent Endpoints
+# ============================================================================
+
+@app.post("/sculptor/model", response_model=SculptorModelingResponse)
+async def start_sculptor_modeling(request: SculptorModelingRequest):
+    """Start a Sculptor Agent modeling task from 2D image"""
+    global sculptor_agent, sculptor_tasks
+    
+    # Validate image file exists
+    image_file = Path(request.image_path)
+    if not image_file.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Image file not found: {request.image_path}"
+        )
+    
+    try:
+        # Generate task ID
+        from uuid import uuid4
+        task_id = str(uuid4())
+        
+        # Create sculptor agent for this task
+        agent = SculptorAgent(
+            session_id=task_id,
+            display_callback=None,
+            cancellation_check=lambda: sculptor_tasks.get(task_id, {}).get("cancelled", False)
+        )
+        
+        # Store task info
+        sculptor_tasks[task_id] = {
+            "task_id": task_id,
+            "agent": agent,
+            "image_path": request.image_path,
+            "use_resume": request.use_resume,
+            "status": "initializing",
+            "result": None,
+            "error": None,
+            "messages": [],
+            "progress": 0,
+            "cancelled": False
+        }
+        
+        # Start background task
+        asyncio.create_task(_run_sculptor_task(task_id))
+        
+        return SculptorModelingResponse(
+            task_id=task_id,
+            status="initializing",
+            message="Sculptor task started"
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to start sculptor task: {str(e)}"
+        )
+
+
+async def _run_sculptor_task(task_id: str):
+    """Background task runner for sculptor modeling"""
+    global sculptor_tasks
+    
+    task_info = sculptor_tasks[task_id]
+    agent = task_info["agent"]
+    
+    def log_message(msg: str):
+        """Helper to log messages"""
+        print(f"[Sculptor {task_id}] {msg}")
+        task_info["messages"].append(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+    
+    try:
+        # Check if cancelled before starting
+        if task_info.get("cancelled", False):
+            log_message("Task cancelled before execution")
+            task_info["status"] = "cancelled"
+            return
+        
+        # Update status
+        task_info["status"] = "running"
+        task_info["progress"] = 10
+        
+        # Initialize agent
+        log_message("Initializing Sculptor Agent...")
+        await agent.initialize()
+        
+        # Check cancellation after initialization
+        if task_info.get("cancelled", False):
+            log_message("Task cancelled after initialization")
+            task_info["status"] = "cancelled"
+            return
+        
+        task_info["progress"] = 20
+        log_message("Agent initialized successfully")
+        
+        # Run modeling task
+        log_message(f"Analyzing image: {task_info['image_path']}")
+        task_info["progress"] = 30
+        
+        result = await agent.run(
+            task_info["image_path"],
+            use_deterministic_session=task_info["use_resume"]
+        )
+        
+        # Check if cancelled after completion
+        if task_info.get("cancelled", False):
+            log_message("Task cancelled after execution")
+            task_info["status"] = "cancelled"
+            return
+        
+        # Store result
+        task_info["result"] = result
+        task_info["session_id"] = result.get("session_id")
+        task_info["steps_executed"] = result.get("steps_executed", 0)
+        task_info["screenshots_captured"] = result.get("screenshots_captured", 0)
+        task_info["screenshot_directory"] = result.get("screenshot_directory")
+        task_info["vision_analysis"] = result.get("vision_analysis")
+        task_info["quality_scores"] = result.get("quality_scores", [])
+        
+        # Check if recursion limit was reached
+        if result.get("recursion_limit_reached", False):
+            task_info["status"] = "completed"
+            task_info["progress"] = 100
+            log_message(f"Completed with recursion limit (steps: {task_info['steps_executed']})")
+        elif result.get("success", False):
+            task_info["status"] = "completed"
+            task_info["progress"] = 100
+            log_message("Modeling completed successfully")
+        else:
+            task_info["status"] = "failed"
+            task_info["error"] = result.get("error", "Unknown error")
+            task_info["progress"] = 0
+            log_message(f"Failed: {task_info['error']}")
+            
+    except Exception as e:
+        import traceback
+        error_msg = f"Error: {str(e)}\n{traceback.format_exc()}"
+        task_info["error"] = str(e)
+        task_info["status"] = "failed"
+        task_info["progress"] = 0
+        log_message(f"Failed: {str(e)}")
+        print(f"[Sculptor {task_id}] Full error:\n{error_msg}")
+        
+    finally:
+        # Cleanup agent
+        try:
+            await agent.cleanup()
+        except Exception as e:
+            log_message(f"Cleanup error: {str(e)}")
+
+
+@app.get("/sculptor/status/{task_id}", response_model=SculptorTaskStatus)
+async def get_sculptor_task_status(task_id: str):
+    """Get the status of a sculptor modeling task"""
+    global sculptor_tasks
+    
+    if task_id not in sculptor_tasks:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task {task_id} not found"
+        )
+    
+    task_info = sculptor_tasks[task_id]
+    result = task_info.get("result")
+    
+    # Build response
+    response = SculptorTaskStatus(
+        task_id=task_id,
+        status=task_info["status"],
+        error=task_info.get("error"),
+        messages=task_info.get("messages", []),
+        progress=task_info.get("progress", 0)
+    )
+    
+    # Add result details if available
+    if result:
+        response.session_id = result.get("session_id")
+        response.steps_executed = result.get("steps_executed", 0)
+        response.screenshots_captured = result.get("screenshots_captured", 0)
+        response.screenshot_directory = result.get("screenshot_directory")
+        response.success = result.get("success", False)
+        response.tool_results = result.get("tool_results", [])
+        response.vision_analysis = result.get("vision_analysis")
+        response.quality_scores = result.get("quality_scores", [])
+    
+    return response
+
+
+@app.get("/sculptor/tasks")
+async def list_sculptor_tasks():
+    """List all sculptor modeling tasks"""
+    global sculptor_tasks
+    
+    tasks_summary = []
+    for task_id, info in sculptor_tasks.items():
+        tasks_summary.append({
+            "task_id": task_id,
+            "status": info["status"],
+            "image_path": info["image_path"],
+            "use_resume": info["use_resume"],
+            "progress": info.get("progress", 0)
+        })
+    
+    return {
+        "tasks": tasks_summary,
+        "total": len(tasks_summary)
+    }
+
+
+@app.post("/sculptor/cancel/{task_id}")
+async def cancel_sculptor_task(task_id: str):
+    """Cancel a running sculptor modeling task"""
+    global sculptor_tasks
+    
+    if task_id not in sculptor_tasks:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task {task_id} not found"
+        )
+    
+    task_info = sculptor_tasks[task_id]
     
     # Only cancel if task is running or initializing
     if task_info["status"] in ["initializing", "running"]:
