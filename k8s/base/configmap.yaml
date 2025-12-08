@@ -5,13 +5,13 @@ metadata:
   namespace: prompt2mesh
 data:
   # Database configuration
-  POSTGRES_HOST: "postgres-service"
+  POSTGRES_HOST: "postgres"
   POSTGRES_PORT: "5432"
   POSTGRES_DB: "prompt2mesh_auth"
   POSTGRES_USER: "postgres"
   
   # Backend configuration
-  BACKEND_URL: "http://backend-service:8000"
+  BACKEND_URL: "http://backend:8000"
   BLENDER_PORT: "9876"
   
   # Application configuration

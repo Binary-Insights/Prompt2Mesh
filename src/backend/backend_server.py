@@ -23,7 +23,16 @@ from src.blender.blender_agent import BlenderChatAgent
 from src.refinement_agent import PromptRefinementAgent
 from src.artisan_agent import ArtisanAgent
 from src.login import AuthService, init_db
-from src.backend.user_session_manager import UserSessionManager
+
+# Conditional import based on deployment mode
+DEPLOYMENT_MODE = os.getenv("DEPLOYMENT_MODE", "docker")  # "docker" or "kubernetes"
+
+if DEPLOYMENT_MODE == "kubernetes":
+    from src.backend.k8s_user_session_manager import K8sUserSessionManager as SessionManager
+    print(f"🚀 Running in Kubernetes mode")
+else:
+    from src.backend.user_session_manager import UserSessionManager as SessionManager
+    print(f"🐳 Running in Docker mode")
 
 # Load environment variables
 load_dotenv()
@@ -34,7 +43,7 @@ refinement_agent: PromptRefinementAgent = None
 artisan_agent: ArtisanAgent = None
 artisan_tasks: Dict[str, Dict[str, Any]] = {}  # Track running tasks
 auth_service: AuthService = None
-session_manager: UserSessionManager = None  # Per-user session manager
+session_manager: SessionManager = None  # Per-user session manager (Docker or K8s)
 
 
 class ChatRequest(BaseModel):
@@ -163,11 +172,18 @@ async def lifespan(app: FastAPI):
     
     # Initialize user session manager
     try:
-        print("🔧 Initializing user session manager...")
-        session_manager = UserSessionManager()
-        print("✅ User session manager initialized")
+        print(f"🔧 Initializing user session manager ({DEPLOYMENT_MODE} mode)...")
+        if DEPLOYMENT_MODE == "kubernetes":
+            namespace = os.getenv("K8S_NAMESPACE", "default")
+            session_manager = SessionManager(namespace=namespace)
+            print(f"✅ Kubernetes session manager initialized (namespace: {namespace})")
+        else:
+            session_manager = SessionManager()
+            print("✅ Docker session manager initialized")
     except Exception as e:
         print(f"⚠️ Failed to initialize User Session Manager: {e}")
+        import traceback
+        traceback.print_exc()
         session_manager = None
     
     # Initialize refinement agent
@@ -332,18 +348,27 @@ async def connect(user_id: int = None):
                 detail="ANTHROPIC_API_KEY not set in environment"
             )
         
-        # Create new agent with user-specific MCP port
-        print(f"🔌 Connecting to user's Blender instance: {user_session.container_name}:9876")
+        # Create new agent with user-specific MCP connection
+        if DEPLOYMENT_MODE == "kubernetes":
+            # In Kubernetes, use service DNS name
+            mcp_host = f"{user_session.service_name}.{user_session.namespace}.svc.cluster.local"
+            print(f"🔌 Connecting to user's Blender pod via service: {mcp_host}:9876")
+        else:
+            # In Docker, use container name
+            mcp_host = user_session.container_name
+            print(f"🔌 Connecting to user's Blender container: {mcp_host}:9876")
+        
         print(f"   User: {user_session.username} (ID: {user_session.user_id})")
-        print(f"   Container: {user_session.container_name}")
         print(f"   MCP Port (internal): 9876")
-        print(f"   MCP Port (external): {user_session.mcp_port}")
-        print(f"   UI Port: {user_session.blender_ui_port}")
+        if hasattr(user_session, 'mcp_port'):
+            print(f"   MCP Port (external): {user_session.mcp_port}")
+        if hasattr(user_session, 'blender_ui_port'):
+            print(f"   UI Port: {user_session.blender_ui_port}")
         
         agent = BlenderChatAgent(
             api_key=api_key,
-            mcp_host=user_session.container_name,  # Use container name for Docker network
-            mcp_port=9876  # Internal port within container
+            mcp_host=mcp_host,
+            mcp_port=9876  # Internal port
         )
         
         # Initialize MCP connection using await (we're in an async function)
@@ -897,7 +922,7 @@ async def login(request: LoginRequest):
                 message="Login successful",
                 mcp_port=user_session.mcp_port if user_session else None,
                 blender_ui_port=user_session.blender_ui_port if user_session else None,
-                blender_ui_url=f"http://localhost:{user_session.blender_ui_port}" if user_session else None
+                blender_ui_url=user_session.blender_ui_url if user_session and hasattr(user_session, 'blender_ui_url') else None
             )
         else:
             return LoginResponse(
@@ -1011,17 +1036,34 @@ async def get_user_session_info(user_id: int):
             "message": "No active session"
         }
     
-    return {
-        "active": True,
-        "user_id": session.user_id,
-        "username": session.username,
-        "container_name": session.container_name,
-        "mcp_port": session.mcp_port,
-        "blender_ui_port": session.blender_ui_port,
-        "blender_ui_url": f"http://localhost:{session.blender_ui_port}",
-        "created_at": session.created_at.isoformat(),
-        "last_activity": session.last_activity.isoformat()
-    }
+    # Kubernetes mode
+    if hasattr(session, 'service_name'):
+        return {
+            "active": True,
+            "user_id": session.user_id,
+            "username": session.username,
+            "pod_name": session.pod_name,
+            "service_name": session.service_name,
+            "mcp_port": session.mcp_port,
+            "blender_ui_port": session.blender_ui_port,
+            "blender_ui_url": session.blender_ui_url or f"http://{session.service_name}.{session.namespace}.svc.cluster.local:3000",
+            "external_ip": session.external_ip,
+            "created_at": session.created_at.isoformat(),
+            "last_activity": session.last_activity.isoformat()
+        }
+    # Docker mode
+    else:
+        return {
+            "active": True,
+            "user_id": session.user_id,
+            "username": session.username,
+            "container_name": session.container_name,
+            "mcp_port": session.mcp_port,
+            "blender_ui_port": session.blender_ui_port,
+            "blender_ui_url": f"http://localhost:{session.blender_ui_port}",
+            "created_at": session.created_at.isoformat(),
+            "last_activity": session.last_activity.isoformat()
+        }
 
 
 if __name__ == "__main__":

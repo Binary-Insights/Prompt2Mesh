@@ -24,6 +24,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY src/ /app/src/
 COPY init_db.py /app/
+COPY main.py /app/
 COPY .env.example /app/.env.example
 
 # Create necessary directories
@@ -68,18 +69,24 @@ RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 COPY src/ /app/src/
 COPY init_db.py /app/
 COPY .env.example /app/.env.example
+COPY docker/start-blender-k8s.sh /app/start-blender-k8s.sh
+
+# Copy Blender addon to temporary location (will be copied to /config on startup)
+RUN mkdir -p /tmp/blender_mcp_addon
+COPY src/addon/ /tmp/blender_mcp_addon/
+COPY src/blender_mcp/ /app/src/blender_mcp/
 
 # Create necessary directories
 RUN mkdir -p /app/requirements /app/screenshots /app/logs
 
 # Set permissions
-RUN chown -R abc:abc /app
+RUN chown -R abc:abc /app && \
+    chown -R abc:abc /tmp/blender_mcp_addon && \
+    chmod +x /app/start-blender-k8s.sh
 
 # Expose ports
-EXPOSE 3000 3001 8000
+EXPOSE 3000 3001 9876
 
-# Switch to non-root user
-USER abc
-
-# Default command
-CMD ["python3", "src/backend/backend_server.py"]
+# For Kubernetes: use the startup script that initializes web services
+# For Docker Compose: will override with docker-compose command
+CMD ["/app/start-blender-k8s.sh"]

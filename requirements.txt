@@ -47,6 +47,8 @@ distro==1.9.0
     # via anthropic
 docker==7.1.0
     # via prompt2mesh (pyproject.toml)
+kubernetes==31.0.0
+    # via prompt2mesh (pyproject.toml)
 docstring-parser==0.17.0
     # via anthropic
 fastapi==0.122.0

@@ -1,0 +1,78 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: prompt2mesh
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: prompt2mesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      serviceAccountName: backend-sa
+      containers:
+      - name: backend
+        image: 785186658816.dkr.ecr.us-east-1.amazonaws.com/prompt2mesh/backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DEPLOYMENT_MODE
+          value: "kubernetes"
+        - name: K8S_NAMESPACE
+          value: "prompt2mesh"
+        - name: BLENDER_IMAGE
+          value: "785186658816.dkr.ecr.us-east-1.amazonaws.com/prompt2mesh/blender-mcp:latest"
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: ANTHROPIC_API_KEY
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: postgres-password
+        - name: DATABASE_URL
+          value: "postgresql://postgres:postgres@postgres:5432/prompt2mesh"
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2
+            memory: 4Gi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5

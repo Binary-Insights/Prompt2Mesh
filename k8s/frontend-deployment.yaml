@@ -1,0 +1,57 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: prompt2mesh
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 8501
+      targetPort: 8501
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: prompt2mesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: streamlit
+        image: 785186658816.dkr.ecr.us-east-1.amazonaws.com/prompt2mesh/frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8501
+        env:
+        - name: BACKEND_URL
+          value: "http://backend:8000"
+        command: ["streamlit", "run", "src/frontend/auth_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 1
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: 8501
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: 8501
+          initialDelaySeconds: 10
+          periodSeconds: 5

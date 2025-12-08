@@ -1,0 +1,59 @@
+﻿apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: prompt2mesh-cluster
+  region: us-east-1
+  version: "1.31"
+
+# Enable IAM OIDC provider for service accounts
+iam:
+  withOIDC: true
+
+# Node groups
+managedNodeGroups:
+  - name: prompt2mesh-nodes
+    instanceType: t3.large
+    minSize: 2
+    maxSize: 5
+    desiredCapacity: 2
+    volumeSize: 50
+    volumeType: gp3
+    privateNetworking: false
+    labels:
+      role: worker
+      environment: production
+    tags:
+      Project: Prompt2Mesh
+      ManagedBy: eksctl
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        externalDNS: true
+        certManager: true
+        appMesh: false
+        ebs: true
+        fsx: false
+        efs: false
+        albIngress: true
+        xRay: false
+        cloudWatch: true
+
+# Add-ons
+addons:
+  - name: vpc-cni
+    version: latest
+  - name: coredns
+    version: latest
+  - name: kube-proxy
+    version: latest
+  - name: aws-ebs-csi-driver
+    version: latest
+    attachPolicyARNs:
+      - arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+
+# CloudWatch logging
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
