@@ -3,31 +3,39 @@ Final Project - Control Blender with Natural Language
 
 ## 🚀 Quick Start (Multi-User System)
 
-### 1. Start the Backend
+### Cloud Deployment (Production)
+
+**🌐 Live URL:** http://a4492a6f36024441e8d6740b22fe8ee4-1878007781.us-east-1.elb.amazonaws.com:8501
+
+The application is deployed on Amazon EKS and accessible via AWS Load Balancer.
+
+### Local Development
+
+#### 1. Start the Backend
 
 ```powershell
 cd docker
 docker-compose up -d
 ```
 
-### 2. Access the Web Interface
+#### 2. Access the Web Interface
 
 Open your browser: **http://localhost:8501**
 
-### 3. Create Your Account
+#### 3. Create Your Account
 
 1. Click **"Sign Up"**
 2. Enter username and password
 3. Click **"Create Account"**
 
-### 4. Login
+#### 4. Login
 
 1. Enter your credentials
 2. Click **"Login"**
 3. Wait 5-10 seconds while your personal Blender instance is created
 4. You'll see your **Blender UI URL** (e.g., `http://localhost:13000`)
 
-### 5. Enable MCP Addon (One-Time Setup)
+#### 5. Enable MCP Addon (One-Time Setup)
 
 **The addon is pre-installed!** You just need to enable it:
 
@@ -39,7 +47,7 @@ Open your browser: **http://localhost:8501**
 
 ✅ The addon will start automatically on port 9876
 
-### 6. Connect and Chat
+#### 6. Connect and Chat
 
 1. Return to the chat interface
 2. Click **"Connect to Blender"**
@@ -77,8 +85,70 @@ Open your browser: **http://localhost:8501**
 - `QUICKSTART.md` - Step-by-step setup guide
 - `ARCHITECTURE.md` - System design overview
 - `AUTH_SETUP.md` - Authentication system details
+- `K8S_DEPLOYMENT.md` - Kubernetes deployment guide
+- `EKS_SETUP_GUIDE.md` - AWS EKS setup from scratch
 - `MCP_ADDON_STATUS.md` - Current status and workarounds
 - `src/artisan_agent/README.md` - Artisan agent documentation
+
+## ☁️ Cloud Deployment
+
+The application is deployed on **Amazon EKS** (Elastic Kubernetes Service):
+
+### Architecture
+- **Backend**: FastAPI server (ClusterIP service)
+- **Frontend**: Streamlit UI (LoadBalancer service)
+- **Database**: PostgreSQL (ClusterIP service)
+- **Per-User Pods**: Isolated Blender instances created dynamically
+
+### Deployment Steps
+
+1. **Prerequisites**
+   ```powershell
+   # Install required tools
+   winget install Amazon.AWSCLI
+   choco install eksctl
+   choco install kubernetes-cli
+   ```
+
+2. **Setup EKS Cluster**
+   ```powershell
+   # Create cluster with auto-scaling
+   .\scripts\setup-eks-cluster.ps1
+   ```
+
+3. **Build and Push Images to ECR**
+   ```powershell
+   # Setup ECR repositories
+   .\scripts\setup-ecr.ps1
+   
+   # Build and push Docker images
+   .\scripts\build-and-push-images.ps1
+   ```
+
+4. **Deploy to Kubernetes**
+   ```powershell
+   # Create secrets and deploy all services
+   .\scripts\deploy-to-eks.ps1
+   ```
+
+5. **Access the Application**
+   ```powershell
+   # Get the LoadBalancer URL
+   kubectl get svc -n prompt2mesh frontend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+   ```
+
+### Production URL
+**http://a4492a6f36024441e8d6740b22fe8ee4-1878007781.us-east-1.elb.amazonaws.com:8501**
+
+### Key Features
+- ✅ Auto-scaling node groups
+- ✅ Persistent storage with EBS volumes
+- ✅ Per-user Blender pod isolation
+- ✅ RBAC-controlled pod creation
+- ✅ Load-balanced frontend access
+- ✅ Multi-user session management
+
+For detailed deployment instructions, see `docs/EKS_SETUP_GUIDE.md` and `docs/K8S_DEPLOYMENT.md`.
 
 ## 🔧 Advanced Usage
 
