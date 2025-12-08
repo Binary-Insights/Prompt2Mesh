@@ -2440,20 +2440,35 @@ def register():
     
     # Auto-start MCP server in Docker environment
     import os
+    import socket
     if os.path.exists("/.dockerenv") or os.path.exists("/run/.containerenv"):
         print("🐳 Docker environment detected - Auto-starting MCP server...")
         
         # Use a timer to start server after Blender fully initializes
         def auto_start_server():
             try:
-                if not hasattr(bpy.types, "blendermcp_server") or not bpy.types.blendermcp_server or not bpy.types.blendermcp_server.running:
-                    print("🚀 Auto-starting MCP server on port 9876...")
-                    bpy.ops.blendermcp.start_server()
-                    print("✅ MCP server started automatically")
-                else:
+                # Check if server is already running
+                if hasattr(bpy.types, "blendermcp_server") and bpy.types.blendermcp_server and bpy.types.blendermcp_server.running:
                     print("✅ MCP server already running")
+                    return None
+                
+                # Check if port is already in use (another timer might have started it)
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                result = sock.connect_ex(('127.0.0.1', 9876))
+                sock.close()
+                
+                if result == 0:
+                    print("✅ MCP server already listening on port 9876")
+                    return None
+                
+                # Port is free, start the server
+                print("🚀 Auto-starting MCP server on port 9876...")
+                bpy.ops.blendermcp.start_server()
+                print("✅ MCP server started automatically")
             except Exception as e:
                 print(f"⚠️  Auto-start failed: {e}")
+                import traceback
+                traceback.print_exc()
             return None  # Don't repeat timer
         
         # Start after 2 seconds to allow Blender to fully initialize
