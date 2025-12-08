@@ -100,7 +100,7 @@ class K8sUserSessionManager:
                 )
             ],
             resources=client.V1ResourceRequirements(
-                requests={"cpu": "500m", "memory": "1Gi"},
+                requests={"cpu": "250m", "memory": "1Gi"},
                 limits={"cpu": "2", "memory": "4Gi"}
             ),
             volume_mounts=[
