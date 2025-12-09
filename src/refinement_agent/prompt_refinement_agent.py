@@ -60,7 +60,9 @@ class PromptRefinementAgent:
         self.llm = ChatAnthropic(
             model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5-20250929"),
             temperature=0.7,
-            anthropic_api_key=os.getenv("ANTHROPIC_API_KEY")
+            anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
+            timeout=3600.0,  # 1 hour timeout for API calls (handles rate limiting across multiple calls)
+            max_retries=5
         )
         
         # Memory for conversation history (initialize before graph)

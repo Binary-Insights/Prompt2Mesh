@@ -45,7 +45,8 @@ class BlenderChatAPIClient:
         self.session.mount("https://", adapter)
         
         # Default timeout for all requests (connect, read)
-        self.timeout = (5, 30)  # 5s connect, 30s read
+        # Extended timeout to handle long-running Claude calls with tool execution
+        self.timeout = (30, 3600)  # 30s connect, 3600s (1 hour) read
     
     def connect(self, user_id: int = None) -> Dict[str, Any]:
         """Connect to Blender MCP server via backend"""
@@ -90,13 +91,33 @@ class BlenderChatAPIClient:
     
     def refine_prompt(self, prompt: str, thread_id: str = "default", detail_level: str = "comprehensive") -> Dict[str, Any]:
         """Refine a user prompt into 3D modeling description with specified detail level"""
-        response = self.session.post(
-            f"{self.base_url}/refine-prompt",
-            json={"prompt": prompt, "thread_id": thread_id, "detail_level": detail_level},
-            timeout=self.timeout
-        )
-        response.raise_for_status()
-        return response.json()
+        import time
+        
+        # Exponential backoff for refinement (can take 2-3 minutes)
+        max_retries = 3
+        retry_delays = [5, 15, 30]  # seconds
+        
+        for attempt in range(max_retries):
+            try:
+                # Use extended timeout for refinement (1 hour for multiple Claude calls with rate limits)
+                response = self.session.post(
+                    f"{self.base_url}/refine-prompt",
+                    json={"prompt": prompt, "thread_id": thread_id, "detail_level": detail_level},
+                    timeout=(10, 3600)  # 10s connect, 3600s (1 hour) read
+                )
+                response.raise_for_status()
+                return response.json()
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                if attempt < max_retries - 1:
+                    delay = retry_delays[attempt]
+                    print(f"⚠️ Refinement connection failed (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
+                    time.sleep(delay)
+                else:
+                    print(f"❌ Refinement failed after {max_retries} attempts")
+                    raise
+            except requests.exceptions.RequestException as e:
+                # Don't retry on other errors (e.g., 400, 500)
+                raise
     
     def health_check(self) -> bool:
         """Check if backend is running"""

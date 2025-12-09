@@ -10,6 +10,12 @@ touch /.dockerenv
 echo "Installing Blender MCP addon..."
 mkdir -p /config/.config/blender/5.0/scripts/addons/blender_mcp
 cp -r /tmp/blender_mcp_addon/* /config/.config/blender/5.0/scripts/addons/blender_mcp/
+
+# Install startup script to auto-start MCP server when GUI launches
+echo "Installing MCP auto-start script..."
+mkdir -p /config/.config/blender/5.0/scripts/startup
+cp /tmp/mcp_autostart.py /config/.config/blender/5.0/scripts/startup/
+
 chown -R abc:abc /config/.config/blender
 
 # Start the base linuxserver/blender init system in background

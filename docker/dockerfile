@@ -75,6 +75,7 @@ COPY docker/start-blender-k8s.sh /app/start-blender-k8s.sh
 RUN mkdir -p /tmp/blender_mcp_addon
 COPY src/addon/ /tmp/blender_mcp_addon/
 COPY src/blender_mcp/ /app/src/blender_mcp/
+COPY docker/mcp_autostart.py /tmp/mcp_autostart.py
 
 # Create necessary directories
 RUN mkdir -p /app/requirements /app/screenshots /app/logs

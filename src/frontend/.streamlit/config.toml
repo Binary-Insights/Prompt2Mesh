@@ -3,6 +3,14 @@ showSidebarNavigation = false
 
 [server]
 enableXsrfProtection = false
+maxUploadSize = 200
+maxMessageSize = 200
+enableWebsocketCompression = true
+
+[browser]
+serverAddress = "0.0.0.0"
+gatherUsageStats = false
+serverPort = 8501
 
 [runner]
 fastReruns = true

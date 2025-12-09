@@ -461,24 +461,69 @@ def main():
         if should_refine:
             with st.spinner("🧠 AI is analyzing and expanding your prompt..."):
                 try:
-                    # Call backend API for prompt refinement
-                    refinement_result = st.session_state.client.refine_prompt(
-                        prompt=prompt,
-                        thread_id=st.session_state.client._session_id,
-                        detail_level=detail_level
+                    # Start async refinement job (allow up to 1 hour for job startup and processing)
+                    response = requests.post(
+                        f"{BACKEND_URL}/refine-prompt/start",
+                        json={"prompt": prompt, "detail_level": detail_level},
+                        timeout=(300, 3600)  # 5 min connect, 1 hour read - handles long-running refinements
                     )
+                    response.raise_for_status()  # Raise exception for 4xx/5xx status codes
+                    job_response = response.json()
                     
-                    refined_prompt = refinement_result["refined_prompt"]
-                    refinement_info = {
-                        "original": prompt,
-                        "refined_prompt": refined_prompt,  # Store the actual refined prompt
-                        "was_detailed": refinement_result["is_detailed"],
-                        "reasoning_steps": refinement_result["reasoning_steps"],
-                        "detail_level": detail_level
-                    }
+                    job_id = job_response["job_id"]
+                    
+                    # Poll for completion with progress updates
+                    max_wait_time = 3600  # 1 hour max
+                    poll_interval = 2  # Start with 2s polling
+                    elapsed = 0
+                    progress_placeholder = st.empty()
+                    
+                    while elapsed < max_wait_time:
+                        status_response = requests.get(
+                            f"{BACKEND_URL}/refine-prompt/status/{job_id}",
+                            timeout=3600  # Increased from 10s to handle slow status checks
+                        )
+                        status_response.raise_for_status()
+                        status_data = status_response.json()
+                        
+                        status = status_data["status"]
+                        
+                        if status == "completed":
+                            refined_prompt = status_data["refined_prompt"]
+                            refinement_info = {
+                                "original": prompt,
+                                "refined_prompt": refined_prompt,
+                                "was_detailed": status_data["is_detailed"],
+                                "reasoning_steps": status_data["reasoning_steps"],
+                                "detail_level": detail_level
+                            }
+                            progress_placeholder.success(f"✅ Refinement complete! ({elapsed:.1f}s)")
+                            time.sleep(1)
+                            progress_placeholder.empty()
+                            break
+                        
+                        elif status == "failed":
+                            error = status_data.get("error", "Unknown error")
+                            raise Exception(f"Refinement failed: {error}")
+                        
+                        # Show progress
+                        progress_msg = status_data.get("progress", "Processing...")
+                        progress_placeholder.info(f"⏳ {progress_msg} ({elapsed:.0f}s elapsed)")
+                        
+                        time.sleep(poll_interval)
+                        elapsed += poll_interval
+                        
+                        # Gradually increase poll interval (2s -> 5s -> 10s)
+                        if elapsed > 30 and poll_interval < 5:
+                            poll_interval = 5
+                        elif elapsed > 120 and poll_interval < 10:
+                            poll_interval = 10
+                    
+                    if elapsed >= max_wait_time:
+                        raise Exception(f"Refinement timeout after {max_wait_time}s")
                     
                     # Show refinement notification
-                    if not refinement_result["is_detailed"]:
+                    if refinement_info and not refinement_info["was_detailed"]:
                         st.info("🧠 AI expanded your prompt with detailed specifications")
                 
                 except Exception as e:

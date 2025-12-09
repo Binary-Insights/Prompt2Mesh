@@ -5,6 +5,7 @@ Provides REST API endpoints for the Streamlit frontend
 import os
 import sys
 import asyncio
+import time
 from typing import Dict, Any, List, Optional
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -42,6 +43,7 @@ agent: BlenderChatAgent = None
 refinement_agent: PromptRefinementAgent = None
 artisan_agent: ArtisanAgent = None
 artisan_tasks: Dict[str, Dict[str, Any]] = {}  # Track running tasks
+refinement_jobs: Dict[str, Dict[str, Any]] = {}  # Track refinement background jobs
 auth_service: AuthService = None
 session_manager: SessionManager = None  # Per-user session manager (Docker or K8s)
 
@@ -77,6 +79,31 @@ class RefinePromptResponse(BaseModel):
     reasoning_steps: List[str]
     is_detailed: bool
     original_prompt: str
+
+
+class RefinePromptJobRequest(BaseModel):
+    """Request model for async prompt refinement endpoint"""
+    prompt: str
+    detail_level: str = "comprehensive"
+
+
+class RefinePromptJobResponse(BaseModel):
+    """Response model for async prompt refinement job"""
+    job_id: str
+    status: str  # "pending", "processing", "completed", "failed"
+    message: str
+
+
+class RefinePromptJobStatus(BaseModel):
+    """Response model for checking refinement job status"""
+    job_id: str
+    status: str
+    refined_prompt: Optional[str] = None
+    reasoning_steps: Optional[List[str]] = None
+    is_detailed: Optional[bool] = None
+    original_prompt: Optional[str] = None
+    error: Optional[str] = None
+    progress: Optional[str] = None
 
 
 class ArtisanModelingRequest(BaseModel):
@@ -396,6 +423,25 @@ async def connect(user_id: int = None):
                     error="Blender MCP addon is not running. Please enable the addon in Blender."
                 )
             
+            # Connection successful - clear the scene for a fresh start
+            try:
+                clear_result = await agent.call_mcp_tool("execute_blender_code", {
+                    "code": """import bpy
+# Clear all mesh objects from the scene
+for obj in bpy.data.objects:
+    if obj.type == 'MESH':
+        bpy.data.objects.remove(obj, do_unlink=True)
+# Clear unused mesh data
+for mesh in bpy.data.meshes:
+    if mesh.users == 0:
+        bpy.data.meshes.remove(mesh)
+print('Scene cleared - ready for new objects')"""
+                })
+                print(f"✅ Scene cleared on connection for user {user_id}")
+            except Exception as clear_error:
+                # Don't fail connection if scene clearing fails
+                print(f"⚠️ Warning: Could not clear scene on connect: {clear_error}")
+            
             return ConnectionStatus(
                 connected=True,
                 num_tools=num_tools
@@ -494,34 +540,16 @@ async def get_history():
     
     if not agent:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Not connected to Blender"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Agent not connected"
         )
     
-    return {
-        "history": agent.get_conversation_history()
-    }
-
-
-@app.post("/clear-history")
-async def clear_history():
-    """Clear conversation history"""
-    global agent
-    
-    if not agent:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Not connected to Blender"
-        )
-    
-    agent.clear_conversation_history()
-    
-    return {"status": "cleared"}
+    return {"history": agent.conversation_history}
 
 
 @app.post("/refine-prompt", response_model=RefinePromptResponse)
 async def refine_prompt(request: RefinePromptRequest):
-    """Refine a user prompt into a comprehensive 3D modeling description"""
+    """Refine a user prompt into a comprehensive 3D modeling description (DEPRECATED - use /refine-prompt/start for long tasks)"""
     global refinement_agent
     
     # Handle "as-is" detail level - skip refinement
@@ -566,6 +594,119 @@ async def refine_prompt(request: RefinePromptRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+
+
+@app.post("/refine-prompt/start", response_model=RefinePromptJobResponse)
+async def start_refinement_job(request: RefinePromptJobRequest):
+    """Start a background refinement job for long-running tasks"""
+    global refinement_agent, refinement_jobs
+    
+    # Handle "as-is" detail level - skip refinement
+    if request.detail_level == "as-is":
+        job_id = f"asis_{int(time.time())}"
+        refinement_jobs[job_id] = {
+            "status": "completed",
+            "result": {
+                "refined_prompt": request.prompt,
+                "reasoning_steps": ["Used prompt as-is without refinement"],
+                "is_detailed": True,
+                "original_prompt": request.prompt
+            }
+        }
+        return RefinePromptJobResponse(
+            job_id=job_id,
+            status="completed",
+            message="Prompt used as-is"
+        )
+    
+    if not refinement_agent:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Prompt refinement agent not available"
+        )
+    
+    # Generate job ID
+    import uuid
+    job_id = str(uuid.uuid4())[:12]
+    
+    # Initialize job tracking
+    refinement_jobs[job_id] = {
+        "status": "pending",
+        "prompt": request.prompt,
+        "detail_level": request.detail_level,
+        "started_at": time.time(),
+        "progress": "Initializing refinement..."
+    }
+    
+    # Start background task
+    async def run_refinement():
+        try:
+            refinement_jobs[job_id]["status"] = "processing"
+            refinement_jobs[job_id]["progress"] = "Analyzing prompt..."
+            
+            print(f"\n🧠 [Job {job_id}] Starting refinement: {request.prompt[:100]}...")
+            
+            result = refinement_agent.refine_prompt(
+                user_prompt=request.prompt,
+                thread_id=job_id,
+                detail_level=request.detail_level
+            )
+            
+            refinement_jobs[job_id]["status"] = "completed"
+            refinement_jobs[job_id]["result"] = result
+            refinement_jobs[job_id]["completed_at"] = time.time()
+            
+            elapsed = time.time() - refinement_jobs[job_id]["started_at"]
+            print(f"✅ [Job {job_id}] Refinement complete in {elapsed:.1f}s: {len(result['refined_prompt'])} characters")
+            
+        except Exception as e:
+            import traceback
+            error_msg = f"Error during refinement: {str(e)}"
+            print(f"❌ [Job {job_id}] {error_msg}\n{traceback.format_exc()}")
+            
+            refinement_jobs[job_id]["status"] = "failed"
+            refinement_jobs[job_id]["error"] = error_msg
+            refinement_jobs[job_id]["completed_at"] = time.time()
+    
+    # Run in background
+    asyncio.create_task(run_refinement())
+    
+    return RefinePromptJobResponse(
+        job_id=job_id,
+        status="pending",
+        message=f"Refinement job {job_id} started. Poll /refine-prompt/status/{job_id} for updates."
+    )
+
+
+@app.get("/refine-prompt/status/{job_id}", response_model=RefinePromptJobStatus)
+async def get_refinement_status(job_id: str):
+    """Check the status of a refinement job"""
+    global refinement_jobs
+    
+    if job_id not in refinement_jobs:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job {job_id} not found"
+        )
+    
+    job = refinement_jobs[job_id]
+    
+    response = RefinePromptJobStatus(
+        job_id=job_id,
+        status=job["status"],
+        progress=job.get("progress")
+    )
+    
+    if job["status"] == "completed":
+        result = job["result"]
+        response.refined_prompt = result["refined_prompt"]
+        response.reasoning_steps = result["reasoning_steps"]
+        response.is_detailed = result["is_detailed"]
+        response.original_prompt = result["original_prompt"]
+    elif job["status"] == "failed":
+        response.error = job.get("error")
+    
+    return response
 
 
 @app.post("/artisan/model", response_model=ArtisanModelingResponse)
@@ -1069,10 +1210,12 @@ async def get_user_session_info(user_id: int):
 if __name__ == "__main__":
     import uvicorn
     
-    # Run the server
+    # Run the server with increased timeouts for rate-limited API calls
     uvicorn.run(
         "backend_server:app",
         host="0.0.0.0",
         port=8000,
-        reload=True
+        reload=True,
+        timeout_keep_alive=300,  # 5 minutes
+        timeout_graceful_shutdown=30
     )

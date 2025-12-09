@@ -5,6 +5,7 @@ Handles MCP connection and Claude API interactions for Blender control
 import os
 import asyncio
 import base64
+import time
 from typing import Dict, List, Any
 from anthropic import Anthropic
 from mcp import ClientSession, StdioServerParameters
@@ -13,6 +14,41 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+# Rate limit configuration from environment
+RATE_LIMIT_MAX_RETRIES = int(os.getenv("RATE_LIMIT_MAX_RETRIES", "5"))
+RATE_LIMIT_BASE_WAIT = int(os.getenv("RATE_LIMIT_BASE_WAIT", "15"))  # seconds
+
+
+def call_claude_with_retry(anthropic_client, **kwargs):
+    """
+    Call Claude API with exponential backoff for rate limits
+    
+    Uses exponential backoff: 15s, 30s, 60s, 120s, 240s
+    """
+    max_retries = RATE_LIMIT_MAX_RETRIES
+    base_wait = RATE_LIMIT_BASE_WAIT
+    
+    for attempt in range(max_retries):
+        try:
+            return anthropic_client.messages.create(**kwargs)
+        except Exception as e:
+            error_str = str(e).lower()
+            is_rate_limit = "rate_limit" in error_str or "429" in error_str or "overloaded" in error_str
+            
+            if is_rate_limit and attempt < max_retries - 1:
+                # Exponential backoff: 15s, 30s, 60s, 120s, 240s
+                wait_time = base_wait * (2 ** attempt)
+                
+                print(
+                    f"⏳ Rate limit hit (attempt {attempt + 1}/{max_retries}). "
+                    f"Waiting {wait_time}s before retry..."
+                )
+                
+                time.sleep(wait_time)
+            else:
+                # Not a rate limit error or out of retries
+                raise
 
 
 class BlenderChatAgent:
@@ -161,12 +197,13 @@ You have access to MCP tools that control Blender. When users ask you to create 
 Guidelines:
 1. Always check the scene first with get_scene_info when starting a new request
 2. Use execute_blender_code for creating objects, modifying properties, setting up cameras, lighting, etc.
-3. Break complex requests into smaller steps
-4. Check integration status (PolyHaven, Hyper3D, Sketchfab) before using those features
-5. Provide clear explanations of what you're doing
-6. If something fails, explain the error and suggest alternatives
+3. CRITICAL: After creating or modifying any objects, ALWAYS call capture_screenshot to show the user the result
+4. Break complex requests into smaller steps
+5. Check integration status (PolyHaven, Hyper3D, Sketchfab) before using those features
+6. Provide clear explanations of what you're doing
+7. If something fails, explain the error and suggest alternatives
 
-Be conversational and helpful. Execute the user's requests step by step."""
+Be conversational and helpful. Execute the user's requests step by step. Remember: ALWAYS capture a screenshot after creating/modifying objects so users can see their work."""
         
         # Prepare tools for Claude
         claude_tools = self.format_tools_for_claude()
@@ -176,7 +213,8 @@ Be conversational and helpful. Execute the user's requests step by step."""
         
         # Call Claude with tool use capability
         print(f"🤖 Waiting for Claude's response...")
-        response = self.anthropic.messages.create(
+        response = call_claude_with_retry(
+            self.anthropic,
             # model="claude-3-haiku-20240307", 
             model="claude-sonnet-4-5-20250929",
             max_tokens=4096,
@@ -217,34 +255,89 @@ Be conversational and helpful. Execute the user's requests step by step."""
                     result_for_claude = f"Screenshot captured successfully. Image size: {len(tool_result['image_data'])} bytes (base64 encoded)"
                 
                 self.conversation_history.append(assistant_message)
+                
+                # If we just executed code to create/modify objects, remind Claude to capture screenshot
+                screenshot_reminder = ""
+                if tool_name == "execute_blender_code" and "bpy.ops.mesh" in str(tool_input):
+                    screenshot_reminder = "\n\nREMINDER: You MUST now call capture_screenshot to show the user the result."
+                
                 self.conversation_history.append({
                     "role": "user",
                     "content": [{
                         "type": "tool_result",
                         "tool_use_id": content_block.id,
-                        "content": result_for_claude
+                        "content": result_for_claude + screenshot_reminder
                     }]
                 })
                 
-                # Get Claude's response after tool execution
-                print(f"🤖 Getting Claude's follow-up response...")
-                follow_up = self.anthropic.messages.create(
-                    # model="claude-3-haiku-20240307",
-                    model="claude-sonnet-4-5-20250929",
-                    max_tokens=4096,
-                    system=system_prompt,
-                    tools=claude_tools,
-                    messages=self.conversation_history
-                )
-                
-                print(f"📨 Received follow-up response from Claude")
-                
-                # Process follow-up response
-                assistant_message = {"role": "assistant", "content": []}
-                for block in follow_up.content:
-                    if block.type == "text":
-                        responses.append(block.text)
-                        assistant_message["content"].append(block)
+                # Keep calling Claude until it stops requesting tools
+                while True:
+                    print(f"🤖 Getting Claude's follow-up response...")
+                    follow_up = call_claude_with_retry(
+                        self.anthropic,
+                        model="claude-sonnet-4-5-20250929",
+                        max_tokens=4096,
+                        system=system_prompt,
+                        tools=claude_tools,
+                        messages=self.conversation_history
+                    )
+                    
+                    print(f"📨 Received follow-up response from Claude")
+                    
+                    # Check if response has more tool calls
+                    has_tool_calls = any(block.type == "tool_use" for block in follow_up.content)
+                    
+                    if not has_tool_calls:
+                        # Just text response, we're done
+                        assistant_message = {"role": "assistant", "content": []}
+                        for block in follow_up.content:
+                            if block.type == "text":
+                                responses.append(block.text)
+                                assistant_message["content"].append(block)
+                        break
+                    
+                    # Process all tool calls in this response
+                    assistant_message = {"role": "assistant", "content": []}
+                    for block in follow_up.content:
+                        if block.type == "text":
+                            responses.append(block.text)
+                            assistant_message["content"].append(block)
+                        elif block.type == "tool_use":
+                            print(f"\n🔨 Claude wants to use tool: {block.name}")
+                            
+                            # Add tool use to assistant message
+                            assistant_message["content"].append(block)
+                            
+                            # Execute the tool
+                            tool_result = await self.call_mcp_tool(block.name, block.input)
+                            tool_calls.append(tool_result)
+                    
+                    # Add assistant message with all tool uses
+                    self.conversation_history.append(assistant_message)
+                    
+                    # Add tool results for ALL tools in this message
+                    for block in follow_up.content:
+                        if block.type == "tool_use":
+                            # Find the corresponding result
+                            tool_result = next((t for t in tool_calls if t.get("tool_name") == block.name), tool_calls[-1])
+                            
+                            result_for_claude = tool_result["result"]
+                            if tool_result.get("image_data"):
+                                result_for_claude = f"Screenshot captured successfully. Image size: {len(tool_result['image_data'])} bytes (base64 encoded)"
+                            
+                            # Check if screenshot reminder needed
+                            screenshot_reminder = ""
+                            if block.name == "execute_blender_code" and "bpy.ops.mesh" in str(block.input):
+                                screenshot_reminder = "\n\nREMINDER: You MUST now call capture_screenshot to show the user the result."
+                            
+                            self.conversation_history.append({
+                                "role": "user",
+                                "content": [{
+                                    "type": "tool_result",
+                                    "tool_use_id": block.id,
+                                    "content": result_for_claude + screenshot_reminder
+                                }]
+                            })
         
         # Add final assistant message to history
         if assistant_message["content"]:

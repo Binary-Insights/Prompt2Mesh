@@ -69,14 +69,14 @@ spec:
             path: /
             port: 8000
           initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 5
+          periodSeconds: 120
+          timeoutSeconds: 30
+          failureThreshold: 40
         readinessProbe:
           httpGet:
             path: /
             port: 8000
           initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 5
-          failureThreshold: 3
+          periodSeconds: 60
+          timeoutSeconds: 30
+          failureThreshold: 20
