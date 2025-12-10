@@ -758,7 +758,14 @@ async def cancel_artisan_task(task_id: str):
 @app.post("/sculptor/model", response_model=SculptorModelingResponse)
 async def start_sculptor_modeling(request: SculptorModelingRequest):
     """Start a Sculptor Agent modeling task from 2D image"""
-    global sculptor_agent, sculptor_tasks
+    global sculptor_agent, sculptor_tasks, agent
+    
+    # Check if Blender is connected
+    if not agent or agent._cleanup_done:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please connect to Blender first"
+        )
     
     # Validate image file exists
     image_file = Path(request.image_path)
@@ -773,17 +780,48 @@ async def start_sculptor_modeling(request: SculptorModelingRequest):
         from uuid import uuid4
         task_id = str(uuid4())
         
-        # Create sculptor agent for this task
-        agent = SculptorAgent(
+        # Create a wrapper to make BlenderChatAgent compatible with SculptorAgent's BlenderMCPConnection
+        class BlenderMCPConnectionWrapper:
+            """Wrapper to make BlenderChatAgent compatible with SculptorAgent"""
+            def __init__(self, chat_agent):
+                self.chat_agent = chat_agent
+                self.mcp_session = chat_agent.mcp_session
+                self.tools = chat_agent.tools
+                self.stdio_context = chat_agent.stdio_context
+                self.session_context = chat_agent.session_context
+                self._cleanup_done = chat_agent._cleanup_done
+            
+            async def call_tool(self, tool_name: str, arguments: dict):
+                """Delegate to chat agent's call_mcp_tool"""
+                return await self.chat_agent.call_mcp_tool(tool_name, arguments)
+            
+            def get_tools_schema(self) -> List[Dict[str, Any]]:
+                """Get tools in LangChain format"""
+                tools_schema = []
+                for tool_name, tool in self.tools.items():
+                    tools_schema.append({
+                        "name": tool_name,
+                        "description": tool.description or f"Tool: {tool_name}",
+                        "parameters": tool.inputSchema
+                    })
+                return tools_schema
+            
+            async def cleanup(self):
+                """No-op - chat agent manages its own cleanup"""
+                pass
+        
+        # Create sculptor agent with wrapped MCP connection
+        sculptor_agent_instance = SculptorAgent(
             session_id=task_id,
             display_callback=None,
-            cancellation_check=lambda: sculptor_tasks.get(task_id, {}).get("cancelled", False)
+            cancellation_check=lambda: sculptor_tasks.get(task_id, {}).get("cancelled", False),
+            mcp_connection=BlenderMCPConnectionWrapper(agent)  # Use wrapper
         )
         
         # Store task info
         sculptor_tasks[task_id] = {
             "task_id": task_id,
-            "agent": agent,
+            "agent": sculptor_agent_instance,
             "image_path": request.image_path,
             "use_resume": request.use_resume,
             "status": "initializing",

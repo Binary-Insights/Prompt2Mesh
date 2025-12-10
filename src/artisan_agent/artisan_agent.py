@@ -1161,7 +1161,7 @@ IMPORTANT: The code should ENHANCE the existing work, not replace it entirely un
         """Decide whether to continue or complete"""
         # Check for critical errors first
         if state.get("critical_error"):
-            self.logger.critical(f"Workflow halted due to critical error: {state['critical_error']}")
+            self.display_callback(f"Workflow halted due to critical error: {state['critical_error']}", "error")
             return "complete"  # End workflow on critical error
         return "complete" if state["is_complete"] else "continue"
     

@@ -127,10 +127,12 @@ def start_sculptor_task(image_path: str, use_resume: bool, token: str):
                 "use_resume": use_resume
             },
             headers=headers,
-            timeout=10
+            timeout=30  # Increased timeout for task startup
         )
         response.raise_for_status()
         return response.json()
+    except requests.exceptions.Timeout:
+        raise Exception("Request timed out. The backend may be busy - try again in a moment.")
     except Exception as e:
         raise Exception(f"Failed to start sculptor task: {str(e)}")
 
@@ -142,7 +144,7 @@ def get_sculptor_status(task_id: str, token: str):
         response = requests.get(
             f"{BACKEND_URL}/sculptor/status/{task_id}",
             headers=headers,
-            timeout=5
+            timeout=10  # Increased timeout for status checks
         )
         response.raise_for_status()
         return response.json()
@@ -154,7 +156,8 @@ def get_sculptor_status(task_id: str, token: str):
             }
         return {"status": "http_error", "message": str(e)}
     except requests.exceptions.Timeout:
-        return {"status": "timeout", "message": "Request timed out"}
+        # Don't treat status check timeout as fatal - just retry
+        return {"status": "running", "message": "Status check timed out, task still running"}
     except requests.exceptions.ConnectionError:
         return {"status": "connection_error", "message": "Cannot connect to backend"}
     except Exception as e:
@@ -396,7 +399,7 @@ def main():
             log_placeholder = st.empty()
         
         # Polling loop
-        max_iterations = 300  # 5 minutes max
+        max_iterations = 600  # 20 minutes max (sculptor tasks can take longer)
         iteration = 0
         
         while st.session_state.sculptor_running and iteration < max_iterations:

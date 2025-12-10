@@ -11,5 +11,5 @@
   ],
   "is_detailed": false,
   "output_length": 7022,
-  "enable_refinement_steps": false
+  "enable_refinement_steps": true
 }

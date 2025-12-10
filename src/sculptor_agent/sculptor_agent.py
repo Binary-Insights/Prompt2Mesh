@@ -17,7 +17,7 @@ from uuid import uuid4
 from dotenv import load_dotenv
 
 from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage, ToolMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langsmith import traceable
 
@@ -135,6 +135,7 @@ class SculptorState(TypedDict):
     screenshot_dir: Path
     input_image_path: str  # Path to input 2D image
     input_image_base64: str  # Base64 encoded input image
+    input_image_media_type: str  # MIME type of input image (e.g., image/jpeg, image/png)
     reference_image_base64: Optional[str]  # Reference image in Blender scene
     tool_results: List[Dict[str, Any]]
     screenshot_count: int
@@ -249,7 +250,7 @@ class SculptorAgent:
     6. Iterates until 3D model matches input image
     """
     
-    def __init__(self, session_id: Optional[str] = None, display_callback: Optional[callable] = None, cancellation_check: Optional[callable] = None):
+    def __init__(self, session_id: Optional[str] = None, display_callback: Optional[callable] = None, cancellation_check: Optional[callable] = None, mcp_connection: Optional[BlenderMCPConnection] = None):
         """
         Initialize the Sculptor Agent
         
@@ -257,6 +258,7 @@ class SculptorAgent:
             session_id: Optional session ID
             display_callback: Optional callback for displaying progress
             cancellation_check: Optional callback that returns True if cancelled
+            mcp_connection: Optional existing MCP connection to share (avoids duplicate connections)
         """
         self.session_id = session_id or str(uuid4())
         self.display_callback = display_callback or self._console_display
@@ -276,8 +278,9 @@ class SculptorAgent:
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY")
         )
         
-        # Initialize Blender MCP
-        self.mcp = BlenderMCPConnection()
+        # Use shared MCP connection or create new one
+        self.mcp = mcp_connection if mcp_connection else BlenderMCPConnection()
+        self.owns_mcp = mcp_connection is None  # Track if we own the connection
         
         # Memory for conversation history
         self.memory = MemorySaver()
@@ -299,14 +302,45 @@ class SculptorAgent:
         }
         print(f"{icons.get(type, '•')} {message}")
     
+    def _trim_message_history(self, messages: List[BaseMessage], max_messages: int = 10) -> List[BaseMessage]:
+        """
+        Trim message history to prevent context overflow
+        Keep first message (vision analysis) and most recent messages
+        
+        Args:
+            messages: List of messages
+            max_messages: Maximum number of messages to keep
+            
+        Returns:
+            Trimmed list of messages
+        """
+        if len(messages) <= max_messages:
+            return messages
+        
+        # Always keep the first message (vision analysis)
+        first_message = messages[0] if messages else None
+        
+        # Keep the most recent messages
+        recent_messages = messages[-(max_messages - 1):]
+        
+        if first_message:
+            return [first_message] + recent_messages
+        else:
+            return recent_messages
+    
     @traceable(name="initialize_sculptor_agent")
     async def initialize(self):
         """Initialize the agent and Blender connection"""
         self.display_callback("Initializing Sculptor Agent...", "info")
         
-        # Connect to Blender
-        num_tools = await self.mcp.initialize()
-        self.display_callback(f"Connected to Blender MCP ({num_tools} tools available)", "success")
+        # Connect to Blender only if we own the connection
+        if self.owns_mcp:
+            num_tools = await self.mcp.initialize()
+            self.display_callback(f"Connected to Blender MCP ({num_tools} tools available)", "success")
+        else:
+            # Using shared connection
+            num_tools = len(self.mcp.tools)
+            self.display_callback(f"Using shared Blender MCP connection ({num_tools} tools available)", "success")
         
         # Create workflow
         self.graph = self._create_graph()
@@ -379,7 +413,7 @@ Be specific and technical. This analysis will be used to plan the 3D modeling st
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": f"data:image/png;base64,{state['input_image_base64']}"
+                            "url": f"data:{state['input_image_media_type']};base64,{state['input_image_base64']}"
                         }
                     }
                 ]
@@ -542,80 +576,98 @@ Return ONLY the JSON array, no other text.
     
     @traceable(name="execute_modeling_step")
     async def _execute_step_node(self, state: SculptorState) -> SculptorState:
-        """Execute the current modeling step"""
+        """Execute the current modeling step using MCP tool calls"""
         step_idx = state["current_step"]
         
         if step_idx >= len(state["planning_steps"]):
             state["is_complete"] = True
             return state
         
-        current_step = state["planning_steps"][step_idx]
-        self.display_callback(f"Executing: {current_step}", "tool")
+        # Check for cancellation
+        if self.cancellation_check():
+            state["critical_error"] = "Task cancelled by user"
+            return state
         
-        # Generate code for this step using LLM
-        execution_prompt = f"""Generate Blender Python code to execute this modeling step:
+        current_step = state["planning_steps"][step_idx]
+        self.display_callback(f"🔧 Executing: {current_step}", "tool")
+        
+        # Create execution prompt that lets LLM choose appropriate tools
+        execution_prompt = f"""Execute this 3D modeling step in Blender:
 
-STEP: {current_step}
+{current_step}
 
-CONTEXT:
-- Vision Analysis: {state['vision_analysis'][:500]}...
+Context:
+- Vision Analysis: {state['vision_analysis'][:300]}...
 - Current Phase: {state['current_modeling_phase']}
 - Steps Completed: {step_idx}
+- Feedback: {state['feedback_history'][-1] if state['feedback_history'] else 'Starting fresh'}
 
-BLENDER COMPATIBILITY HELPERS:
-{BLENDER_COMPAT_CODE}
+Use the appropriate Blender MCP tools to accomplish this step.
+Available tools include:
+- download_polyhaven_asset (for models, textures, HDRIs)
+- download_sketchfab_model (for realistic models)
+- generate_hyper3d_model_via_text or generate_hyper3d_model_via_images (for custom 3D generation)
+- get_scene_info, get_object_info (for inspection)
+- And other Blender MCP tools
 
-REQUIREMENTS:
-1. Write production-ready Blender Python code
-2. Use the compatibility helpers for Blender 4.x/5.x
-3. Handle errors gracefully
-4. Include comments
-5. Make sure objects are created in the 3D viewport
-6. Use bpy module properly
-
-Return ONLY the Python code, no explanations or markdown.
+IMPORTANT: Always check integrations first (get_polyhaven_status, get_sketchfab_status, get_hyper3d_status)
+before attempting to use them. Use available asset libraries before falling back to manual modeling.
 """
         
-        messages = [
-            SystemMessage(content="You are an expert Blender Python programmer."),
-            HumanMessage(content=execution_prompt)
-        ]
+        # Get tool schemas for LLM
+        tools = self.mcp.get_tools_schema()
+        
+        # Trim message history to prevent context overflow (keep last 10 messages)
+        trimmed_messages = self._trim_message_history(state["messages"], max_messages=10)
+        messages = trimmed_messages + [HumanMessage(content=execution_prompt)]
         
         try:
-            # Check for cancellation
-            if self.cancellation_check():
-                state["critical_error"] = "Task cancelled by user"
-                return state
+            # Invoke LLM with tools (like artisan agent)
+            response = await invoke_with_retry(self.reasoning_model.bind_tools(tools), messages)
             
-            response = invoke_with_retry_sync(self.reasoning_model, messages)
-            code = response.content.strip()
+            # Execute tool calls
+            tool_results = []
+            tool_messages = []
             
-            # Clean up code blocks
-            if "```python" in code:
-                code = code.split("```python")[1].split("```")[0].strip()
-            elif "```" in code:
-                code = code.split("```")[1].split("```")[0].strip()
-            
-            # Add compatibility helpers to code
-            full_code = BLENDER_COMPAT_CODE + "\n\n" + code
-            
-            # Execute in Blender
-            result = await self.mcp.call_tool("execute_python", {"code": full_code})
-            
-            state["tool_results"].append({
-                "step": step_idx + 1,
-                "tool_name": "execute_python",
-                "success": result["success"],
-                "result": result.get("result", result.get("error", ""))
-            })
-            
-            if result["success"]:
-                self.display_callback(f"✓ Step {step_idx + 1} executed successfully", "success")
+            if hasattr(response, 'tool_calls') and response.tool_calls:
+                for tool_call in response.tool_calls:
+                    tool_name = tool_call["name"]
+                    tool_args = tool_call["args"]
+                    
+                    self.display_callback(f"🔧 Calling tool: {tool_name}", "tool")
+                    self.display_callback(f"   Arguments: {tool_args}", "info")
+                    
+                    # Call the tool
+                    result = await self.mcp.call_tool(tool_name, tool_args)
+                    
+                    self.display_callback(f"✅ Tool completed: {tool_name}", "success")
+                    
+                    tool_results.append({
+                        "step": step_idx + 1,
+                        "tool_name": tool_name,
+                        "arguments": tool_args,
+                        "result": result
+                    })
+                    
+                    # Create tool message for conversation
+                    tool_messages.append(ToolMessage(
+                        content=json.dumps(result),
+                        tool_call_id=tool_call["id"]
+                    ))
             else:
-                self.display_callback(f"✗ Step {step_idx + 1} failed: {result.get('error', '')[:100]}", "error")
+                self.display_callback("⚠️ No tool calls generated, LLM responded with text", "info")
+                tool_results.append({
+                    "step": step_idx + 1,
+                    "tool_name": "none",
+                    "result": response.content
+                })
             
-            # Increment step counter
+            state["tool_results"].extend(tool_results)
+            state["messages"].append(response)
+            state["messages"].extend(tool_messages)
             state["current_step"] += 1
+            
+            self.display_callback(f"✅ ✓ Step {step_idx + 1} executed successfully", "success")
             
             # Add delay to prevent rate limits
             await asyncio.sleep(RATE_LIMIT_STEP_DELAY)
@@ -625,7 +677,7 @@ Return ONLY the Python code, no explanations or markdown.
             self.display_callback(error_msg, "error")
             state["tool_results"].append({
                 "step": step_idx + 1,
-                "tool_name": "execute_python",
+                "tool_name": "error",
                 "success": False,
                 "result": error_msg
             })
@@ -636,24 +688,28 @@ Return ONLY the Python code, no explanations or markdown.
     @traceable(name="capture_viewport_feedback")
     async def _capture_feedback_node(self, state: SculptorState) -> SculptorState:
         """Capture screenshot and compare with input image"""
+        # Small delay to ensure Blender viewport has updated
+        await asyncio.sleep(1.0)
+        
         self.display_callback("Capturing viewport screenshot...", "screenshot")
         
         try:
-            # Capture screenshot
-            screenshot_path = state["screenshot_dir"] / f"step_{state['current_step']:03d}.png"
-            
+            # Use get_viewport_screenshot like artisan agent (returns base64 directly, no file sync needed)
             result = await self.mcp.call_tool(
-                "capture_viewport",
-                {"filepath": str(screenshot_path)}
+                "get_viewport_screenshot",
+                {"max_size": 800}
             )
             
-            if result["success"]:
+            if result["success"] and result.get("image_data"):
+                screenshot_base64 = result["image_data"]
+                
+                # Save screenshot to file for reference
+                screenshot_path = state["screenshot_dir"] / f"step_{state['current_step']:03d}.png"
+                image_bytes = base64.b64decode(screenshot_base64)
+                screenshot_path.write_bytes(image_bytes)
+                
                 state["screenshot_count"] += 1
                 self.display_callback(f"Screenshot saved: {screenshot_path.name}", "success")
-                
-                # Read screenshot and encode to base64
-                with open(screenshot_path, "rb") as f:
-                    screenshot_base64 = base64.b64encode(f.read()).decode()
                 
                 # Compare with input image using vision model
                 comparison_prompt = f"""Compare these two images:
@@ -682,7 +738,7 @@ Provide constructive feedback to guide the modeling process.
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": f"data:image/png;base64,{state['input_image_base64']}"
+                                    "url": f"data:{state['input_image_media_type']};base64,{state['input_image_base64']}"
                                 }
                             },
                             {
@@ -789,6 +845,66 @@ Provide constructive feedback to guide the modeling process.
         from hashlib import md5
         return md5(image_path.encode()).hexdigest()[:16]
     
+    def _backend_to_blender_path(self, backend_path: Path) -> str:
+        """Convert backend screenshot path to Blender container path"""
+        # Backend: screenshots/sculptor/session_id/file.png
+        # Blender: /blender_projects/screenshots/sculptor/session_id/file.png
+        return str(Path("/blender_projects") / backend_path)
+    
+    async def _wait_for_file_and_read(self, file_path: Path, timeout: float = 15.0, check_interval: float = 0.1) -> str:
+        """
+        Asynchronously wait for a file to appear and read it
+        
+        Args:
+            file_path: Path to file
+            timeout: Maximum time to wait in seconds
+            check_interval: How often to check for file existence in seconds
+            
+        Returns:
+            Base64 encoded file content
+            
+        Raises:
+            TimeoutError: If file doesn't appear within timeout
+            IOError: If file can't be read
+        """
+        start_time = asyncio.get_event_loop().time()
+        elapsed = 0
+        
+        self.display_callback(f"Waiting for file sync (timeout: {timeout}s)...", "info")
+        
+        while elapsed < timeout:
+            try:
+                # Check if file exists and is readable
+                if file_path.exists() and file_path.stat().st_size > 0:
+                    # File exists and has content, try to read it
+                    try:
+                        with open(file_path, "rb") as f:
+                            content = f.read()
+                        
+                        # Verify we got content
+                        if len(content) > 0:
+                            self.display_callback(f"Screenshot loaded after {elapsed:.2f}s", "success")
+                            return base64.b64encode(content).decode()
+                        else:
+                            # Empty file, wait for content
+                            self.display_callback(f"File empty, waiting... ({elapsed:.1f}s)", "info")
+                    except (IOError, OSError) as e:
+                        # File is being written, wait
+                        self.display_callback(f"File locked, waiting... ({elapsed:.1f}s)", "info")
+                
+                # Wait before next check
+                await asyncio.sleep(check_interval)
+                elapsed = asyncio.get_event_loop().time() - start_time
+                
+            except Exception as e:
+                # Log but continue waiting
+                self.display_callback(f"Check error: {str(e)}, continuing...", "info")
+                await asyncio.sleep(check_interval)
+                elapsed = asyncio.get_event_loop().time() - start_time
+        
+        # Timeout reached
+        raise TimeoutError(f"Screenshot file did not sync within {timeout}s: {file_path}")
+    
     @traceable(name="run_sculptor_task")
     async def run(self, image_path: str, use_deterministic_session: bool = True) -> Dict[str, Any]:
         """
@@ -810,8 +926,21 @@ Provide constructive feedback to guide the modeling process.
             image_data = f.read()
             image_base64 = base64.b64encode(image_data).decode()
         
-        # Create screenshot directory
-        screenshot_dir = Path("data/sculptor_screenshots") / self.session_id
+        # Detect image format from file extension
+        image_ext = image_path_obj.suffix.lower()
+        if image_ext in ['.jpg', '.jpeg']:
+            image_media_type = 'image/jpeg'
+        elif image_ext == '.png':
+            image_media_type = 'image/png'
+        elif image_ext == '.webp':
+            image_media_type = 'image/webp'
+        elif image_ext == '.gif':
+            image_media_type = 'image/gif'
+        else:
+            image_media_type = 'image/png'  # Default to PNG
+        
+        # Create screenshot directory using shared volume path
+        screenshot_dir = Path("screenshots/sculptor") / self.session_id
         screenshot_dir.mkdir(parents=True, exist_ok=True)
         
         # Determine session ID
@@ -827,6 +956,7 @@ Provide constructive feedback to guide the modeling process.
             "screenshot_dir": screenshot_dir,
             "input_image_path": str(image_path_obj.absolute()),
             "input_image_base64": image_base64,
+            "input_image_media_type": image_media_type,
             "reference_image_base64": None,
             "tool_results": [],
             "screenshot_count": 0,
@@ -850,11 +980,20 @@ Provide constructive feedback to guide the modeling process.
         self.display_callback("="*60, "info")
         
         try:
-            # Run the graph
-            config = {"configurable": {"thread_id": session_key}}
+            # Set high recursion limit for multi-step workflows
+            # Each step goes through: analyze → load → plan → execute → capture → assess → (loop)
+            # For complex models with replanning loops, we need higher limits
+            recursion_limit = int(os.getenv("LANGGRAPH_RECURSION_LIMIT", "100"))
+            
+            config = {
+                "configurable": {"thread_id": session_key},
+                "recursion_limit": recursion_limit
+            }
+            
+            self.display_callback(f"Starting workflow with recursion limit: {recursion_limit}...", "info")
             
             final_state = None
-            for state_update in self.graph.stream(initial_state, config):
+            async for state_update in self.graph.astream(initial_state, config):
                 if self.cancellation_check():
                     self.display_callback("Task cancelled by user", "error")
                     return {
@@ -916,6 +1055,8 @@ Provide constructive feedback to guide the modeling process.
     async def cleanup(self):
         """Clean up resources"""
         try:
-            await self.mcp.cleanup()
+            # Only cleanup MCP if we own it
+            if self.owns_mcp:
+                await self.mcp.cleanup()
         except Exception:
             pass
