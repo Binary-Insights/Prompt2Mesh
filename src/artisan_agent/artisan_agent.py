@@ -170,6 +170,106 @@ def create_texture_node(node_tree, node_type, name, location):
         node.name = name
         node.location = location
         return node
+
+def set_boolean_solver(modifier, solver_type='FAST'):
+    """Set Boolean modifier solver with version compatibility"""
+    # Blender 4.x renamed/removed 'FAST' solver
+    # Valid options: 'EXACT', 'FLOAT' (Blender 4.x+), 'MANIFOLD' (Blender 5.x+)
+    solver_mapping = {
+        'FAST': 'FLOAT',  # FAST was removed, use FLOAT instead
+        'EXACT': 'EXACT',  # Still valid
+        'FLOAT': 'FLOAT',  # Blender 4.x+
+    }
+    
+    target_solver = solver_mapping.get(solver_type, 'FLOAT')
+    
+    try:
+        # Try setting the solver
+        modifier.solver = target_solver
+        return True
+    except:
+        # Fallback to EXACT if FLOAT isn't available
+        try:
+            modifier.solver = 'EXACT'
+            return True
+        except:
+            return False
+
+def create_material_with_color(obj, mat_name, color=(1.0, 0.0, 0.0, 1.0), roughness=0.5, metallic=0.0):
+    """
+    Safe material creation with error handling
+    Creates a material with specified color and applies it to object
+    
+    Args:
+        obj: Blender object to apply material to
+        mat_name: Name for the material
+        color: RGBA tuple (red, green, blue, alpha) - values 0.0 to 1.0
+        roughness: Roughness value 0.0 to 1.0
+        metallic: Metallic value 0.0 to 1.0
+    
+    Returns:
+        Material object or None if failed
+    """
+    try:
+        # Validate object has data attribute (mesh, curve, etc.)
+        if not hasattr(obj, 'data'):
+            print(f"Error: Object {obj.name if hasattr(obj, 'name') else 'unknown'} has no data attribute")
+            return None
+        
+        # Create material
+        mat = bpy.data.materials.get(mat_name)
+        if mat is None:
+            mat = bpy.data.materials.new(name=mat_name)
+        
+        # Enable nodes
+        mat.use_nodes = True
+        nodes = mat.node_tree.nodes
+        
+        # Get or create Principled BSDF
+        bsdf = nodes.get("Principled BSDF")
+        if bsdf is None:
+            # Clear default nodes and create fresh
+            nodes.clear()
+            bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+            output = nodes.new(type='ShaderNodeOutputMaterial')
+            output.location = (300, 0)
+            mat.node_tree.links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+        
+        # Set properties safely
+        if 'Base Color' in bsdf.inputs:
+            bsdf.inputs['Base Color'].default_value = color
+        if 'Roughness' in bsdf.inputs:
+            bsdf.inputs['Roughness'].default_value = roughness
+        if 'Metallic' in bsdf.inputs:
+            bsdf.inputs['Metallic'].default_value = metallic
+        
+        # Apply material to object - check if materials slot exists
+        if hasattr(obj.data, 'materials'):
+            if len(obj.data.materials) > 0:
+                obj.data.materials[0] = mat
+            else:
+                obj.data.materials.append(mat)
+        else:
+            print(f"Warning: Object {obj.name} does not support materials")
+            return None
+        
+        return mat
+        
+    except AttributeError as e:
+        print(f"Material creation error - AttributeError: {e}")
+        print(f"Object type: {type(obj).__name__}")
+        return None
+    except Exception as e:
+        print(f"Material creation error: {e}")
+        return None
+
+def get_or_create_material(mat_name):
+    """Safely get existing material or create new one"""
+    mat = bpy.data.materials.get(mat_name)
+    if mat is None:
+        mat = bpy.data.materials.new(name=mat_name)
+        mat.use_nodes = True
+    return mat
 '''
 
 
@@ -502,13 +602,23 @@ Create a detailed step-by-step plan. Each step should:
 
 Available tools: execute_blender_code, get_scene_info, get_viewport_screenshot, get_object_info
 
+**CRITICAL REQUIREMENT - Materials & Textures:**
+Your plan MUST include steps for:
+- Creating materials for all objects (colors, textures, shaders)
+- Applying appropriate colors based on the requirement
+- Setting material properties (metallic, roughness, emission, etc.)
+- Adding textures if needed (procedural or image-based)
+- Configuring lighting to showcase materials properly
+
+Do NOT create a model with default gray materials. Every visible object needs proper materials.
+
 IMPORTANT: Format your response as a clear numbered list:
 1. First step description
 2. Second step description
 3. Third step description
 ...
 
-Provide at least 5-10 concrete steps to build the model."""
+Provide at least 5-10 concrete steps to build the model, including dedicated material/texture steps."""
 
         messages = [HumanMessage(content=planning_prompt)]
         logger.info("Sending planning request to LLM...")
@@ -712,6 +822,14 @@ If objects exist but appear to be placeholders or incomplete, respond with "none
 Previous context:
 {chr(10).join(state['feedback_history'][-2:]) if state['feedback_history'] else 'Starting fresh'}
 
+⚠️ CRITICAL WARNING - Common Material Errors:
+DO NOT access .nodes directly without validation:
+❌ WRONG: mat.node_tree.nodes.get("Principled BSDF")  # This WILL fail!
+✅ RIGHT: Use create_material_with_color() helper function
+
+The error "attribute 'nodes' not found" means you're accessing materials incorrectly.
+ALWAYS use the safe helper functions provided below.
+
 IMPORTANT - Blender Version Compatibility:
 This project must work with Blender 4.x and 5.x. Use these compatibility helpers:
 
@@ -720,24 +838,91 @@ This project must work with Blender 4.x and 5.x. Use these compatibility helpers
 **CRITICAL Node Compatibility:**
 - **Musgrave Texture (REMOVED in Blender 4.0+)**: Use `create_texture_node(nodes, 'ShaderNodeTexMusgrave', ...)` instead
 - **Noise Texture**: Use `nodes.new(type='ShaderNodeTexNoise')` directly (works in all versions)
-- The helper automatically converts Musgrave to Noise Texture with FBM type
+- **Boolean Modifier Solver (CHANGED in Blender 4.0+)**: Use `set_boolean_solver(modifier, 'FAST')` instead of `modifier.solver = 'FAST'`
+  - The 'FAST' solver was removed - helper auto-converts to 'FLOAT'
+- The helper automatically handles version-specific changes
 
 Example usage:
 ```python
-# For BSDF properties
-bsdf = mat.node_tree.nodes.get("Principled BSDF")
-if bsdf:
-    bsdf.inputs['Base Color'].default_value = (1.0, 0.0, 0.0, 1.0)
-    bsdf.inputs['Roughness'].default_value = 0.5
-    # Use helper for renamed properties
-    set_principled_bsdf_property(bsdf, 'Specular', 0.5)  # Handles Blender 4.x rename
-    set_principled_bsdf_property(bsdf, 'Emission', (1.0, 1.0, 1.0, 1.0))  # Handles Blender 4.x rename
+# ===== MATERIALS & COLORS (ALWAYS CREATE THESE) =====
+# Method 1: Use the safe helper function (RECOMMENDED - PREVENTS ERRORS)
+import bpy
+obj = bpy.context.active_object  # or bpy.data.objects.get("ObjectName")
+if obj:
+    # ✅ This is the SAFE way - use this to avoid "nodes not found" errors
+    mat = create_material_with_color(
+        obj, 
+        mat_name="RedMaterial",
+        color=(1.0, 0.0, 0.0, 1.0),  # Red RGBA
+        roughness=0.5,
+        metallic=0.0
+    )
+    # Helper handles ALL validation - no errors possible
 
-# For texture nodes (handles Musgrave → Noise conversion)
-musgrave = create_texture_node(mat.node_tree, 'ShaderNodeTexMusgrave', 'Fine_Grain', (-1200, -200))
-musgrave.inputs['Scale'].default_value = 50.0
-# Note: In Blender 4.x, this becomes a Noise Texture with FBM type automatically
+# ❌ DO NOT DO THIS - will cause "nodes not found" error:
+# mat = bpy.data.materials.new(name="MyMaterial")
+# mat.use_nodes = True
+# nodes = mat.node_tree.nodes  # ERROR HERE
+# bsdf = nodes.get("Principled BSDF")  # FAILS
+
+# Method 2: Manual material creation (use only if you need custom node setup)
+import bpy
+obj = bpy.context.active_object
+if obj and hasattr(obj, 'data') and hasattr(obj.data, 'materials'):
+    mat = bpy.data.materials.new(name="MyMaterial")
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    
+    # Get or create BSDF
+    bsdf = nodes.get("Principled BSDF")
+    if bsdf is None:
+        nodes.clear()
+        bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+        output = nodes.new(type='ShaderNodeOutputMaterial')
+        output.location = (300, 0)
+        mat.node_tree.links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+    
+    # Set color safely
+    if 'Base Color' in bsdf.inputs:
+        bsdf.inputs['Base Color'].default_value = (1.0, 0.0, 0.0, 1.0)
+    if 'Roughness' in bsdf.inputs:
+        bsdf.inputs['Roughness'].default_value = 0.5
+    
+    # Apply to object
+    if len(obj.data.materials) > 0:
+        obj.data.materials[0] = mat
+    else:
+        obj.data.materials.append(mat)
+
+# For procedural textures (advanced)
+obj = bpy.context.active_object
+if obj and hasattr(obj.data, 'materials') and len(obj.data.materials) > 0:
+    mat = obj.data.materials[0]
+    if mat and mat.use_nodes:
+        nodes = mat.node_tree.nodes
+        links = mat.node_tree.links
+        bsdf = nodes.get("Principled BSDF")
+        if bsdf:
+            noise_tex = create_texture_node(mat.node_tree, 'ShaderNodeTexNoise', 'Noise', (-300, 0))
+            noise_tex.inputs['Scale'].default_value = 5.0
+            color_ramp = nodes.new(type='ShaderNodeValToRGB')
+            color_ramp.location = (-100, 0)
+            links.new(noise_tex.outputs['Fac'], color_ramp.inputs['Fac'])
+            links.new(color_ramp.outputs['Color'], bsdf.inputs['Base Color'])
+
+# For Boolean modifiers (handles FAST → FLOAT conversion)
+boolean_mod = obj.modifiers.new(name="My_Boolean", type='BOOLEAN')
+boolean_mod.operation = 'DIFFERENCE'
+boolean_mod.object = other_obj
+set_boolean_solver(boolean_mod, 'FAST')  # Automatically uses FLOAT in Blender 4.x+
 ```
+
+**CRITICAL SAFETY RULES**:
+1. Always check if object has 'data' attribute before accessing materials
+2. Always check if 'data.materials' exists before appending/assigning
+3. Use create_material_with_color() helper for simple colored materials (prevents errors)
+4. Every visible object MUST have a material with proper colors
+5. Do NOT leave objects with default gray materials
 
 Use the appropriate Blender MCP tools to accomplish this step.
 For code execution, use execute_blender_code.
@@ -797,8 +982,9 @@ After significant changes, get a viewport screenshot for verification."""
                         state["execution_errors"] = []
                     state["execution_errors"].append(f"Step {state['current_step']}: {error_msg}")
                     
-                    # CRITICAL: Halt on Blender code execution errors in early steps
-                    if tool_call['name'] == 'execute_blender_code' and state['current_step'] <= 5:
+                    # CRITICAL: Halt on Blender code execution errors in early steps only
+                    # Reduced to steps 1-3 to allow recovery from material errors in later steps
+                    if tool_call['name'] == 'execute_blender_code' and state['current_step'] <= 3:
                         error_lower = str(result.get('result', '')).lower()
                         if any(pattern in error_lower for pattern in ['not found', 'no attribute', 'keyerror']):
                             state['critical_error'] = f"Step {state['current_step']} failed: {error_msg}"
@@ -888,17 +1074,25 @@ CRITICAL VISUAL ANALYSIS - Evaluate:
 
 1. **Geometry Quality**: Does the geometry match the step description?
 2. **Detail & Complexity**: Is there sufficient detail and complexity?
-3. **Visibility & Occlusion**: Are any objects hidden, overshadowed, or blocked by other objects?
+3. **Materials & Colors**: Are materials applied? Are colors appropriate and visible?
+   - **CRITICAL**: Check if objects have default gray materials (this is BAD - needs fixing)
+   - Verify colors match the requirement description
+   - Check if textures/shaders are visible and working
+   - Note if materials look realistic or need improvement
+4. **Visibility & Occlusion**: Are any objects hidden, overshadowed, or blocked by other objects?
    - Check if newly created objects are visible or hidden behind existing geometry
    - Identify if objects are too close together causing visual clutter
    - Note if important features are obscured from view
-4. **Spatial Layout**: Are objects properly spaced and positioned?
-5. **Visual Errors**: Any missing elements, malformed geometry, or rendering artifacts?
-6. **Overall Quality**: Rate 1-10 with detailed reasoning
+5. **Spatial Layout**: Are objects properly spaced and positioned?
+6. **Visual Errors**: Any missing elements, malformed geometry, or rendering artifacts?
+7. **Overall Quality**: Rate 1-10 with detailed reasoning
 
-**IMPORTANT**: If objects are occluding each other or new geometry is hidden, this is a CRITICAL issue that requires refinement.
+**CRITICAL ISSUES** (require immediate refinement):
+- Objects with default gray materials (no colors applied)
+- Objects occluding each other or new geometry hidden
+- Missing or incorrect colors compared to requirement
 
-Provide analysis with specific focus on visibility and occlusion problems."""
+Provide analysis with specific focus on materials, colors, visibility, and occlusion problems."""
                 
                 # Create vision message with image
                 vision_message = HumanMessage(
@@ -1026,19 +1220,35 @@ Provide analysis with specific focus on visibility and occlusion problems."""
             "can't see" in vision_feedback.lower() or "cannot see" in vision_feedback.lower()
         ])
         
+        # Check for material/color issues (critical for visual quality)
+        material_issues_detected = any([
+            "gray material" in vision_feedback.lower(),
+            "default material" in vision_feedback.lower(),
+            "no color" in vision_feedback.lower(),
+            "missing material" in vision_feedback.lower(),
+            "no material" in vision_feedback.lower(),
+            "lacks color" in vision_feedback.lower(),
+            "needs color" in vision_feedback.lower()
+        ])
+        
         # Determine if refinement is needed based on step type
         # Critical steps (1-5) have higher threshold
         if state["current_step"] < 5:
             refinement_threshold = 7  # Critical steps need 7+
-            needs_refinement = quality_score < refinement_threshold or occlusion_detected
+            needs_refinement = quality_score < refinement_threshold or occlusion_detected or material_issues_detected
         else:
             refinement_threshold = 6  # Normal steps need 6+
-            needs_refinement = quality_score < refinement_threshold or occlusion_detected
+            needs_refinement = quality_score < refinement_threshold or occlusion_detected or material_issues_detected
         
         # Log occlusion detection
         if occlusion_detected:
             logger.warning(f"⚠️ Occlusion detected in step {state['current_step']}: Objects may be hidden or overshadowing each other")
             self.display_callback(f"⚠️ Occlusion detected - objects may be hidden", "warning")
+        
+        # Log material issues detection
+        if material_issues_detected:
+            logger.warning(f"⚠️ Material issues detected in step {state['current_step']}: Objects missing colors/materials")
+            self.display_callback(f"⚠️ Material issues - objects need colors/textures", "warning")
         
         # IMPORTANT: Don't refine if we've hit max attempts (this overrides everything)
         if state["refinement_attempts"] >= state["max_refinements_per_step"]:
@@ -1089,18 +1299,46 @@ Vision analysis identified these quality issues:
 {state.get('refinement_feedback', 'Quality issues detected')}
 
 Generate improved Blender Python code to address these issues. Focus on:
-1. **Occlusion & Visibility**: If objects are hidden/overshadowed, reposition or scale them for better visibility
-2. **Spatial Layout**: Ensure proper spacing between objects to prevent visual clutter
-3. **Detail & Complexity**: Add more detail and complexity to geometry
-4. **Geometry Errors**: Fix any malformed or missing geometry
-5. **Visual Realism**: Improve overall visual quality
-6. **Scene Compatibility**: Maintain compatibility with existing scene objects
+1. **Materials & Colors**: If objects have default gray materials, create and apply proper materials with colors
+   - Create materials with appropriate colors based on the requirement
+   - Set material properties (roughness, metallic, emission)
+   - Add procedural textures if needed for realism
+2. **Occlusion & Visibility**: If objects are hidden/overshadowed, reposition or scale them for better visibility
+3. **Spatial Layout**: Ensure proper spacing between objects to prevent visual clutter
+4. **Detail & Complexity**: Add more detail and complexity to geometry
+5. **Geometry Errors**: Fix any malformed or missing geometry
+6. **Visual Realism**: Improve overall visual quality
+7. **Scene Compatibility**: Maintain compatibility with existing scene objects
 
-**CRITICAL**: If vision feedback mentions occlusion, hidden objects, or visibility issues:
-- Move occluded objects to visible positions
-- Adjust object scales to prevent overshadowing
-- Reposition camera-facing geometry for better view
-- Ensure new objects don't block existing important elements
+**CRITICAL FIXES REQUIRED**:
+- If vision feedback mentions "gray material" or "no color": CREATE and APPLY materials immediately
+- If vision feedback mentions occlusion/hidden objects: reposition for visibility
+- All visible objects MUST have proper materials with colors
+
+Example material creation (SAFE - use this):
+```python
+import bpy
+# Get object by name or use active object
+obj = bpy.data.objects.get("ObjectName")  # Replace with actual object name
+if obj:
+    # Use safe helper function (prevents attribute errors)
+    mat = create_material_with_color(
+        obj,
+        mat_name="ColoredMaterial",
+        color=(1.0, 0.0, 0.0, 1.0),  # Red (R, G, B, A)
+        roughness=0.3,
+        metallic=0.0
+    )
+    if mat:
+        print(f"Material applied successfully to {{obj.name}}")
+    else:
+        print(f"Failed to apply material to {{obj.name}}")
+
+# For multiple objects - apply colors to all
+for obj in bpy.data.objects:
+    if obj.type == 'MESH' and obj.visible_get():  # Only visible mesh objects
+        create_material_with_color(obj, f"{{obj.name}}_Material", (0.8, 0.2, 0.2, 1.0))
+```
 
 Use the execute_blender_code tool to apply improvements.
 

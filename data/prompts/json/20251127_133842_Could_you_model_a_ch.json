@@ -10,5 +10,6 @@
     "Refined and polished description"
   ],
   "is_detailed": false,
-  "output_length": 65035
+  "output_length": 65035,
+  "enable_refinement_steps": true
 }

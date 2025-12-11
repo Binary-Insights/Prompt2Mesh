@@ -125,6 +125,106 @@ def create_texture_node(node_tree, node_type, name, location):
         node.name = name
         node.location = location
         return node
+
+def set_boolean_solver(modifier, solver_type='FAST'):
+    """Set Boolean modifier solver with version compatibility"""
+    # Blender 4.x renamed/removed 'FAST' solver
+    # Valid options: 'EXACT', 'FLOAT' (Blender 4.x+), 'MANIFOLD' (Blender 5.x+)
+    solver_mapping = {
+        'FAST': 'FLOAT',  # FAST was removed, use FLOAT instead
+        'EXACT': 'EXACT',  # Still valid
+        'FLOAT': 'FLOAT',  # Blender 4.x+
+    }
+    
+    target_solver = solver_mapping.get(solver_type, 'FLOAT')
+    
+    try:
+        # Try setting the solver
+        modifier.solver = target_solver
+        return True
+    except:
+        # Fallback to EXACT if FLOAT isn't available
+        try:
+            modifier.solver = 'EXACT'
+            return True
+        except:
+            return False
+
+def create_material_with_color(obj, mat_name, color=(1.0, 0.0, 0.0, 1.0), roughness=0.5, metallic=0.0):
+    """
+    Safe material creation with error handling
+    Creates a material with specified color and applies it to object
+    
+    Args:
+        obj: Blender object to apply material to
+        mat_name: Name for the material
+        color: RGBA tuple (red, green, blue, alpha) - values 0.0 to 1.0
+        roughness: Roughness value 0.0 to 1.0
+        metallic: Metallic value 0.0 to 1.0
+    
+    Returns:
+        Material object or None if failed
+    """
+    try:
+        # Validate object has data attribute (mesh, curve, etc.)
+        if not hasattr(obj, 'data'):
+            print(f"Error: Object {obj.name if hasattr(obj, 'name') else 'unknown'} has no data attribute")
+            return None
+        
+        # Create material
+        mat = bpy.data.materials.get(mat_name)
+        if mat is None:
+            mat = bpy.data.materials.new(name=mat_name)
+        
+        # Enable nodes
+        mat.use_nodes = True
+        nodes = mat.node_tree.nodes
+        
+        # Get or create Principled BSDF
+        bsdf = nodes.get("Principled BSDF")
+        if bsdf is None:
+            # Clear default nodes and create fresh
+            nodes.clear()
+            bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+            output = nodes.new(type='ShaderNodeOutputMaterial')
+            output.location = (300, 0)
+            mat.node_tree.links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+        
+        # Set properties safely
+        if 'Base Color' in bsdf.inputs:
+            bsdf.inputs['Base Color'].default_value = color
+        if 'Roughness' in bsdf.inputs:
+            bsdf.inputs['Roughness'].default_value = roughness
+        if 'Metallic' in bsdf.inputs:
+            bsdf.inputs['Metallic'].default_value = metallic
+        
+        # Apply material to object - check if materials slot exists
+        if hasattr(obj.data, 'materials'):
+            if len(obj.data.materials) > 0:
+                obj.data.materials[0] = mat
+            else:
+                obj.data.materials.append(mat)
+        else:
+            print(f"Warning: Object {obj.name} does not support materials")
+            return None
+        
+        return mat
+        
+    except AttributeError as e:
+        print(f"Material creation error - AttributeError: {e}")
+        print(f"Object type: {type(obj).__name__}")
+        return None
+    except Exception as e:
+        print(f"Material creation error: {e}")
+        return None
+
+def get_or_create_material(mat_name):
+    """Safely get existing material or create new one"""
+    mat = bpy.data.materials.get(mat_name)
+    if mat is None:
+        mat = bpy.data.materials.new(name=mat_name)
+        mat.use_nodes = True
+    return mat
 '''
 
 
@@ -397,10 +497,16 @@ Analyze this image and provide:
 1. **Main Objects**: What are the primary objects/subjects in the image?
 2. **Shapes and Forms**: Describe the basic geometric shapes (cubes, spheres, cylinders, etc.)
 3. **Spatial Relationships**: How are objects positioned relative to each other?
-4. **Colors and Materials**: What colors and material properties do you see?
+4. **Colors and Materials**: What SPECIFIC colors do you see? (Provide RGB estimates or color names)
+   - List each visible object and its color
+   - Identify material types (metallic, plastic, fabric, glass, etc.)
+   - Note any textures, patterns, or surface details
 5. **Details and Features**: What specific details or features are important?
 6. **Complexity Level**: Rate the modeling complexity (simple/medium/complex)
 7. **Suggested Approach**: What modeling strategy would work best?
+
+**CRITICAL**: Be very specific about colors. The 3D model MUST have matching colors, not default gray materials.
+Example: "Red sphere (RGB ~1.0, 0.0, 0.0)", "Blue metallic cylinder (RGB ~0.2, 0.5, 1.0, metallic=0.8)"
 
 Be specific and technical. This analysis will be used to plan the 3D modeling steps.
 """
@@ -515,11 +621,19 @@ Based on the image analysis above, create a detailed step-by-step plan to model 
 IMPORTANT GUIDELINES:
 1. Start with basic shapes and primitives
 2. Build the main structure first, then add details
-3. Each step should be a single, clear action
-4. Use Blender-specific operations (add primitives, modifiers, materials, etc.)
-5. Include the Blender compatibility helpers when needed
-6. Be specific about positions, scales, and rotations
-7. Plan for {8 if state.get('replanning_count', 0) == 0 else 5} steps
+3. **ALWAYS include steps to create and apply materials with proper colors**
+4. Each step should be a single, clear action
+5. Use Blender-specific operations (add primitives, modifiers, materials, etc.)
+6. Include the Blender compatibility helpers when needed
+7. Be specific about positions, scales, rotations, AND COLORS
+8. Plan for {8 if state.get('replanning_count', 0) == 0 else 5} steps
+
+**CRITICAL REQUIREMENT**: Your plan MUST include dedicated steps for:
+- Creating materials with colors matching the vision analysis
+- Applying materials to all visible objects
+- Setting material properties (metallic, roughness, etc.)
+
+Do NOT create a plan that results in gray, colorless models.
 
 Generate a JSON array of steps in this format:
 [
@@ -608,7 +722,36 @@ Available tools include:
 - download_sketchfab_model (for realistic models)
 - generate_hyper3d_model_via_text or generate_hyper3d_model_via_images (for custom 3D generation)
 - get_scene_info, get_object_info (for inspection)
+- execute_blender_code (for materials, colors, and custom operations)
 - And other Blender MCP tools
+
+**CRITICAL - MATERIALS & COLORS:**
+When creating objects, ALWAYS apply materials with colors matching the vision analysis.
+Do NOT leave objects with default gray materials.
+
+Example material creation (SAFE - use this to prevent errors):
+```python
+import bpy
+# After creating an object, apply material using the safe helper
+obj = bpy.context.active_object  # or bpy.data.objects.get("ObjectName")
+if obj:
+    # Use safe helper function (prevents attribute errors)
+    mat = create_material_with_color(
+        obj,
+        mat_name="ColoredMaterial",
+        color=(1.0, 0.0, 0.0, 1.0),  # Red (R, G, B, A)
+        roughness=0.3,
+        metallic=0.0
+    )
+    if mat:
+        print(f"Material applied to {obj.name}")
+
+# For multiple objects
+for obj in bpy.data.objects:
+    if obj.type == 'MESH' and obj.visible_get():
+        # Extract color from vision analysis and apply
+        create_material_with_color(obj, f"{obj.name}_Material", (0.8, 0.2, 0.2, 1.0))
+```
 
 IMPORTANT: Always check integrations first (get_polyhaven_status, get_sketchfab_status, get_hyper3d_status)
 before attempting to use them. Use available asset libraries before falling back to manual modeling.
@@ -720,15 +863,21 @@ RIGHT: Current 3D model viewport (Blender screenshot)
 Analyze:
 1. **Overall Match**: How well does the 3D model match the input? (0-100%)
 2. **Shape Accuracy**: Are the main shapes/forms correct?
-3. **Position & Layout**: Are objects positioned correctly?
-4. **Missing Elements**: What's missing from the 3D model?
-5. **Incorrect Elements**: What needs to be fixed?
-6. **Next Steps**: What should be improved next?
+3. **Colors & Materials**: Do the colors match the input image?
+   - **CRITICAL**: Are objects gray/colorless (this is BAD - means no materials applied)?
+   - Do the colors match what's in the original image?
+   - Are materials realistic (metallic, rough, glossy, etc.)?
+4. **Position & Layout**: Are objects positioned correctly?
+5. **Missing Elements**: What's missing from the 3D model?
+6. **Incorrect Elements**: What needs to be fixed?
+7. **Next Steps**: What should be improved next?
+
+**CRITICAL CHECK**: If the 3D model has default gray materials while the input image has colors, this is a MAJOR issue.
 
 Current phase: {state['current_modeling_phase']}
 Steps completed: {state['current_step']} / {len(state['planning_steps'])}
 
-Provide constructive feedback to guide the modeling process.
+Provide constructive feedback to guide the modeling process, with special attention to color/material matching.
 """
                 
                 messages = [
