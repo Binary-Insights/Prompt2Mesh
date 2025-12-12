@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-12-11T00:10:08.356783",
+  "original_prompt": "design london clock tower using blender ",
+  "refined_prompt": "design london clock tower using blender ",
+  "is_detailed": true,
+  "detail_level": "as-is",
+  "reasoning_steps": [
+    "Used prompt as-is (as-is)"
+  ],
+  "enable_refinement_steps": false
+}
